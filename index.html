@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phnom Penh New Life Student Center</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{--navy:#1F3864;--blue:#2E5496;--sky:#2E86C1;--light:#D9E1F2;--grey:#F2F2F2;
+        --reason:#FCE4D6;--absent:#9C0006;--present:#1E8449;--male:#2E86C1;--female:#C0399B;}
+  *{box-sizing:border-box;font-family:'Noto Sans Khmer','Noto Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:#eef1f6;color:#1a1a1a;}
+  /* ---------- nav ---------- */
+  header.nav{position:sticky;top:0;z-index:50;background:linear-gradient(90deg,var(--navy),var(--blue));
+    color:#fff;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  header.nav .brand{font-size:16px;font-weight:700;margin-right:6px;display:flex;align-items:center;gap:10px;line-height:1.15;}
+  header.nav .brand img.logo{height:40px;width:40px;object-fit:contain;background:#fff;border-radius:50%;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+  nav{display:flex;gap:8px;flex-wrap:wrap;}
+  nav button{background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:999px;
+    padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;}
+  nav button:hover{background:rgba(255,255,255,.25);}
+  nav button.active{background:#fff;color:var(--navy);}
+  main{max-width:1180px;margin:0 auto;padding:22px 16px 60px;}
+  section{display:none;animation:fade .25s ease;}
+  section.show{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2.page{color:var(--navy);font-size:22px;margin:6px 0 4px;}
+  .muted{color:#667;font-size:13.5px;margin:0 0 18px;}
+  /* ---------- home ---------- */
+  .hero{background:linear-gradient(135deg,var(--navy),var(--sky));color:#fff;border-radius:16px;
+    padding:34px 28px;text-align:center;box-shadow:0 8px 26px rgba(31,56,100,.3);}
+  .hero .herologo{height:84px;width:84px;object-fit:contain;background:#fff;border-radius:50%;padding:8px;margin-bottom:12px;box-shadow:0 3px 12px rgba(0,0,0,.25);}
+  .hero h1{font-size:28px;margin:0 0 8px;}
+  /* ---------- memories gallery ---------- */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-top:6px;}
+  .gallery figure{margin:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.1);cursor:pointer;transition:.18s;}
+  .gallery figure:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.16);}
+  .gallery img,.gallery video{width:100%;height:150px;object-fit:cover;display:block;background:#000;}
+  .gallery .thumb{position:relative;}
+  .gallery .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:42px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);pointer-events:none;}
+  .gallery figcaption{padding:8px 10px;font-size:13px;color:#445;font-weight:600;text-align:center;}
+  .gallery .dl{display:block;text-align:center;padding:7px;background:#1E8449;color:#fff;
+    text-decoration:none;font-size:12.5px;font-weight:700;}
+  .gallery .dl:hover{background:#176e3a;}
+  .empty{background:#fff;border:2px dashed #c3ccdd;border-radius:14px;padding:40px 20px;text-align:center;color:#889;}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;}
+  .lightbox.show{display:flex;}
+  .lightbox img,.lightbox video{max-width:92vw;max-height:80vh;border-radius:8px;box-shadow:0 6px 30px rgba(0,0,0,.5);}
+  .lightbox .cap{color:#fff;margin-top:12px;font-size:15px;}
+  .lightbox .x{position:absolute;top:16px;right:22px;color:#fff;font-size:34px;cursor:pointer;line-height:1;}
+  .hero p{margin:0;opacity:.92;font-size:15px;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:22px;}
+  .card{background:#fff;border-radius:14px;padding:22px;text-align:center;box-shadow:0 3px 14px rgba(0,0,0,.08);}
+  .card .num{font-size:38px;font-weight:700;line-height:1;}
+  .card .lbl{margin-top:8px;color:#556;font-weight:600;font-size:14px;}
+  .card.total .num{color:var(--navy);} .card.male .num{color:var(--male);} .card.female .num{color:var(--female);}
+  .card.week .num{color:var(--present);font-size:30px;}
+  .quick{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;justify-content:center;}
+  .quick button{border:0;border-radius:12px;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;color:#fff;}
+  .q1{background:var(--blue);} .q2{background:var(--present);}
+  /* ---------- home slideshow ---------- */
+  .slideshow{position:relative;margin-top:22px;border-radius:16px;overflow:hidden;
+    box-shadow:0 6px 22px rgba(0,0,0,.16);background:#000;}
+  .slides{position:relative;width:100%;height:420px;}
+  .slides img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease;}
+  .slides img.on{opacity:1;}
+  .slideshow .arw{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);
+    color:#fff;border:0;font-size:26px;width:46px;height:46px;border-radius:50%;cursor:pointer;z-index:3;}
+  .slideshow .arw:hover{background:rgba(0,0,0,.65);}
+  .slideshow .prev{left:14px;} .slideshow .next{right:14px;}
+  .dots{position:absolute;bottom:14px;left:0;right:0;display:flex;gap:8px;justify-content:center;z-index:3;}
+  .dots span{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.55);cursor:pointer;}
+  .dots span.on{background:#fff;}
+  .slidecap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.6));
+    color:#fff;padding:30px 16px 14px;font-size:14px;font-weight:600;z-index:2;}
+  @media(max-width:600px){.slides{height:240px}}
+  /* ---------- feedback ---------- */
+  .form{background:#fff;border-radius:14px;padding:22px;box-shadow:0 3px 14px rgba(0,0,0,.08);max-width:620px;}
+  .form label{display:block;font-weight:600;color:var(--navy);margin:14px 0 6px;font-size:14px;}
+  .form input,.form select,.form textarea{width:100%;padding:11px 12px;border:1px solid #c3ccdd;border-radius:9px;font-size:14px;}
+  .form textarea{min-height:120px;resize:vertical;}
+  .form .send{margin-top:18px;background:var(--present);color:#fff;border:0;border-radius:9px;padding:12px 22px;font-weight:700;font-size:15px;cursor:pointer;}
+  .contacts{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;}
+  .contacts a{text-decoration:none;color:#fff;border-radius:9px;padding:10px 16px;font-weight:700;font-size:14px;}
+  .c-tg{background:#229ED9;} .c-ms{background:#0084FF;}
+  /* ---------- org structure ---------- */
+  .orgtitle{text-align:center;color:var(--navy);font-size:22px;font-weight:700;margin:6px 0 22px;line-height:1.4;}
+  .org-top{display:flex;justify-content:center;margin-bottom:8px;}
+  .leader{background:#fff;border-radius:14px;box-shadow:0 3px 14px rgba(0,0,0,.1);
+    padding:18px 14px;text-align:center;transition:.18s;}
+  .leader:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.16);}
+  .leader img{width:110px;height:110px;border-radius:50%;object-fit:cover;border:4px solid var(--light);background:#eee;}
+  .leader .lname{font-weight:700;color:var(--navy);margin-top:12px;font-size:15px;}
+  .leader .lrole{color:#566;font-size:13px;margin-top:5px;line-height:1.5;}
+  .leader.head{border:2px solid var(--sky);}
+  .leader.head img{width:140px;height:140px;border-color:var(--sky);}
+  .leader.head .lname{font-size:18px;} .leader.head .lrole{color:var(--sky);font-weight:600;font-size:14px;}
+  .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:18px;}
+  .connector{width:2px;height:26px;background:var(--light);margin:0 auto;}
+  /* ---------- buttons ---------- */
+  .bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .btn{border:0;border-radius:9px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;color:#fff;}
+  .b-pdf{background:#C0392B;} .b-png{background:var(--navy);} .b-tg{background:#229ED9;}
+  .b-ms{background:#0084FF;} .b-add{background:var(--blue);} .b-clear{background:#888;}
+  .b-lock{background:#6C3483;} .b-lock.open{background:#1E8449;}
+  .btn:hover{opacity:.9;}
+  .lockbar{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;
+    padding:8px 12px;border-radius:8px;margin-bottom:12px;}
+  .lockbar.locked{background:#F4ECF7;color:#6C3483;}
+  .lockbar.unlocked{background:#EAF7EE;color:#1E8449;}
+  .att.lock{cursor:not-allowed;}
+  /* generic message popup */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:120;padding:20px;}
+  .modal.show{display:flex;}
+  .modal .box{background:#fff;border-radius:16px;max-width:380px;width:100%;padding:26px 24px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3);}
+  .modal .ic{font-size:46px;margin-bottom:10px;}
+  .modal h3{margin:0 0 8px;color:var(--navy);font-size:18px;}
+  .modal p{margin:0 0 18px;color:#556;font-size:14px;line-height:1.6;}
+  .modal button{background:var(--blue);color:#fff;border:0;border-radius:9px;padding:11px 26px;font-weight:700;font-size:14px;cursor:pointer;}
+  /* ---------- tables ---------- */
+  .scroll{overflow-x:auto;border-radius:10px;}
+  table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;}
+  th,td{border:1px solid #cfd6e4;padding:7px 8px;text-align:center;}
+  th{background:var(--blue);color:#fff;font-weight:600;position:relative;}
+  td.name,td.reason{text-align:left;}
+  td.reason{background:var(--reason);min-width:150px;}
+  td.gender.M{color:var(--male);font-weight:700;} td.gender.F{color:var(--female);font-weight:700;}
+  td.present{background:#EAF7EE;color:var(--present);font-weight:700;}
+  td.absent{background:#FDEDEC;color:var(--absent);font-weight:700;}
+  td[contenteditable]:focus{outline:2px solid var(--blue);background:#FFFDE7;}
+  .att{cursor:pointer;user-select:none;font-weight:700;min-width:34px;}
+  .att.P{color:var(--present);} .att.A{color:var(--absent);}
+  thead .wk{background:var(--navy);}
+  /* card wrappers used for export */
+  .docwrap{background:#fff;padding:24px;border-radius:12px;box-shadow:0 3px 14px rgba(0,0,0,.08);}
+  .doctitle{background:var(--navy);color:#fff;text-align:center;font-size:22px;font-weight:700;padding:12px;border-radius:8px 8px 0 0;}
+  .docsub{background:var(--light);color:var(--navy);text-align:center;font-weight:600;padding:7px;font-size:14px;}
+  .legend{background:#FFF2CC;color:#C00000;text-align:center;padding:6px;font-size:12.5px;border-radius:0 0 8px 8px;margin-bottom:14px;}
+  .summary-row{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;}
+  .pill{flex:1;min-width:150px;text-align:center;padding:12px;border-radius:10px;font-weight:700;color:#fff;}
+  .pill.t{background:var(--navy);} .pill.m{background:var(--male);} .pill.f{background:var(--female);}
+  .pill span{display:block;font-size:26px;}
+  .rankwrap{margin-top:26px;}
+  .rankwrap h3{background:var(--navy);color:#fff;text-align:center;padding:9px;border-radius:8px 8px 0 0;margin:0;font-size:16px;}
+  .rank td.cnt{color:var(--absent);font-weight:700;}
+  .foot{margin-top:14px;text-align:right;font-size:11px;color:#999;}
+  @media(max-width:600px){.hero h1{font-size:24px}h2.page{font-size:19px}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="brand"><img src="logo.png" class="logo" alt="logo" onerror="this.style.display='none'">Phnom Penh New Life<br>Student Center</div>
+  <nav>
+    <button class="active" data-s="home" onclick="go('home',this)">ទំព័រដើម</button>
+    <button data-s="students" onclick="go('students',this)">បញ្ជីសិស្ស</button>
+    <button data-s="attend" onclick="go('attend',this)">វត្តមាន</button>
+    <button data-s="org" onclick="go('org',this)">រចនាសម្ព័ន្ធ</button>
+    <button data-s="memory" onclick="go('memory',this)">អនុស្សាវរីយ៍</button>
+    <button data-s="feedback" onclick="go('feedback',this)">មតិយោបល់</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ======== HOME ======== -->
+  <section id="home" class="show">
+    <div class="hero">
+      <img src="logo.png" class="herologo" alt="logo" onerror="this.style.display='none'">
+      <h1>Phnom Penh New Life Student Center</h1>
+    </div>
+    <div class="slideshow" id="slideshow">
+      <div class="slides" id="slides"></div>
+      <button class="arw prev" onclick="slideMove(-1)">‹</button>
+      <button class="arw next" onclick="slideMove(1)">›</button>
+      <div class="slidecap" id="slideCap"></div>
+      <div class="dots" id="slideDots"></div>
+    </div>
+    <div class="cards">
+      <div class="card total"><div class="num" id="hTotal">0</div><div class="lbl">សិស្សសរុប</div></div>
+      <div class="card male"><div class="num" id="hMale">0</div><div class="lbl">សិស្សប្រុស</div></div>
+      <div class="card female"><div class="num" id="hFemale">0</div><div class="lbl">សិស្សស្រី</div></div>
+    </div>
+    <div class="quick">
+      <button class="q1" onclick="go('students',document.querySelector('[data-s=students]'))">👥 មើលបញ្ជីសិស្ស</button>
+      <button class="q2" onclick="go('attend',document.querySelector('[data-s=attend]'))">📋 កត់វត្តមាន</button>
+    </div>
+  </section>
+
+  <!-- ======== STUDENTS ======== -->
+  <section id="students">
+    <h2 class="page">បញ្ជីឈ្មោះសិស្សសរុប</h2>
+    <p class="muted">ឈ្មោះ និងភេទ អាចកែប្រែបាន។ ចំនួនប្រុស/ស្រី គណនាស្វ័យប្រវត្តិ។</p>
+    <div class="bar">
+      <button class="btn b-lock" id="sLockBtn" onclick="toggleSLock()">🔒 ដោះសោកែ (អ្នកទទួលបន្ទុក)</button>
+      <button class="btn b-add" onclick="addStudent()">➕ បន្ថែមសិស្ស</button>
+      <button class="btn b-pdf" onclick="exportPDF('studentDoc','បញ្ជីសិស្ស')">📄 បង្កើតជា PDF</button>
+    </div>
+    <div class="lockbar locked" id="sLockBar">🔒 ការកែឈ្មោះ/ភេទ ត្រូវបានចាក់សោ។ អ្នកគ្រប់គ្នាអាចបង្កើត PDF បាន។</div>
+    <div class="docwrap" id="studentDoc">
+      <div class="doctitle" style="border-radius:8px;">បញ្ជីឈ្មោះសិស្ស</div>
+      <div class="summary-row">
+        <div class="pill t">សិស្សសរុប<span id="sTotal">0</span></div>
+        <div class="pill m">សិស្សប្រុស (M)<span id="sMale">0</span></div>
+        <div class="pill f">សិស្សស្រី (F)<span id="sFemale">0</span></div>
+      </div>
+      <div class="scroll">
+        <table><thead><tr><th>ល.រ</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th></tr></thead>
+        <tbody id="studentBody"></tbody></table>
+      </div>
+      <div class="foot" id="sStamp"></div>
+    </div>
+  </section>
+
+  <!-- ======== ATTENDANCE ======== -->
+  <section id="attend">
+    <h2 class="page">កត់ត្រាវត្តមាន</h2>
+    <p class="muted">ចុចប្រអប់ស្ថានភាពនីមួយៗ ដើម្បីប្ដូរ P (វត្តមាន) → A (អវត្តមាន) → ទទេ។ បើ A សូមបញ្ចូលមូលហេតុនៅប្រអប់ខាងស្ដាំ នៃសប្ដាហ៍នោះ។</p>
+    <div class="bar">
+      <button class="btn b-lock" id="lockBtn" onclick="toggleLock()">🔒 ដោះសោ (អ្នកទទួលបន្ទុក)</button>
+      <button class="btn b-clear" onclick="clearAtt()">↺ សម្អាតវត្តមាន</button>
+      <button class="btn b-png" onclick="exportPNG()">📷 ទាញយករូបភាព PNG</button>
+      <button class="btn b-pdf" onclick="exportPDF('attendDoc','វត្តមាន')">📄 PDF</button>
+      <button class="btn b-tg" onclick="share('tg')">✈️ Telegram</button>
+      <button class="btn b-ms" onclick="share('ms')">💬 Messenger</button>
+    </div>
+    <div class="lockbar locked" id="lockBar">🔒 ផ្ទាំងនេះត្រូវបានចាក់សោ — សម្រាប់តែអ្នកទទួលបន្ទុកប៉ុណ្ណោះ។</div>
+    <div class="docwrap" id="attendDoc">
+      <div class="doctitle">វត្តមាន (Attendence)</div>
+      <div class="docsub">ខែ មិថុនា ឆ្នាំ ២០២៦ — ប្រជុំរៀងរាល់ថ្ងៃសុក្រ</div>
+      <div class="legend">P = វត្តមាន&nbsp;|&nbsp;A = អវត្តមាន&nbsp;|&nbsp;ទទេ = មិនទាន់កត់</div>
+      <div class="scroll">
+        <table id="attTable"><thead id="attHead"></thead><tbody id="attBody"></tbody></table>
+      </div>
+      <div class="rankwrap">
+        <h3>បញ្ជីសរុបអ្នកអវត្តមានច្រើនជាងគេ (តម្រៀបតាមលំដាប់)</h3>
+        <div class="scroll"><table class="rank">
+          <thead><tr><th>ចំណាត់ថ្នាក់</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th><th>អវត្តមានសរុប</th></tr></thead>
+          <tbody id="rankBody"></tbody></table></div>
+      </div>
+      <div class="foot" id="aStamp"></div>
+    </div>
+  </section>
+
+  <!-- ======== ORG STRUCTURE ======== -->
+  <section id="org">
+    <h2 class="page">រចនាសម្ព័ន្ធ</h2>
+    <div class="orgtitle">រចនាសម្ព័ន្ធ នៃ មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+    <div class="org-top" id="orgTop"></div>
+    <div class="connector"></div>
+    <div class="org-grid" id="orgGrid"></div>
+  </section>
+
+  <!-- ======== MEMORIES ======== -->
+  <section id="memory">
+    <h2 class="page">រូបភាពអនុស្សាវរីយ៍</h2>
+    <p class="muted">ចុចលើរូបភាព ដើម្បីពង្រីកមើល។ ចុច «បន្ថែមរូបភាព» ដើម្បីបើកមើលរូបពីឧបករណ៍របស់អ្នក។</p>
+    <div class="bar">
+      <button class="btn b-add" onclick="memInput.click()">➕ បន្ថែមរូបភាព</button>
+      <input id="memInput" type="file" accept="image/*" multiple style="display:none" onchange="addMemFiles(this.files)">
+    </div>
+    <div id="galleryWrap"></div>
+  </section>
+
+  <!-- ======== FEEDBACK ======== -->
+  <section id="feedback">
+    <h2 class="page">មតិយោបល់ / រាយការណ៍បញ្ហា</h2>
+    <p class="muted">បើអ្នកជួបបញ្ហា ឬមានសំណូមពរ សូមបំពេញទម្រង់ខាងក្រោម។ ប៊ូតុង «ផ្ញើ» នឹងបើកកម្មវិធីអ៊ីមែលរបស់អ្នក ដោយមានបំពេញសារស្រាប់។</p>
+    <div class="form">
+      <label>ឈ្មោះ (ស្រេចចិត្ត)</label>
+      <input id="fbName" placeholder="ឈ្មោះរបស់អ្នក">
+      <label>ប្រភេទ</label>
+      <select id="fbType">
+        <option>បញ្ហាបច្ចេកទេស</option>
+        <option>សំណូមពរ / គំនិត</option>
+        <option>កំហុសទិន្នន័យ (ឈ្មោះ/វត្តមាន)</option>
+        <option>ផ្សេងៗ</option>
+      </select>
+      <label>សារ</label>
+      <textarea id="fbMsg" placeholder="សូមពិពណ៌នាបញ្ហា ឬមតិរបស់អ្នក..."></textarea>
+      <button class="send" onclick="sendFeedback()">📧 ផ្ញើមតិយោបល់</button>
+      <div class="contacts">
+        <a class="c-tg" href="https://t.me/" target="_blank">✈️ ទាក់ទងតាម Telegram</a>
+        <a class="c-ms" href="https://m.me/" target="_blank">💬 ទាក់ទងតាម Messenger</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="msgModal" onclick="if(event.target.id==='msgModal')msgModal.classList.remove('show')">
+  <div class="box">
+    <div class="ic">🔒</div>
+    <h3 id="msgTitle">មិនអនុញ្ញាត</h3>
+    <p id="msgText">This feature allow only who responsible it.</p>
+    <button onclick="msgModal.classList.remove('show')">យល់ព្រម</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="if(event.target.id==='lightbox'||event.target.className==='x')closeLight()">
+  <span class="x">&times;</span>
+  <div id="lbBox"></div>
+  <div class="cap" id="lbCap"></div>
+</div>
+
+<script>
+const FRIDAYS = ["សុក្រ ៥ មិថុនា","សុក្រ ១២ មិថុនា","សុក្រ ១៩ មិថុនា","សុក្រ ២៦ មិថុនា"];
+const NAMES = [
+ ["Chhay Kimhou","M"],["Chea Meng","M"],["Chea Theara","M"],["Em Souleang","M"],
+ ["Em Mengleang","M"],["Hour Senghout","M"],["Hian Yan","M"],["Hean Yun","M"],
+ ["Kham Yuen","M"],["Khut Chinhhou","M"],["Ly Vanda","M"],["Lorn Yuhan","M"],
+ ["Nhao Trenchailin","M"],["Sam Sophanna","M"],
+ ["Sorn Phalla","M"],["Sreng Mengheang","M"],["Thoeun Ratha","M"],["Pek Vathana","M"],
+ ["Por Visal","M"],["Por Prasith","M"],["Porcha Phannit","M"],["Vang Daro","M"],
+ ["Chhoeun Pichviriya","F"],["Chhay Chantevy","F"],["Chhon Maey","F"],
+ ["Hok Siyean","F"],["Hou Chhunhoung","F"],["Meas Kimsour","F"],["Mao Sreypich","F"],
+ ["Pek Thida","F"],["Song Piseth","F"],["Sorn Chandara","F"],["Sorn Srey Ang","F"],
+ ["Sorn Sreypich","F"],["Seun Nary","F"],["Seiha Chankoltola","F"],["Thy Sothavy","F"],
+ ["Then Monida","F"]
+];
+let DATA = NAMES.map(([name,gender])=>({
+  name, gender, att: Array.from({length:4},()=>({s:"",r:""}))
+}));
+
+function counts(){
+  const total=DATA.length;
+  const male=DATA.filter(d=>d.gender==='M').length;
+  const female=DATA.filter(d=>d.gender==='F').length;
+  return {total,male,female};
+}
+function refreshCounts(){
+  const c=counts();
+  hTotal.textContent=c.total; hMale.textContent=c.male; hFemale.textContent=c.female;
+  sTotal.textContent=c.total; sMale.textContent=c.male; sFemale.textContent=c.female;
+}
+/* ---- nav ---- */
+function go(id,btn){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  (btn||document.querySelector('[data-s='+id+']')).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+/* ---- students ---- */
+function renderStudents(){
+  const b=studentBody; b.innerHTML='';
+  DATA.forEach((d,i)=>{
+    const nameCell = studentLocked
+      ? `<td class="name" onclick="showLock()">${d.name}</td>`
+      : `<td class="name" contenteditable oninput="DATA[${i}].name=this.innerText.trim();refreshCounts()">${d.name}</td>`;
+    const genderCell = `<td class="gender ${d.gender}" onclick="${studentLocked?'showLock()':'toggleGender('+i+')'}" title="ចុចដើម្បីប្ដូរ M/F">${d.gender}</td>`;
+    b.innerHTML+=`<tr><td>${i+1}</td>${nameCell}${genderCell}</tr>`;
+  });
+  sStamp.textContent='បង្កើតនៅ '+new Date().toLocaleString('en-GB');
+  refreshCounts();
+}
+function toggleGender(i){ if(studentLocked){showLock();return;} DATA[i].gender = DATA[i].gender==='M'?'F':'M'; renderStudents(); }
+function addStudent(){ if(studentLocked){showLock();return;} DATA.push({name:"",gender:"M",att:Array.from({length:4},()=>({s:"",r:""}))}); renderStudents(); renderAtt(); }
+/* ---- attendance ---- */
+function renderAttHead(){
+  let h='<tr><th rowspan="2">ល.រ</th><th rowspan="2">ឈ្មោះសិស្ស</th><th rowspan="2">ភេទ</th>';
+  FRIDAYS.forEach(f=>h+=`<th class="wk" colspan="2">${f}</th>`);
+  h+='<th rowspan="2">វត្តមាន</th><th rowspan="2">អវត្តមាន</th></tr><tr>';
+  FRIDAYS.forEach(()=>h+='<th>ស្ថានភាព</th><th>មូលហេតុ</th>');
+  h+='</tr>';
+  attHead.innerHTML=h;
+}
+function renderAtt(){
+  const b=attBody; b.innerHTML='';
+  DATA.forEach((d,i)=>{
+    let row=`<td>${i+1}</td><td class="name">${d.name||'<i style=color:#bbb>—</i>'}</td><td class="gender ${d.gender}">${d.gender}</td>`;
+    d.att.forEach((w,j)=>{
+      row+=`<td class="att ${w.s} ${attendLocked?'lock':''}" onclick="cycle(${i},${j})">${w.s}</td>`;
+      const re = attendLocked
+        ? `<td class="reason" onclick="showLock()">${w.r}</td>`
+        : `<td class="reason" contenteditable oninput="DATA[${i}].att[${j}].r=this.innerText.trim()">${w.r}</td>`;
+      row+=re;
+    });
+    const p=d.att.filter(w=>w.s==='P').length, a=d.att.filter(w=>w.s==='A').length;
+    row+=`<td class="present">${p}</td><td class="absent">${a}</td>`;
+    b.innerHTML+=`<tr>${row}</tr>`;
+  });
+  renderRank();
+  aStamp.textContent='បង្កើតនៅ '+new Date().toLocaleString('en-GB');
+}
+function cycle(i,j){
+  if(attendLocked){ showLock(); return; }
+  const cur=DATA[i].att[j].s;
+  DATA[i].att[j].s = cur===''?'P':cur==='P'?'A':'';
+  if(DATA[i].att[j].s!=='A') DATA[i].att[j].r='';
+  renderAtt();
+}
+function clearAtt(){ if(attendLocked){ showLock(); return; } DATA.forEach(d=>d.att=Array.from({length:4},()=>({s:"",r:""}))); renderAtt(); }
+function renderRank(){
+  const rb=rankBody; rb.innerHTML='';
+  const ranked=DATA.map(d=>({name:d.name,g:d.gender,a:d.att.filter(w=>w.s==='A').length}))
+    .filter(d=>d.name!=='' && d.a>0).sort((x,y)=>y.a-x.a);
+  if(!ranked.length){ rb.innerHTML='<tr><td colspan="4" style="color:#999;padding:12px">មិនទាន់មានអវត្តមាន</td></tr>'; return; }
+  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td></tr>`);
+}
+/* ---- export ---- */
+function exportPNG(){
+  html2canvas(attendDoc,{scale:2,backgroundColor:'#fff'}).then(c=>{
+    c.toBlob(bl=>downloadBlob(bl,'Attendance-'+stamp()+'.png'));
+  });
+}
+function exportPDF(elId,name){
+  const {jsPDF}=window.jspdf;
+  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff'}).then(c=>{
+    const img=c.toDataURL('image/png');
+    const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+    const w=pw-40, h=c.height*w/c.width;
+    let left=h, pos=20;
+    if(h<=ph-40){ pdf.addImage(img,'PNG',20,20,w,h); }
+    else { // paginate tall content
+      let sY=0; const pageH=ph-40; const ratio=c.width/w;
+      while(sY < c.height){
+        const slice=Math.min(c.height-sY, pageH*ratio);
+        const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
+        cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
+        if(sY>0) pdf.addPage();
+        pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio);
+        sY+=slice;
+      }
+    }
+    pdf.save(name+'-'+stamp()+'.pdf');
+  });
+}
+function downloadBlob(bl,fn){const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u);}
+function stamp(){return new Date().toISOString().slice(0,10);}
+function share(t){
+  alert(t==='tg'?'រូបភាពនឹងទាញយក → បើក Telegram ហើយផ្ញើ។':'រូបភាពនឹងទាញយក → បើក Messenger ហើយផ្ញើ។');
+  html2canvas(attendDoc,{scale:2,backgroundColor:'#fff'}).then(c=>c.toBlob(bl=>{
+    downloadBlob(bl,'Attendance-'+stamp()+'.png');
+    window.open(t==='tg'?'https://t.me':'https://www.messenger.com','_blank');
+  }));
+}
+/* ---- memories gallery ---- */
+// To add more: put files in the "memories" folder, then add entries below.
+// image -> {type:"image", src:"memories/NAME.jpg", cap:"..."}
+// video -> {type:"video", src:"memories/NAME.mp4", cap:"..."}
+const MEMORIES = [
+  {type:"image", src:"memories/photo1.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo2.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo3.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo4.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo5.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo6.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo7.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"image", src:"memories/photo8.jpg", cap:"អនុស្សាវរីយ៍ ០២ មិថុនា ២០២៦"},
+  {type:"video", src:"memories/video1.mp4", cap:"វីដេអូ ០២ មិថុនា ២០២៦"},
+];
+let memUploads = [];   // media picked from device (session only)
+function renderGallery(){
+  const all = MEMORIES.concat(memUploads);
+  window._galleryAll = all;
+  const w = galleryWrap;
+  if(!all.length){
+    w.innerHTML='<div class="empty">មិនទាន់មានរូបភាព។<br>ចុច «➕ បន្ថែមរូបភាព» ដើម្បីបើកមើល ឬដាក់ឯកសារក្នុង folder «memories»។</div>';
+    return;
+  }
+  w.innerHTML='<div class="gallery">'+all.map((m,i)=>{
+    const thumb = m.type==='video'
+      ? `<div class="thumb"><video src="${m.src}" preload="metadata" muted></video><div class="play">▶</div></div>`
+      : `<img src="${m.src}" alt="${m.cap||''}" loading="lazy">`;
+    const dl = `<a class="dl" href="${m.src}" download onclick="event.stopPropagation()">⬇ រក្សាទុក</a>`;
+    return `<figure><div onclick="openLight(${i})">${thumb}${m.cap?`<figcaption>${m.cap}</figcaption>`:''}</div>${dl}</figure>`;
+  }).join('')+'</div>';
+}
+function addMemFiles(files){
+  [...files].forEach(f=>{
+    memUploads.push({type:f.type.startsWith('video')?'video':'image', src:URL.createObjectURL(f), cap:f.name.replace(/\.[^.]+$/,'')});
+  });
+  renderGallery();
+}
+function openLight(i){
+  const m=window._galleryAll[i];
+  lbBox.innerHTML = m.type==='video'
+    ? `<video src="${m.src}" controls autoplay playsinline></video>`
+    : `<img src="${m.src}" alt="">`;
+  lbCap.innerHTML = (m.cap||'') + ` &nbsp; <a href="${m.src}" download style="color:#7CD992;font-weight:700">⬇ រក្សាទុក</a>`;
+  lightbox.classList.add('show');
+}
+function closeLight(){ lightbox.classList.remove('show'); lbBox.innerHTML=''; }
+
+/* ---- access control for attendance ---- */
+const PASSCODE = "2026";   // ⚠️ ប្ដូរលេខសម្ងាត់នេះ — ផ្ដល់ឲ្យតែអ្នកទទួលបន្ទុក
+let attendLocked = true;
+function showLock(){
+  msgTitle.textContent = "មិនអនុញ្ញាត";
+  msgText.textContent = "This feature allow only who responsible it.";
+  msgModal.classList.add('show');
+}
+function toggleLock(){
+  if(attendLocked){
+    const pin = prompt("សូមបញ្ចូលលេខសម្ងាត់ (សម្រាប់អ្នកទទួលបន្ទុក)៖");
+    if(pin===null) return;
+    if(pin===PASSCODE){ attendLocked=false; applyLock(); }
+    else { msgTitle.textContent="លេខសម្ងាត់មិនត្រឹមត្រូវ"; msgText.textContent="Wrong passcode. This feature allow only who responsible it."; msgModal.classList.add('show'); }
+  } else { attendLocked=true; applyLock(); }
+}
+function applyLock(){
+  lockBtn.textContent = attendLocked ? "🔒 ដោះសោ (អ្នកទទួលបន្ទុក)" : "🔓 ចាក់សោវិញ";
+  lockBtn.classList.toggle('open', !attendLocked);
+  lockBar.className = "lockbar " + (attendLocked?"locked":"unlocked");
+  lockBar.textContent = attendLocked
+    ? "🔒 ផ្ទាំងនេះត្រូវបានចាក់សោ — សម្រាប់តែអ្នកទទួលបន្ទុកប៉ុណ្ណោះ។"
+    : "🔓 បានដោះសោ — អ្នកអាចកែវត្តមានបាន។";
+  renderAtt();
+}
+
+/* ---- student-list lock (same passcode) ---- */
+let studentLocked = true;
+function toggleSLock(){
+  if(studentLocked){
+    const pin = prompt("សូមបញ្ចូលលេខសម្ងាត់ ដើម្បីកែបញ្ជីសិស្ស៖");
+    if(pin===null) return;
+    if(pin===PASSCODE){ studentLocked=false; applySLock(); }
+    else { msgTitle.textContent="លេខសម្ងាត់មិនត្រឹមត្រូវ"; msgText.textContent="Wrong passcode. This feature allow only who responsible it."; msgModal.classList.add('show'); }
+  } else { studentLocked=true; applySLock(); }
+}
+function applySLock(){
+  sLockBtn.textContent = studentLocked ? "🔒 ដោះសោកែ (អ្នកទទួលបន្ទុក)" : "🔓 ចាក់សោវិញ";
+  sLockBtn.classList.toggle('open', !studentLocked);
+  sLockBar.className = "lockbar " + (studentLocked?"locked":"unlocked");
+  sLockBar.textContent = studentLocked
+    ? "🔒 ការកែឈ្មោះ/ភេទ ត្រូវបានចាក់សោ។ អ្នកគ្រប់គ្នាអាចបង្កើត PDF បាន។"
+    : "🔓 បានដោះសោ — អ្នកអាចកែឈ្មោះ/ភេទ និងបន្ថែមសិស្សបាន។";
+  renderStudents();
+}
+
+/* ---- home slideshow (from memory photos) ---- */
+let slideIdx=0, slideTimer=null;
+function slideImages(){ return MEMORIES.filter(m=>m.type==='image'); }
+function buildSlideshow(){
+  const imgs=slideImages();
+  if(!imgs.length){ slideshow.style.display='none'; return; }
+  slideshow.style.display='block';
+  slides.innerHTML = imgs.map((m,i)=>`<img src="${m.src}" class="${i===0?'on':''}" alt="">`).join('');
+  slideDots.innerHTML = imgs.map((m,i)=>`<span class="${i===0?'on':''}" onclick="slideGo(${i})"></span>`).join('');
+  slideCap.textContent = imgs[0].cap||'';
+  restartSlide();
+}
+function slideRender(){
+  const imgs=[...slides.children], dots=[...slideDots.children];
+  imgs.forEach((el,i)=>el.classList.toggle('on',i===slideIdx));
+  dots.forEach((el,i)=>el.classList.toggle('on',i===slideIdx));
+  slideCap.textContent = slideImages()[slideIdx]?.cap||'';
+}
+function slideMove(d){ const n=slides.children.length; if(!n)return; slideIdx=(slideIdx+d+n)%n; slideRender(); restartSlide(); }
+function slideGo(i){ slideIdx=i; slideRender(); restartSlide(); }
+function restartSlide(){ clearInterval(slideTimer); slideTimer=setInterval(()=>slideMove(1),4000); }
+
+/* ---- feedback ---- */
+const FEEDBACK_EMAIL = "chhengudam@kosign.com.kh";   // ⚠️ ប្ដូរអ៊ីមែលទទួលមតិនៅទីនេះ
+function sendFeedback(){
+  const name=fbName.value.trim()||"អនាមិក", type=fbType.value, msg=fbMsg.value.trim();
+  if(!msg){ msgTitle.textContent="សូមបំពេញសារ"; msgText.textContent="សូមសរសេរសារមុននឹងផ្ញើ។"; msgModal.classList.add('show'); return; }
+  const subject=encodeURIComponent("[Feedback] "+type+" — Phnom Penh New Life Student Center");
+  const body=encodeURIComponent("ឈ្មោះ: "+name+"\nប្រភេទ: "+type+"\n\nសារ:\n"+msg);
+  window.location.href=`mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+/* ---- org structure ---- */
+const LEADERS = [
+  {img:"leaders/1.jpg",  name:"អែម ប៊ុនថន",    role:"ប្រធានមណ្ឌលនិស្សិតជីវិតថ្មី"},
+  {img:"leaders/2.jpg",  name:"សង ពិសិទ្ធ",     role:"គ្រប់គ្រង គណនេយ្យ"},
+  {img:"leaders/3.jpg",  name:"ខាំ យុឺន",       role:"គ្រប់គ្រង រដ្ឋបាល"},
+  {img:"leaders/4.jpg",  name:"ហ៊ួ សេងហួត",     role:"ពង្រឹងមេក្រុម និងវត្តមាន"},
+  {img:"leaders/5.jpg",  name:"លី វណ្ណដា",      role:"១. ក្រុមភ្លេង និង ចម្រៀង<br>២. បែងចែកមេក្រុម"},
+  {img:"leaders/6.jpg",  name:"ឆាយ គីមហួ",      role:"១. សម្ភារះប្រើប្រាស់<br>២. គ្រឿងទេស"},
+  {img:"leaders/7.jpg",  name:"ហុក សុីយាន",      role:"រៀបចំក្រុមតូចខាងស្រី"},
+  {img:"leaders/8.jpg",  name:"សំ សុផាន់ណា",    role:"រៀបចំកាលវិភាគសម្អាតខាងប្រុស"},
+  {img:"leaders/9.jpg",  name:"អែម ស៊ូលាង",     role:"ក្រុមចម្រៀងនៅព្រះវិហារ (College & Center)"},
+  {img:"leaders/10.jpg", name:"ស៊ន ស្រីអាង",    role:"រៀបចំកាលវិភាគសម្អាតខាងស្រី"},
+  {img:"leaders/11.jpg", name:"ឈើន ពេជវីរីយ៉ា", role:"រៀបចំក្រុមចម្រៀងខាងស្រី"},
+  {img:"leaders/12.jpg", name:"ស្រេង ម៉េងហ៊ាង", role:"គ្រប់គ្រង ចំណតម៉ូតូ"},
+  {img:"leaders/13.png", name:"អែម ម៉េងលាង",    role:"គ្រប់គ្រង ផ្នែកសម្អាតព្រះវិហារ"},
+  {img:"leaders/14.png", name:"ជា ម៉េង",         role:"១. គ្រប់គ្រង សណ្ដាប់ធ្នាប់<br>២. កាលវិភាគប្រជុំ"},
+];
+function leaderCard(l,head){
+  return `<div class="leader${head?' head':''}">
+    <img src="${l.img}" alt="${l.name}" loading="lazy" onerror="this.style.visibility='hidden'">
+    <div class="lname">${l.name}</div><div class="lrole">${l.role}</div></div>`;
+}
+function renderOrg(){
+  orgTop.innerHTML = leaderCard(LEADERS[0], true);
+  orgGrid.innerHTML = LEADERS.slice(1).map(l=>leaderCard(l,false)).join('');
+}
+
+/* init */
+renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg();
+</script>
+</body>
+</html>
