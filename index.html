@@ -122,15 +122,17 @@
   .permdoc .ph .cn small{font-family:'Noto Sans','Noto Sans Khmer',sans-serif;font-weight:600;}
   .permdoc .ph .cn{font-weight:700;color:#0f2a4a;font-size:17px;line-height:1.3;}
   .permdoc .ph .cn small{display:block;font-weight:600;color:#33425a;font-size:12px;letter-spacing:.2px;}
-  .permdoc .divider{text-align:center;color:#33425a;margin:2px 0 4px;letter-spacing:3px;}
+  .permdoc .divider{text-align:center;color:#33425a;margin:6px 0 0;letter-spacing:3px;}
+  .permdoc .divider .orn{height:17px;width:17px;vertical-align:-4px;fill:#33425a;margin:0 6px;}
   .permdoc .no{font-size:14px;margin-top:2px;}
   .permdoc .pt{text-align:center;font-size:22px;font-weight:700;color:#0f2a4a;text-decoration:underline;text-underline-offset:8px;margin:22px 0 20px;letter-spacing:.5px;}
   .permdoc .recip{text-align:center;font-weight:700;color:#0f2a4a;font-size:18px;line-height:1.6;margin:18px 0;}
   .permdoc .pline{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;margin:5px 0;}
   .permdoc .pline.indent{padding-left:88px;}
-  .permdoc .daterow{flex-wrap:nowrap;gap:5px;padding-left:50px;}
-  .permdoc .daterow .u{min-width:34px;padding:0 4px;flex:0 1 auto;}
+  .permdoc .daterow{flex-wrap:nowrap;gap:7px;}
+  .permdoc .daterow .u{min-width:30px;padding:0 3px;flex:0 1 auto;}
   .permdoc .daterow .t{font-size:14px;}
+  .permdoc .daterow .label{flex:0 0 auto;}
   .permdoc .t{white-space:nowrap;color:#1a2330;}
   .permdoc .cb{display:inline-block;width:15px;height:15px;border:1.4px solid #1a2330;text-align:center;
     line-height:13px;font-size:11px;color:#0f2a4a;flex:0 0 auto;align-self:center;}
@@ -142,9 +144,10 @@
   .permdoc .rolecol{flex:1;}
   .permdoc .rolecol .pline{margin:6px 0;}
   .permdoc .label{font-weight:700;}
+  .permdoc .label .ttl{display:inline-block;min-width:96px;}
   .permdoc .para{text-indent:46px;margin-top:22px;line-height:2.3;text-align:justify;}
-  .permdoc .sign{text-align:center;margin-top:30px;float:right;width:50%;}
-  .permdoc .decision{clear:both;margin-top:64px;text-align:center;font-weight:700;color:#0f2a4a;line-height:1.7;}
+  .permdoc .sign{text-align:center;margin-top:8px;float:right;width:50%;}
+  .permdoc .decision{clear:both;margin-top:110px;text-align:center;font-weight:700;color:#0f2a4a;font-size:16px;line-height:1.9;}
   .permdoc .blank{border-bottom:1px solid #1a2330;height:1px;width:58%;margin:24px auto 0;}
   .permdoc .ph .cn, .permdoc .pt, .permdoc .recip, .permdoc .decision{font-weight:400;}
   @media(max-width:600px){.permdoc{padding:30px 22px;font-size:13px;line-height:2.1;width:100%;min-height:0;}.permgrid .row2,.permgrid .row3{grid-template-columns:1fr}}
@@ -334,7 +337,7 @@
         <div id="roleStaff" style="display:none">
           <label>ផ្នែក</label><input id="pDept" oninput="renderPerm()">
         </div>
-        <label>នាមឲ្យ (អ្នកទទួល)</label>
+        <label>តាមរយះ (អ្នកទទួល)</label>
         <input id="pTo" value="ប្រធានមណ្ឌលនិស្សិតជីវិតថ្មី" oninput="renderPerm()">
         <div class="row2">
           <div><label>ចាប់ពីថ្ងៃ</label><input id="pFrom" type="date" oninput="renderPerm()"></div>
@@ -624,7 +627,6 @@ function renderPerm(){
   const s=role==='student', u=role==='uni', st=role==='staff';
   permDoc.innerHTML = `
    <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small></div></div>
-   <div class="divider">— ❧ —</div>
    <div class="no">N°. <span class="u" style="min-width:130px">${pv('pNo')}</span></div>
    <div class="pt">ពាក្យសុំច្បាប់</div>
    <div class="pline"><span class="t">ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ៖</span> <span class="u grow">${pv('pName')}</span> <span class="t">ភេទ</span> <span class="u">${pv('pSex')}</span> <span class="t">អាយុ</span> <span class="u">${pv('pAge')}</span> <span class="t">លេខទូរស័ព្ទ</span> <span class="u">${pv('pPhone')}</span></div>
@@ -634,10 +636,10 @@ function renderPerm(){
      <div class="pline">${cb('staff')} <span class="t">បុគ្គលិក ផ្នែក</span> <span class="u grow">${st?pv('pDept'):''}</span></div>
    </div></div>
    <div class="recip">សូមគោរពចូលមក<br>បុគ្គលិកទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
-   <div class="pline"><span class="t label">នាមឲ្យ ៖</span> <span class="t" style="color:var(--navy);font-weight:700">${pv('pTo')}</span></div>
-   <div class="pline"><span class="t label">កម្មវត្ថុ ៖</span> <span class="t">សំណើសុំច្បាប់ដើម្បីឈប់សម្រាក ចំនួន</span> <span class="u">${days}</span> <span class="t">ថ្ងៃ</span></div>
-   <div class="pline indent daterow"><span class="t">ចាប់ពីថ្ងៃទី</span> <span class="u">${f.d}</span> <span class="t">ខែ</span> <span class="u">${f.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${f.y}</span> <span class="t">ដល់ថ្ងៃទី</span> <span class="u">${t.d}</span> <span class="t">ខែ</span> <span class="u">${t.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${t.y}</span></div>
-   <div class="pline"><span class="t label">មូលហេតុ ៖</span> <span class="u grow" style="text-align:left">${pv('pReason')}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">តាមរយះ</span>៖</span> <span class="t" style="color:var(--navy);font-weight:700">${pv('pTo')}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">សំណើសុំច្បាប់ដើម្បីឈប់សម្រាក ចំនួន</span> <span class="u">${days}</span> <span class="t">ថ្ងៃ</span></div>
+   <div class="pline daterow"><span class="t label" style="visibility:hidden"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">ចាប់ពីថ្ងៃទី</span> <span class="u">${f.d}</span> <span class="t">ខែ</span> <span class="u">${f.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${f.y}</span> <span class="t">ដល់ថ្ងៃទី</span> <span class="u">${t.d}</span> <span class="t">ខែ</span> <span class="u">${t.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${t.y}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">មូលហេតុ</span>៖</span> <span class="u grow" style="text-align:left">${pv('pReason')}</span></div>
    <div class="para">អាស្រ័យដូចបានជំរាបជូនខាងលើនេះ សូមលោកនាយកមេត្តាអនុញ្ញាតច្បាប់សម្រាប់ទៅតាមការស្នើសុំរបស់ខ្ញុំបាទ-នាងខ្ញុំ ដោយយល់សេចក្ដីស្រឡាញ់នៃព្រះអម្ចាស់យេស៊ូវគ្រីស្ទ ។</div>
    <div class="sign"><span class="t">${pv('pPlace')||'ភ្នំពេញ'}, ថ្ងៃទី</span> <span class="u">${wd.d}</span> <span class="t">ខែ</span> <span class="u">${wd.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${wd.y}</span><br>ហត្ថលេខា<br><span class="u" style="margin-top:6px">${pv('pName')}</span></div>
    <div class="decision">សេចក្ដីសម្រេចរបស់បុគ្គលិក<br>ទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
@@ -787,7 +789,7 @@ function sendFeedback(){
 const LEADERS = [
   {img:"leaders/1.jpg",  name:"អែម ប៊ុនថន",    role:"ប្រធានមណ្ឌលនិស្សិតជីវិតថ្មី"},
   {img:"leaders/2.jpg",  name:"សង ពិសិទ្ធ",     role:"គ្រប់គ្រង គណនេយ្យ"},
-  {img:"leaders/3.jpg",  name:"ខាំ យុឺន",       role:"គ្រប់គ្រង រដ្ឋបាល"},
+  {img:"leaders/3.jpg",  name:"ខាំ យឺន",       role:"គ្រប់គ្រង រដ្ឋបាល"},
   {img:"leaders/4.jpg",  name:"ហ៊ួ សេងហួត",     role:"ពង្រឹងមេក្រុម និងវត្តមាន"},
   {img:"leaders/5.jpg",  name:"លី វណ្ណដា",      role:"១. ក្រុមភ្លេង និង ចម្រៀង<br>២. បែងចែកមេក្រុម"},
   {img:"leaders/6.jpg",  name:"ឆាយ គីមហួ",      role:"១. សម្ភារះប្រើប្រាស់<br>២. គ្រឿងទេស"},
