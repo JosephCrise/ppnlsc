@@ -623,7 +623,8 @@ function renderPerm(){
   const cb=v=>`<span class="cb">${role===v?'✓':''}</span>`;
   const s=role==='student', u=role==='uni', st=role==='staff';
   permDoc.innerHTML = `
-   <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small><div class="divider">— ❧ —</div></div></div>
+   <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small></div></div>
+   <div class="divider">— ❧ —</div>
    <div class="no">N°. <span class="u" style="min-width:130px">${pv('pNo')}</span></div>
    <div class="pt">ពាក្យសុំច្បាប់</div>
    <div class="pline"><span class="t">ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ៖</span> <span class="u grow">${pv('pName')}</span> <span class="t">ភេទ</span> <span class="u">${pv('pSex')}</span> <span class="t">អាយុ</span> <span class="u">${pv('pAge')}</span> <span class="t">លេខទូរស័ព្ទ</span> <span class="u">${pv('pPhone')}</span></div>
