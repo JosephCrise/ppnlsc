@@ -66,6 +66,33 @@
   .quick{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;justify-content:center;}
   .quick button{border:0;border-radius:12px;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;color:#fff;}
   .q1{background:var(--blue);} .q2{background:var(--present);}
+  /* ---------- modern home ---------- */
+  .hero2{position:relative;overflow:hidden;border-radius:22px;padding:40px 26px 34px;text-align:center;color:#fff;
+    background:linear-gradient(135deg,#0f2a4a 0%,#2E5496 55%,#2E86C1 100%);box-shadow:0 14px 40px rgba(15,42,74,.32);}
+  .hero2-bg{position:absolute;inset:0;background:
+     radial-gradient(circle at 18% 20%,rgba(255,255,255,.14),transparent 40%),
+     radial-gradient(circle at 85% 75%,rgba(255,255,255,.10),transparent 45%);pointer-events:none;}
+  .hero2 .herologo{position:relative;height:92px;width:92px;background:#fff;border-radius:50%;padding:9px;
+    box-shadow:0 6px 18px rgba(0,0,0,.28);margin-bottom:14px;}
+  .hero2 h1{position:relative;font-size:27px;margin:0 0 4px;letter-spacing:.3px;}
+  .hero2 .tagline{position:relative;margin:0;opacity:.92;font-size:16px;font-weight:600;}
+  .verse-hero{position:relative;margin:20px auto 0;max-width:620px;background:rgba(255,255,255,.14);
+    backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:16px 20px;
+    font-size:15.5px;line-height:1.9;}
+  .verse-hero .ref{display:block;margin-top:8px;font-weight:700;opacity:.95;font-size:13.5px;}
+  .sec-h{color:var(--navy);font-size:18px;margin:30px 0 14px;padding-left:12px;border-left:4px solid var(--sky);}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+  .tile{background:#fff;border-radius:16px;padding:22px 12px;text-align:center;cursor:pointer;
+    box-shadow:0 3px 14px rgba(0,0,0,.08);transition:.16s;border:1px solid #eef1f6;}
+  .tile:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(31,56,100,.18);border-color:var(--light);}
+  .tile .ti{display:block;font-size:32px;margin-bottom:8px;}
+  .tile span:not(.ti){font-weight:700;color:var(--navy);font-size:14.5px;}
+  .verses{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+  .vcard{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 3px 14px rgba(0,0,0,.07);
+    border-left:4px solid var(--sky);}
+  .vcard .vt{color:#1f2d44;line-height:2;font-size:14.5px;}
+  .vcard .vr{margin-top:10px;font-weight:700;color:var(--blue);font-size:13.5px;}
+  @media(max-width:600px){.hero2 h1{font-size:22px}.hero2{padding:32px 18px 28px}}
   /* ---------- home slideshow ---------- */
   .slideshow{position:relative;margin-top:22px;border-radius:16px;overflow:hidden;
     box-shadow:0 6px 22px rgba(0,0,0,.16);background:#000;}
@@ -213,7 +240,6 @@
     <button class="active" data-s="home" onclick="go('home',this)">ទំព័រដើម</button>
     <button data-s="students" onclick="go('students',this)">បញ្ជីសិស្ស</button>
     <button data-s="attend" onclick="go('attend',this)">វត្តមាន</button>
-    <button data-s="perm" onclick="go('perm',this)">ពាក្យសុំច្បាប់</button>
     <button data-s="org" onclick="go('org',this)">រចនាសម្ព័ន្ធ</button>
     <button data-s="memory" onclick="go('memory',this)">អនុស្សាវរីយ៍</button>
     <button data-s="feedback" onclick="go('feedback',this)">មតិយោបល់</button>
@@ -223,25 +249,40 @@
 <main>
   <!-- ======== HOME ======== -->
   <section id="home" class="show">
-    <div class="hero">
+    <div class="hero2">
+      <div class="hero2-bg"></div>
       <img src="picture1.png" class="herologo" alt="logo" onerror="this.style.display='none'">
       <h1>Phnom Penh New Life Student Center</h1>
+      <p class="tagline">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</p>
+      <div class="verse-hero" id="verseHero"></div>
     </div>
+
+    <div class="cards">
+      <div class="card total"><div class="num" id="hTotal">0</div><div class="lbl">សិស្សសរុប</div></div>
+      <div class="card male"><div class="num" id="hMale">0</div><div class="lbl">សិស្សប្រុស</div></div>
+      <div class="card female"><div class="num" id="hFemale">0</div><div class="lbl">សិស្សស្រី</div></div>
+    </div>
+
+    <h3 class="sec-h">មុខងារ</h3>
+    <div class="tiles">
+      <div class="tile" onclick="go('students',document.querySelector('[data-s=students]'))"><span class="ti">👥</span><span>បញ្ជីសិស្ស</span></div>
+      <div class="tile" onclick="go('attend',document.querySelector('[data-s=attend]'))"><span class="ti">📋</span><span>វត្តមាន</span></div>
+      <div class="tile" onclick="go('perm',document.querySelector('[data-s=perm]'))"><span class="ti">📝</span><span>ពាក្យសុំច្បាប់</span></div>
+      <div class="tile" onclick="go('org',document.querySelector('[data-s=org]'))"><span class="ti">🏛️</span><span>រចនាសម្ព័ន្ធ</span></div>
+      <div class="tile" onclick="go('memory',document.querySelector('[data-s=memory]'))"><span class="ti">📷</span><span>អនុស្សាវរីយ៍</span></div>
+      <div class="tile" onclick="go('feedback',document.querySelector('[data-s=feedback]'))"><span class="ti">💬</span><span>មតិយោបល់</span></div>
+    </div>
+
+    <h3 class="sec-h">ព្រះបន្ទូល</h3>
+    <div class="verses" id="verseList"></div>
+
+    <h3 class="sec-h">រូបភាពអនុស្សាវរីយ៍</h3>
     <div class="slideshow" id="slideshow">
       <div class="slides" id="slides"></div>
       <button class="arw prev" onclick="slideMove(-1)">‹</button>
       <button class="arw next" onclick="slideMove(1)">›</button>
       <div class="slidecap" id="slideCap"></div>
       <div class="dots" id="slideDots"></div>
-    </div>
-    <div class="cards">
-      <div class="card total"><div class="num" id="hTotal">0</div><div class="lbl">សិស្សសរុប</div></div>
-      <div class="card male"><div class="num" id="hMale">0</div><div class="lbl">សិស្សប្រុស</div></div>
-      <div class="card female"><div class="num" id="hFemale">0</div><div class="lbl">សិស្សស្រី</div></div>
-    </div>
-    <div class="quick">
-      <button class="q1" onclick="go('students',document.querySelector('[data-s=students]'))">👥 មើលបញ្ជីសិស្ស</button>
-      <button class="q2" onclick="go('attend',document.querySelector('[data-s=attend]'))">📋 កត់វត្តមាន</button>
     </div>
   </section>
 
@@ -468,7 +509,8 @@ function go(id,btn){
   document.querySelectorAll('section').forEach(s=>s.classList.remove('show'));
   document.getElementById(id).classList.add('show');
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  (btn||document.querySelector('[data-s='+id+']')).classList.add('active');
+  const navBtn = (btn && btn.closest('nav')) ? btn : document.querySelector('[data-s='+id+']');
+  if(navBtn) navBtn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 /* ---- students ---- */
@@ -812,10 +854,26 @@ function renderOrg(){
   orgGrid.innerHTML = LEADERS.slice(1).map(l=>leaderCard(l,false)).join('');
 }
 
+/* ---- Bible verses (Khmer) — edit/verify text freely ---- */
+const VERSES = [
+  {t:"ដ្បិតព្រះជាម្ចាស់ទ្រង់ស្រឡាញ់មនុស្សលោក ដល់ម៉្លេះបានជាទ្រង់ប្រទានព្រះរាជបុត្រាតែមួយរបស់ទ្រង់ ដើម្បីឲ្យអ្នកណាដែលជឿដល់ព្រះរាជបុត្រា មិនត្រូវវិនាសឡើយ គឺឲ្យមានជីវិតអស់កល្បជានិច្ច។", r:"យ៉ូហាន ៣:១៦"},
+  {t:"ព្រះអម្ចាស់ជាគង្វាលរបស់ខ្ញុំ ខ្ញុំនឹងមិនខ្វះអ្វីឡើយ។", r:"ទំនុកតម្កើង ២៣:១"},
+  {t:"ខ្ញុំអាចធ្វើគ្រប់ការទាំងអស់បាន ដោយសារព្រះគ្រីស្ទ ដែលប្រទានកម្លាំងដល់ខ្ញុំ។", r:"ភីលីព ៤:១៣"},
+  {t:"ចូរទុកចិត្តលើព្រះអម្ចាស់ឲ្យអស់ពីចិត្ត កុំពឹងផ្អែកលើប្រាជ្ញារបស់ខ្លួនឯងឡើយ ហើយទ្រង់នឹងធ្វើឲ្យផ្លូវរបស់អ្នកត្រង់។", r:"សុភាសិត ៣:៥-៦"},
+  {t:"ខ្ញុំជាផ្លូវ ជាសេចក្ដីពិត និងជាជីវិត គ្មាននរណាអាចមកឯព្រះវរបិតាបានឡើយ លើកលែងតែមកតាមរយៈខ្ញុំ។", r:"យ៉ូហាន ១៤:៦"},
+  {t:"យើងដឹងថា អ្វីៗទាំងអស់រួមគ្នាបណ្ដាលឲ្យកើតផលល្អ ដល់អស់អ្នកដែលស្រឡាញ់ព្រះជាម្ចាស់។", r:"រ៉ូម ៨:២៨"},
+];
+function renderVerses(){
+  verseList.innerHTML = VERSES.map(v=>`<div class="vcard"><div class="vt">${v.t}</div><div class="vr">— ${v.r}</div></div>`).join('');
+  let i=Math.floor(Math.random()*VERSES.length);
+  const show=()=>{ const v=VERSES[i]; verseHero.innerHTML=`${v.t}<span class="ref">— ${v.r}</span>`; };
+  show(); setInterval(()=>{ i=(i+1)%VERSES.length; show(); }, 7000);
+}
+
 /* init */
 document.querySelectorAll('img').forEach(i=>{if(i.getAttribute('src')==='picture1.png')i.src=LOGO;});document.querySelectorAll('link[rel*=icon]').forEach(l=>l.href=LOGO);
 document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,10);
-renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg(); roleChange();
+renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg(); roleChange(); renderVerses();
 </script>
 </body>
 </html>
