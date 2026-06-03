@@ -136,8 +136,10 @@
   .permgrid{display:grid;grid-template-columns:1fr;gap:8px;}
   .permgrid .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .permgrid .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-  .radios{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;}
-  .radios label{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--navy);margin:0;}
+  .radios{display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;}
+  .radios label{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--navy);margin:0;white-space:nowrap;}
+  .radios input{flex:0 0 auto;}
+  @media(max-width:600px){.radios{flex-direction:column;gap:12px;}}
   /* A4 sheet: 794x1123 px @96dpi. Balanced margins like the scan. */
   .permdoc{background:#fff;color:#1a2330;width:794px;max-width:100%;min-height:1123px;margin:18px auto 0;
     padding:64px 70px;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.16);line-height:2.25;font-size:15px;}
@@ -254,7 +256,6 @@
       <img src="picture1.png" class="herologo" alt="logo" onerror="this.style.display='none'">
       <h1>Phnom Penh New Life Student Center</h1>
       <p class="tagline">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</p>
-      <div class="verse-hero" id="verseHero"></div>
     </div>
 
     <div class="cards">
@@ -272,9 +273,6 @@
       <div class="tile" onclick="go('memory',document.querySelector('[data-s=memory]'))"><span class="ti">📷</span><span>អនុស្សាវរីយ៍</span></div>
       <div class="tile" onclick="go('feedback',document.querySelector('[data-s=feedback]'))"><span class="ti">💬</span><span>មតិយោបល់</span></div>
     </div>
-
-    <h3 class="sec-h">ព្រះបន្ទូល</h3>
-    <div class="verses" id="verseList"></div>
 
     <h3 class="sec-h">រូបភាពអនុស្សាវរីយ៍</h3>
     <div class="slideshow" id="slideshow">
@@ -599,13 +597,13 @@ function doShare(){
   }
 }
 function exportPNG(){
-  html2canvas(attendDoc,{scale:2,backgroundColor:'#fff'}).then(c=>{
+  html2canvas(attendDoc,{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
     c.toBlob(bl=>showResult(bl,'Attendance-'+stamp()+'.png','image'),'image/png');
   });
 }
 function exportPDF(elId,name){
   const {jsPDF}=window.jspdf;
-  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff'}).then(c=>{
+  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
     const img=c.toDataURL('image/png');
     const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
     const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
@@ -628,7 +626,7 @@ function exportPDF(elId,name){
 function share(t){ exportPNG(); }  // share sheet (in result popup) includes Telegram & Messenger
 // generic exporter for any element -> image or pdf
 function exportNode(elId, kind, name){
-  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff'}).then(c=>{
+  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
     if(kind==='image'){ c.toBlob(b=>showResult(b,name+'-'+stamp()+'.png','image'),'image/png'); return; }
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
@@ -856,12 +854,12 @@ function renderOrg(){
 
 /* ---- Bible verses (Khmer) — edit/verify text freely ---- */
 const VERSES = [
-  {t:"ដ្បិតព្រះជាម្ចាស់ទ្រង់ស្រឡាញ់មនុស្សលោក ដល់ម៉្លេះបានជាទ្រង់ប្រទានព្រះរាជបុត្រាតែមួយរបស់ទ្រង់ ដើម្បីឲ្យអ្នកណាដែលជឿដល់ព្រះរាជបុត្រា មិនត្រូវវិនាសឡើយ គឺឲ្យមានជីវិតអស់កល្បជានិច្ច។", r:"យ៉ូហាន ៣:១៦"},
-  {t:"ព្រះអម្ចាស់ជាគង្វាលរបស់ខ្ញុំ ខ្ញុំនឹងមិនខ្វះអ្វីឡើយ។", r:"ទំនុកតម្កើង ២៣:១"},
-  {t:"ខ្ញុំអាចធ្វើគ្រប់ការទាំងអស់បាន ដោយសារព្រះគ្រីស្ទ ដែលប្រទានកម្លាំងដល់ខ្ញុំ។", r:"ភីលីព ៤:១៣"},
-  {t:"ចូរទុកចិត្តលើព្រះអម្ចាស់ឲ្យអស់ពីចិត្ត កុំពឹងផ្អែកលើប្រាជ្ញារបស់ខ្លួនឯងឡើយ ហើយទ្រង់នឹងធ្វើឲ្យផ្លូវរបស់អ្នកត្រង់។", r:"សុភាសិត ៣:៥-៦"},
-  {t:"ខ្ញុំជាផ្លូវ ជាសេចក្ដីពិត និងជាជីវិត គ្មាននរណាអាចមកឯព្រះវរបិតាបានឡើយ លើកលែងតែមកតាមរយៈខ្ញុំ។", r:"យ៉ូហាន ១៤:៦"},
-  {t:"យើងដឹងថា អ្វីៗទាំងអស់រួមគ្នាបណ្ដាលឲ្យកើតផលល្អ ដល់អស់អ្នកដែលស្រឡាញ់ព្រះជាម្ចាស់។", r:"រ៉ូម ៨:២៨"},
+  {t:"ត្បិតព្រះទ្រង់ស្រឡាញ់មនុស្សលោក ដល់ម៉្លេះបានជាទ្រង់ប្រទានព្រះរាជបុត្រាទ្រង់តែ១ ដើម្បីឲ្យអ្នកណាដែលជឿដល់ព្រះរាជបុត្រានោះ មិនត្រូវវិនាសឡើយ គឺឲ្យបានជីវិតអស់កល្បជានិច្ចវិញ។", r:"យ៉ូហាន ៣:១៦ (១៩៥៤)"},
+  {t:"ព្រះយេហូវ៉ាទ្រង់ជាគង្វាលរបស់ខ្ញុំ ខ្ញុំនឹងមិនខ្វះអ្វីឡើយ។", r:"ទំនុកដំកើង ២៣:១ (១៩៥៤)"},
+  {t:"ខ្ញុំអាចនឹងធ្វើគ្រប់ការទាំងអស់បាន ដោយសារព្រះគ្រីស្ទ ដែលទ្រង់ចំរើនកំឡាំងដល់ខ្ញុំ។", r:"ភីលីព ៤:១៣ (១៩៥៤)"},
+  {t:"ចូរទុកចិត្តនឹងព្រះយេហូវ៉ាអស់អំពីចិត្ត កុំឲ្យពឹងផ្អែកលើប្រាជ្ញារបស់ឯងឡើយ។", r:"សុភាសិត ៣:៥ (១៩៥៤)"},
+  {t:"ខ្ញុំនេះឯងជាផ្លូវ ជាសេចក្ដីពិត ហើយជាជីវិត គ្មាននរណាមកឯព្រះវរបិតាបានឡើយ លើកលែងតែមកតាមខ្ញុំ។", r:"យ៉ូហាន ១៤:៦ (១៩៥៤)"},
+  {t:"យើងដឹងថា គ្រប់ការទាំងអស់តែងធ្វើការជាមួយគ្នា ដើម្បីសេចក្ដីល្អ ដល់អស់អ្នកដែលស្រឡាញ់ដល់ព្រះ។", r:"រ៉ូម ៨:២៨ (១៩៥៤)"},
 ];
 function renderVerses(){
   verseList.innerHTML = VERSES.map(v=>`<div class="vcard"><div class="vt">${v.t}</div><div class="vr">— ${v.r}</div></div>`).join('');
@@ -873,7 +871,7 @@ function renderVerses(){
 /* init */
 document.querySelectorAll('img').forEach(i=>{if(i.getAttribute('src')==='picture1.png')i.src=LOGO;});document.querySelectorAll('link[rel*=icon]').forEach(l=>l.href=LOGO);
 document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,10);
-renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg(); roleChange(); renderVerses();
+renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg(); roleChange();
 </script>
 </body>
 </html>
