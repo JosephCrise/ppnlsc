@@ -138,8 +138,8 @@
   .permgrid .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
   .radios{display:flex;gap:22px;flex-wrap:wrap;margin-top:6px;}
   .radios label{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--navy);margin:0;white-space:nowrap;}
-  .radios input{flex:0 0 auto;}
-  @media(max-width:600px){.radios{flex-direction:column;gap:12px;}}
+  .radios input{flex:0 0 auto;width:auto;margin:0;}
+  @media(max-width:600px){.radios{flex-direction:column;gap:12px;align-items:flex-start;}.radios label{width:auto;}}
   /* A4 sheet: 794x1123 px @96dpi. Balanced margins like the scan. */
   .permdoc{background:#fff;color:#1a2330;width:794px;max-width:100%;min-height:1123px;margin:18px auto 0;
     padding:64px 70px;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.16);line-height:2.25;font-size:15px;}
@@ -154,11 +154,12 @@
   .permdoc .divider{text-align:center;color:#33425a;margin:6px 0 0;letter-spacing:3px;}
   .permdoc .divider .orn{height:17px;width:17px;vertical-align:-4px;fill:#33425a;margin:0 6px;}
   .permdoc .no{font-size:14px;margin-top:2px;}
-  .permdoc .pt{text-align:center;font-size:22px;font-weight:700;color:#0f2a4a;text-decoration:underline;text-underline-offset:8px;margin:22px 0 20px;letter-spacing:.5px;}
-  .permdoc .recip{text-align:center;font-weight:700;color:#0f2a4a;font-size:18px;line-height:1.6;margin:18px 0;}
+  .permdoc .pt{text-align:center;font-size:18px;font-weight:700;color:#0f2a4a;text-decoration:underline;text-underline-offset:7px;margin:20px 0 18px;letter-spacing:.5px;}
+  .permdoc .recip{text-align:center;font-weight:700;color:#0f2a4a;font-size:15px;line-height:1.7;margin:16px 0;}
   .permdoc .pline{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;margin:5px 0;}
   .permdoc .pline.indent{padding-left:88px;}
-  .permdoc .daterow{flex-wrap:nowrap;gap:7px;}
+  .permdoc .daterow{flex-wrap:wrap;gap:7px;}
+  .permdoc.export-mode .daterow{flex-wrap:nowrap;}
   .permdoc .daterow .u{min-width:30px;padding:0 3px;flex:0 1 auto;}
   .permdoc .daterow .t{font-size:14px;}
   .permdoc .daterow .label{flex:0 0 auto;}
@@ -176,7 +177,7 @@
   .permdoc .label .ttl{display:inline-block;min-width:96px;}
   .permdoc .para{text-indent:46px;margin-top:22px;line-height:2.3;text-align:justify;}
   .permdoc .sign{text-align:center;margin-top:8px;float:right;width:50%;}
-  .permdoc .decision{clear:both;margin-top:110px;text-align:center;font-weight:700;color:#0f2a4a;font-size:16px;line-height:1.9;}
+  .permdoc .decision{clear:both;margin-top:110px;text-align:center;font-weight:700;color:#0f2a4a;font-size:14px;line-height:1.9;}
   .permdoc .blank{border-bottom:1px solid #1a2330;height:1px;width:58%;margin:24px auto 0;}
   .permdoc .ph .cn, .permdoc .pt, .permdoc .recip, .permdoc .decision{font-weight:400;}
   @media(max-width:600px){.permdoc{padding:30px 22px;font-size:13px;line-height:2.1;width:100%;min-height:0;}.permgrid .row2,.permgrid .row3{grid-template-columns:1fr}}
@@ -626,7 +627,10 @@ function exportPDF(elId,name){
 function share(t){ exportPNG(); }  // share sheet (in result popup) includes Telegram & Messenger
 // generic exporter for any element -> image or pdf
 function exportNode(elId, kind, name){
-  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
+  const el=document.getElementById(elId); el.classList.add('export-mode');
+  const done=()=>el.classList.remove('export-mode');
+  html2canvas(el,{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
+    done();
     if(kind==='image'){ c.toBlob(b=>showResult(b,name+'-'+stamp()+'.png','image'),'image/png'); return; }
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
