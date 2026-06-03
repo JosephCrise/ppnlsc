@@ -4,14 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Phnom Penh New Life Student Center</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/png" href="picture1.png">
+<link rel="apple-touch-icon" href="picture1.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+  @font-face{font-family:'Moul';src:url('fonts/Moul-Regular.ttf') format('truetype');font-weight:normal;font-display:swap;}
   :root{--navy:#1F3864;--blue:#2E5496;--sky:#2E86C1;--light:#D9E1F2;--grey:#F2F2F2;
         --reason:#FCE4D6;--absent:#9C0006;--present:#1E8449;--male:#2E86C1;--female:#C0399B;}
   *{box-sizing:border-box;font-family:'Noto Sans Khmer','Noto Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
@@ -104,6 +105,49 @@
   .leader.head .lname{font-size:18px;} .leader.head .lrole{color:var(--sky);font-weight:600;font-size:14px;}
   .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-top:18px;}
   .connector{width:2px;height:26px;background:var(--light);margin:0 auto;}
+  /* ---------- permission letter ---------- */
+  .permgrid{display:grid;grid-template-columns:1fr;gap:8px;}
+  .permgrid .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .permgrid .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .radios{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;}
+  .radios label{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--navy);margin:0;}
+  /* A4 sheet: 794x1123 px @96dpi. Balanced margins like the scan. */
+  .permdoc{background:#fff;color:#1a2330;width:794px;max-width:100%;min-height:1123px;margin:18px auto 0;
+    padding:64px 70px;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.16);line-height:2.25;font-size:15px;}
+  .permdoc .ph{display:flex;align-items:center;gap:14px;}
+  .permdoc .ph img{height:56px;width:56px;object-fit:contain;}
+  /* Moul display font on the official headings */
+  .permdoc .ph .cn, .permdoc .pt, .permdoc .recip, .permdoc .decision{
+    font-family:'Moul','Noto Sans Khmer',serif;font-weight:400;}
+  .permdoc .ph .cn small{font-family:'Noto Sans','Noto Sans Khmer',sans-serif;font-weight:600;}
+  .permdoc .ph .cn{font-weight:700;color:#0f2a4a;font-size:17px;line-height:1.3;}
+  .permdoc .ph .cn small{display:block;font-weight:600;color:#33425a;font-size:12px;letter-spacing:.2px;}
+  .permdoc .divider{text-align:center;color:#33425a;margin:2px 0 4px;letter-spacing:3px;}
+  .permdoc .no{font-size:14px;margin-top:2px;}
+  .permdoc .pt{text-align:center;font-size:22px;font-weight:700;color:#0f2a4a;text-decoration:underline;text-underline-offset:8px;margin:22px 0 20px;letter-spacing:.5px;}
+  .permdoc .recip{text-align:center;font-weight:700;color:#0f2a4a;font-size:18px;line-height:1.6;margin:18px 0;}
+  .permdoc .pline{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;margin:5px 0;}
+  .permdoc .pline.indent{padding-left:88px;}
+  .permdoc .daterow{flex-wrap:nowrap;gap:5px;padding-left:50px;}
+  .permdoc .daterow .u{min-width:34px;padding:0 4px;flex:0 1 auto;}
+  .permdoc .daterow .t{font-size:14px;}
+  .permdoc .t{white-space:nowrap;color:#1a2330;}
+  .permdoc .cb{display:inline-block;width:15px;height:15px;border:1.4px solid #1a2330;text-align:center;
+    line-height:13px;font-size:11px;color:#0f2a4a;flex:0 0 auto;align-self:center;}
+  .permdoc .u{display:inline-block;color:var(--navy);border-bottom:1px solid #1a2330;padding:0 6px;
+    font-weight:700;min-width:64px;text-align:center;flex:0 0 auto;}
+  .permdoc .u.grow{flex:1 1 80px;min-width:80px;}
+  .permdoc .rolewrap{display:flex;gap:7px;align-items:baseline;margin:6px 0;}
+  .permdoc .rolewrap .ja{white-space:nowrap;}
+  .permdoc .rolecol{flex:1;}
+  .permdoc .rolecol .pline{margin:6px 0;}
+  .permdoc .label{font-weight:700;}
+  .permdoc .para{text-indent:46px;margin-top:22px;line-height:2.3;text-align:justify;}
+  .permdoc .sign{text-align:center;margin-top:30px;float:right;width:50%;}
+  .permdoc .decision{clear:both;margin-top:64px;text-align:center;font-weight:700;color:#0f2a4a;line-height:1.7;}
+  .permdoc .blank{border-bottom:1px solid #1a2330;height:1px;width:58%;margin:24px auto 0;}
+  .permdoc .ph .cn, .permdoc .pt, .permdoc .recip, .permdoc .decision{font-weight:400;}
+  @media(max-width:600px){.permdoc{padding:30px 22px;font-size:13px;line-height:2.1;width:100%;min-height:0;}.permgrid .row2,.permgrid .row3{grid-template-columns:1fr}}
   /* ---------- buttons ---------- */
   .bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
   .btn{border:0;border-radius:9px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;color:#fff;}
@@ -124,6 +168,10 @@
   .modal h3{margin:0 0 8px;color:var(--navy);font-size:18px;}
   .modal p{margin:0 0 18px;color:#556;font-size:14px;line-height:1.6;}
   .modal button{background:var(--blue);color:#fff;border:0;border-radius:9px;padding:11px 26px;font-weight:700;font-size:14px;cursor:pointer;}
+  .dlprev{margin-bottom:12px;} .dlprev img{max-width:100%;max-height:42vh;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+  .dlbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .dlbtns .send{margin-top:0;}
+  .modal .dlclose{background:#888;margin-top:12px;padding:9px 22px;}
   /* ---------- tables ---------- */
   .scroll{overflow-x:auto;border-radius:10px;}
   table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;}
@@ -157,11 +205,12 @@
 <body>
 
 <header class="nav">
-  <div class="brand"><img src="logo.png" class="logo" alt="logo" onerror="this.style.display='none'">Phnom Penh New Life<br>Student Center</div>
+  <div class="brand"><img src="picture1.png" class="logo" alt="logo" onerror="this.style.display='none'">Phnom Penh New Life<br>Student Center</div>
   <nav>
     <button class="active" data-s="home" onclick="go('home',this)">ទំព័រដើម</button>
     <button data-s="students" onclick="go('students',this)">បញ្ជីសិស្ស</button>
     <button data-s="attend" onclick="go('attend',this)">វត្តមាន</button>
+    <button data-s="perm" onclick="go('perm',this)">ពាក្យសុំច្បាប់</button>
     <button data-s="org" onclick="go('org',this)">រចនាសម្ព័ន្ធ</button>
     <button data-s="memory" onclick="go('memory',this)">អនុស្សាវរីយ៍</button>
     <button data-s="feedback" onclick="go('feedback',this)">មតិយោបល់</button>
@@ -172,7 +221,7 @@
   <!-- ======== HOME ======== -->
   <section id="home" class="show">
     <div class="hero">
-      <img src="logo.png" class="herologo" alt="logo" onerror="this.style.display='none'">
+      <img src="picture1.png" class="herologo" alt="logo" onerror="this.style.display='none'">
       <h1>Phnom Penh New Life Student Center</h1>
     </div>
     <div class="slideshow" id="slideshow">
@@ -248,6 +297,65 @@
     </div>
   </section>
 
+  <!-- ======== PERMISSION REQUEST ======== -->
+  <section id="perm">
+    <h2 class="page">ពាក្យសុំច្បាប់</h2>
+    <p class="muted">បំពេញព័ត៌មានខាងក្រោម — ពាក្យសុំច្បាប់នឹងបង្កើតស្វ័យប្រវត្តិ។ រួចចុច បង្កើតរូបភាព ឬ PDF។</p>
+    <div class="form">
+      <div class="permgrid">
+        <div class="row2">
+          <div><label>លេខ (No.)</label><input id="pNo" placeholder="ឧ. ០០១"></div>
+          <div><label>ឈ្មោះ</label><input id="pName" placeholder="ឈ្មោះពេញ" oninput="renderPerm()"></div>
+        </div>
+        <div class="row3">
+          <div><label>ភេទ</label><select id="pSex" onchange="renderPerm()"><option>ប្រុស</option><option>ស្រី</option></select></div>
+          <div><label>អាយុ</label><input id="pAge" type="number" oninput="renderPerm()"></div>
+          <div><label>លេខទូរស័ព្ទ</label><input id="pPhone" oninput="renderPerm()"></div>
+        </div>
+        <label>ស្ថានភាព</label>
+        <div class="radios">
+          <label><input type="radio" name="pRole" value="student" onchange="roleChange()"> សិស្ស</label>
+          <label><input type="radio" name="pRole" value="uni" checked onchange="roleChange()"> និស្សិត</label>
+          <label><input type="radio" name="pRole" value="staff" onchange="roleChange()"> បុគ្គលិក</label>
+        </div>
+        <div id="roleStudent" style="display:none">
+          <div class="row2">
+            <div><label>ថ្នាក់ទី</label><input id="pClass" oninput="renderPerm()"></div>
+            <div><label>នៃសាលា</label><input id="pSchool" oninput="renderPerm()"></div>
+          </div>
+        </div>
+        <div id="roleUni">
+          <div class="row3">
+            <div><label>ឆ្នាំទី</label><input id="pYear" oninput="renderPerm()"></div>
+            <div><label>ផ្នែក</label><input id="pMajor" oninput="renderPerm()"></div>
+            <div><label>នៃសាកលវិទ្យាល័យ</label><input id="pUni" oninput="renderPerm()"></div>
+          </div>
+        </div>
+        <div id="roleStaff" style="display:none">
+          <label>ផ្នែក</label><input id="pDept" oninput="renderPerm()">
+        </div>
+        <label>នាមឲ្យ (អ្នកទទួល)</label>
+        <input id="pTo" value="ប្រធានមណ្ឌលនិស្សិតជីវិតថ្មី" oninput="renderPerm()">
+        <div class="row2">
+          <div><label>ចាប់ពីថ្ងៃ</label><input id="pFrom" type="date" oninput="renderPerm()"></div>
+          <div><label>ដល់ថ្ងៃ</label><input id="pToDate" type="date" oninput="renderPerm()"></div>
+        </div>
+        <label>មូលហេតុ</label>
+        <textarea id="pReason" placeholder="ឧ. ទៅស្រុក (ព្រះសីហនុ)" oninput="renderPerm()"></textarea>
+        <div class="row2">
+          <div><label>ទីកន្លែង</label><input id="pPlace" value="ភ្នំពេញ" oninput="renderPerm()"></div>
+          <div><label>កាលបរិច្ឆេទសរសេរ</label><input id="pWriteDate" type="date" oninput="renderPerm()"></div>
+        </div>
+      </div>
+      <div class="bar" style="margin-top:16px">
+        <button class="btn b-png" onclick="exportNode('permDoc','image','PermissionRequest')">📷 បង្កើតរូបភាព</button>
+        <button class="btn b-pdf" onclick="exportNode('permDoc','pdf','PermissionRequest')">📄 បង្កើត PDF</button>
+      </div>
+    </div>
+
+    <div class="permdoc" id="permDoc"></div>
+  </section>
+
   <!-- ======== ORG STRUCTURE ======== -->
   <section id="org">
     <h2 class="page">រចនាសម្ព័ន្ធ</h2>
@@ -302,6 +410,19 @@
   </div>
 </div>
 
+<div class="modal" id="dlModal" onclick="if(event.target.id==='dlModal')dlModal.classList.remove('show')">
+  <div class="box">
+    <div id="dlPreview" class="dlprev"></div>
+    <h3>រួចរាល់ ✓</h3>
+    <p id="dlHint"></p>
+    <div class="dlbtns">
+      <button id="dlShare" class="send" onclick="doShare()">📤 ចែករំលែក / រក្សាទុក</button>
+      <a id="dlLink" class="send" style="background:var(--navy);text-decoration:none;display:inline-block">⬇ រក្សាទុក</a>
+    </div>
+    <button class="dlclose" onclick="dlModal.classList.remove('show')">បិទ</button>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox" onclick="if(event.target.id==='lightbox'||event.target.className==='x')closeLight()">
   <span class="x">&times;</span>
   <div id="lbBox"></div>
@@ -309,6 +430,7 @@
 </div>
 
 <script>
+const LOGO="data:image/png;base64,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xlVYiuYxjOGX9999913CVx667LLL3Fdv6X6mFhSmWFxzzTXuOPqqGOT4Aw88II477jitLQzobBiVihikSjZYNUvVxYNNOcVOBcxxnGaj0Qmf8hcSGzt2rMfDvEro6ChoTydXMN9xPycEolEwEKP7iRMnNtva2tzGBcHDGCdV4egkg4u4OtDl9Pfff7v2g/a4TIn64UOlW8mS/aEke9d1O+64o4uOfrPEJZdcIjAmiRbGEe+8847c9ba4oIeeHFPZe/PNN0P2PAMl7IQuwEuI0QdJJn/FFVcU9HTYN4alCHXLEOK2FX1jfPLYkfbkByIkUE5GW+UKZ8qjrjjQMY2ZbJZ0rLx3TkqasNLAKvUFeNwsvfHGG2LnnXdWql133XVKflWZXepQiSKoDom77LKLeOqpp9z1tKpaqADurneofO2118Ruu+0mJkyY4MaK/qmnntqViubGFXrp4/LLLw8Utxq7V155pQt01113dc8ezznnHLH99tu7i32CJ6mq8QG/jBH90KESa3NVkYKrHOGQucMOO3in+zKmqsYH/CzGNjceur5pyLsCxCjVTWZbPBK/3NLddDcOuS+3tvbKKCdjoK3Tpc4qKdke7bHHHuKll17y9rtaJ3SoxCGmikSfQivYVY0PwbEYu95ZpVX1uoBQlz1UdoHaGEOoC2dMT3kH68KVtzZGZHXhjOkp72BduPLWxoisLpwxPeUdrAtX3toYkdWFM6anvIN14cpbGyOyunDG9JR3sC5ceWtjRFYXzpie8g52icI98sgj1hmOI2tttChBelzQoOYSYajUg9SHH35YQrfeQqdqcQIvI4f2XU5DMrFbpSZxx90+9NBDlYqzvUxelA7tV7dw9MqUF0mwc+yxxzbRTET/fL1SxWOxVLdw999/P4vD333++ee9gtC7cP5Btvf44497cvj8lr0x6NUs3H333cdiCHeDa24df/zxYaEODmyVvWASHwuimoVjAYS6J5xwgrIQIUHGuPfee5U6MmFl2TLI1SvcPffcw/D7u/Sf7rUFwJiJYLcsBdLhYPirVbi7776bYfd3H3zwwcjEY71KE+kSVhY+w16dwmHZQRPZ/tuVU045RWumyKUNbT4cDHg1CkfrnTDM4S691BH5beOJCVvo5Nx5552xbHG7re53omxWo3AffPABw+zvnn766bETDR0T3X777bFttrposM+o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";
 const FRIDAYS = ["សុក្រ ៥ មិថុនា","សុក្រ ១២ មិថុនា","សុក្រ ១៩ មិថុនា","សុក្រ ២៦ មិថុនា"];
 const NAMES = [
  ["Chhay Kimhou","M"],["Chea Meng","M"],["Chea Theara","M"],["Em Souleang","M"],
@@ -404,9 +526,36 @@ function renderRank(){
   ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td></tr>`);
 }
 /* ---- export ---- */
+function stamp(){return new Date().toISOString().slice(0,10);}
+let _resultFile=null, _resultURL=null;
+// Works on desktop (download) AND mobile (share sheet -> Save Image / Save to Files)
+function showResult(blob, filename, kind){
+  if(_resultURL) URL.revokeObjectURL(_resultURL);
+  _resultURL = URL.createObjectURL(blob);
+  _resultFile = new File([blob], filename, {type: blob.type});
+  const icon = kind==='video' ? '🎬' : '📄';
+  dlPreview.innerHTML = kind==='image'
+    ? `<img src="${_resultURL}" alt="">`
+    : `<div style="font-size:54px">${icon}</div><div style="font-size:13px;color:#556">${filename}</div>`;
+  dlLink.href=_resultURL; dlLink.setAttribute('download',filename);
+  if(kind==='pdf'||kind==='video') dlLink.setAttribute('target','_blank'); else dlLink.removeAttribute('target');
+  const canShare = navigator.canShare && navigator.canShare({files:[_resultFile]});
+  dlShare.style.display = canShare ? '' : 'none';
+  dlHint.innerHTML = canShare
+    ? "ទូរស័ព្ទ៖ ចុច «📤 ចែករំលែក / រក្សាទុក» ➜ ជ្រើស <b>Save Image</b> / <b>Save Video</b> ឬ <b>Save to Files</b> ឬផ្ញើទៅ Telegram / Messenger។"
+    : (kind==='image'
+        ? "ចុច «⬇ រក្សាទុក» ដើម្បីទាញយករូបភាព។ (ទូរស័ព្ទ៖ ចុចឃ្លាំងលើរូប រួចជ្រើស Save Image)"
+        : "ចុច «⬇ បើក / រក្សាទុក» ➜ បើកឯកសារ រួចចុច Share ➜ Save to Files / Save Video។");
+  dlModal.classList.add('show');
+}
+function doShare(){
+  if(_resultFile && navigator.share){
+    navigator.share({files:[_resultFile], title:'Phnom Penh New Life Student Center'}).catch(()=>{});
+  }
+}
 function exportPNG(){
   html2canvas(attendDoc,{scale:2,backgroundColor:'#fff'}).then(c=>{
-    c.toBlob(bl=>downloadBlob(bl,'Attendance-'+stamp()+'.png'));
+    c.toBlob(bl=>showResult(bl,'Attendance-'+stamp()+'.png','image'),'image/png');
   });
 }
 function exportPDF(elId,name){
@@ -416,9 +565,8 @@ function exportPDF(elId,name){
     const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
     const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
     const w=pw-40, h=c.height*w/c.width;
-    let left=h, pos=20;
     if(h<=ph-40){ pdf.addImage(img,'PNG',20,20,w,h); }
-    else { // paginate tall content
+    else {
       let sY=0; const pageH=ph-40; const ratio=c.width/w;
       while(sY < c.height){
         const slice=Math.min(c.height-sY, pageH*ratio);
@@ -429,17 +577,72 @@ function exportPDF(elId,name){
         sY+=slice;
       }
     }
-    pdf.save(name+'-'+stamp()+'.pdf');
+    showResult(pdf.output('blob'), name+'-'+stamp()+'.pdf','pdf');
   });
 }
-function downloadBlob(bl,fn){const u=URL.createObjectURL(bl);const a=document.createElement('a');a.href=u;a.download=fn;a.click();URL.revokeObjectURL(u);}
-function stamp(){return new Date().toISOString().slice(0,10);}
-function share(t){
-  alert(t==='tg'?'រូបភាពនឹងទាញយក → បើក Telegram ហើយផ្ញើ។':'រូបភាពនឹងទាញយក → បើក Messenger ហើយផ្ញើ។');
-  html2canvas(attendDoc,{scale:2,backgroundColor:'#fff'}).then(c=>c.toBlob(bl=>{
-    downloadBlob(bl,'Attendance-'+stamp()+'.png');
-    window.open(t==='tg'?'https://t.me':'https://www.messenger.com','_blank');
-  }));
+function share(t){ exportPNG(); }  // share sheet (in result popup) includes Telegram & Messenger
+// generic exporter for any element -> image or pdf
+function exportNode(elId, kind, name){
+  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff'}).then(c=>{
+    if(kind==='image'){ c.toBlob(b=>showResult(b,name+'-'+stamp()+'.png','image'),'image/png'); return; }
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
+    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+    const w=pw-40, h=c.height*w/c.width;
+    if(h<=ph-40){ pdf.addImage(c.toDataURL('image/png'),'PNG',20,20,w,h); }
+    else { let sY=0; const pageH=ph-40, ratio=c.width/w;
+      while(sY<c.height){ const slice=Math.min(c.height-sY,pageH*ratio);
+        const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
+        cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
+        if(sY>0) pdf.addPage(); pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio); sY+=slice; } }
+    showResult(pdf.output('blob'), name+'-'+stamp()+'.pdf','pdf');
+  });
+}
+/* ---- permission request letter ---- */
+function pv(id){ const el=document.getElementById(id); return el?(el.value||'').trim():''; }
+function U(s){ return `<span class="u">${s||'&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`; }
+function khDate(v){ if(!v) return {d:'',m:'',y:''}; const p=v.split('-'); return {d:p[2],m:p[1],y:p[0]}; }
+function daysBetween(a,b){ if(!a||!b) return ''; const n=Math.round((new Date(b)-new Date(a))/86400000)+1; return n>0?n:''; }
+function roleChange(){
+  const r=document.querySelector('input[name=pRole]:checked').value;
+  roleStudent.style.display = r==='student'?'':'none';
+  roleUni.style.display     = r==='uni'?'':'none';
+  roleStaff.style.display   = r==='staff'?'':'none';
+  renderPerm();
+}
+function roleLine(){
+  const r=document.querySelector('input[name=pRole]:checked').value;
+  if(r==='student') return `ជា សិស្ស ថ្នាក់ទី ${U(pv('pClass'))} នៃ ${U(pv('pSchool'))}`;
+  if(r==='staff')   return `ជា បុគ្គលិក ផ្នែក ${U(pv('pDept'))}`;
+  return `ជា និស្សិតឆ្នាំទី ${U(pv('pYear'))} ផ្នែក ${U(pv('pMajor'))} នៃ ${U(pv('pUni'))}`;
+}
+function renderPerm(){
+  const f=khDate(pv('pFrom')), t=khDate(pv('pToDate')), wd=khDate(pv('pWriteDate'));
+  const days=daysBetween(pv('pFrom'),pv('pToDate'));
+  const role=document.querySelector('input[name=pRole]:checked').value;
+  const cb=v=>`<span class="cb">${role===v?'✓':''}</span>`;
+  const s=role==='student', u=role==='uni', st=role==='staff';
+  permDoc.innerHTML = `
+   <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small><div class="divider">— ❧ —</div></div></div>
+   <div class="no">N°. <span class="u" style="min-width:130px">${pv('pNo')}</span></div>
+   <div class="pt">ពាក្យសុំច្បាប់</div>
+   <div class="pline"><span class="t">ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ៖</span> <span class="u grow">${pv('pName')}</span> <span class="t">ភេទ</span> <span class="u">${pv('pSex')}</span> <span class="t">អាយុ</span> <span class="u">${pv('pAge')}</span> <span class="t">លេខទូរស័ព្ទ</span> <span class="u">${pv('pPhone')}</span></div>
+   <div class="rolewrap"><span class="ja">ជា</span><div class="rolecol">
+     <div class="pline">${cb('student')} <span class="t">សិស្ស ថ្នាក់ទី</span> <span class="u">${s?pv('pClass'):''}</span> <span class="t">នៃ</span> <span class="u grow">${s?pv('pSchool'):''}</span></div>
+     <div class="pline">${cb('uni')} <span class="t">និស្សិត ឆ្នាំទី</span> <span class="u">${u?pv('pYear'):''}</span> <span class="t">ផ្នែក</span> <span class="u">${u?pv('pMajor'):''}</span> <span class="t">នៃ</span> <span class="u grow">${u?pv('pUni'):''}</span></div>
+     <div class="pline">${cb('staff')} <span class="t">បុគ្គលិក ផ្នែក</span> <span class="u grow">${st?pv('pDept'):''}</span></div>
+   </div></div>
+   <div class="recip">សូមគោរពចូលមក<br>បុគ្គលិកទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
+   <div class="pline"><span class="t label">នាមឲ្យ ៖</span> <span class="t" style="color:var(--navy);font-weight:700">${pv('pTo')}</span></div>
+   <div class="pline"><span class="t label">កម្មវត្ថុ ៖</span> <span class="t">សំណើសុំច្បាប់ដើម្បីឈប់សម្រាក ចំនួន</span> <span class="u">${days}</span> <span class="t">ថ្ងៃ</span></div>
+   <div class="pline indent daterow"><span class="t">ចាប់ពីថ្ងៃទី</span> <span class="u">${f.d}</span> <span class="t">ខែ</span> <span class="u">${f.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${f.y}</span> <span class="t">ដល់ថ្ងៃទី</span> <span class="u">${t.d}</span> <span class="t">ខែ</span> <span class="u">${t.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${t.y}</span></div>
+   <div class="pline"><span class="t label">មូលហេតុ ៖</span> <span class="u grow" style="text-align:left">${pv('pReason')}</span></div>
+   <div class="para">អាស្រ័យដូចបានជំរាបជូនខាងលើនេះ សូមលោកនាយកមេត្តាអនុញ្ញាតច្បាប់សម្រាប់ទៅតាមការស្នើសុំរបស់ខ្ញុំបាទ-នាងខ្ញុំ ដោយយល់សេចក្ដីស្រឡាញ់នៃព្រះអម្ចាស់យេស៊ូវគ្រីស្ទ ។</div>
+   <div class="sign"><span class="t">${pv('pPlace')||'ភ្នំពេញ'}, ថ្ងៃទី</span> <span class="u">${wd.d}</span> <span class="t">ខែ</span> <span class="u">${wd.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${wd.y}</span><br>ហត្ថលេខា<br><span class="u" style="margin-top:6px">${pv('pName')}</span></div>
+   <div class="decision">សេចក្ដីសម្រេចរបស់បុគ្គលិក<br>ទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
+   <div class="blank"></div>
+   <div class="blank"></div>
+   <div style="text-align:center;margin-top:18px">ភ្នំពេញ, ថ្ងៃទី ____ ខែ ____ ឆ្នាំ ២០__<br>ហត្ថលេខា</div>`;
 }
 /* ---- memories gallery ---- */
 // To add more: put files in the "memories" folder, then add entries below.
@@ -469,7 +672,7 @@ function renderGallery(){
     const thumb = m.type==='video'
       ? `<div class="thumb"><video src="${m.src}" preload="metadata" muted></video><div class="play">▶</div></div>`
       : `<img src="${m.src}" alt="${m.cap||''}" loading="lazy">`;
-    const dl = `<a class="dl" href="${m.src}" download onclick="event.stopPropagation()">⬇ រក្សាទុក</a>`;
+    const dl = `<a class="dl" href="javascript:void(0)" onclick="event.stopPropagation();saveMedia(${i})">⬇ រក្សាទុក</a>`;
     return `<figure><div onclick="openLight(${i})">${thumb}${m.cap?`<figcaption>${m.cap}</figcaption>`:''}</div>${dl}</figure>`;
   }).join('')+'</div>';
 }
@@ -484,10 +687,22 @@ function openLight(i){
   lbBox.innerHTML = m.type==='video'
     ? `<video src="${m.src}" controls autoplay playsinline></video>`
     : `<img src="${m.src}" alt="">`;
-  lbCap.innerHTML = (m.cap||'') + ` &nbsp; <a href="${m.src}" download style="color:#7CD992;font-weight:700">⬇ រក្សាទុក</a>`;
+  lbCap.innerHTML = (m.cap||'') + ` &nbsp; <a href="javascript:void(0)" onclick="saveMedia(${i})" style="color:#7CD992;font-weight:700">⬇ រក្សាទុក</a>`;
   lightbox.classList.add('show');
 }
 function closeLight(){ lightbox.classList.remove('show'); lbBox.innerHTML=''; }
+// fetch the media into a blob, then show the save/share popup (works on mobile)
+async function saveMedia(i){
+  const m=window._galleryAll[i];
+  const ext = m.type==='video' ? 'mp4' : 'jpg';
+  const fn = (m.cap?m.cap.replace(/[^\w-]+/g,'_'):'memory')+'-'+i+'.'+ext;
+  try{
+    const blob = await (await fetch(m.src)).blob();
+    showResult(blob, fn, m.type==='video'?'video':'image');
+  }catch(e){
+    window.open(m.src,'_blank');  // fallback: open so user can long-press to save
+  }
+}
 
 /* ---- access control for attendance ---- */
 const PASSCODE = "2026";   // ⚠️ ប្ដូរលេខសម្ងាត់នេះ — ផ្ដល់ឲ្យតែអ្នកទទួលបន្ទុក
@@ -595,7 +810,9 @@ function renderOrg(){
 }
 
 /* init */
-renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg();
+document.querySelectorAll('img').forEach(i=>{if(i.getAttribute('src')==='picture1.png')i.src=LOGO;});document.querySelectorAll('link[rel*=icon]').forEach(l=>l.href=LOGO);
+document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,10);
+renderStudents(); renderAttHead(); applyLock(); applySLock(); renderGallery(); buildSlideshow(); renderOrg(); roleChange();
 </script>
 </body>
 </html>
