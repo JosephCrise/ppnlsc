@@ -261,6 +261,16 @@
   }
   /* fixed A4 letter when exporting, regardless of device width */
   .permdoc.export-mode{width:794px !important;max-width:794px !important;min-height:1123px !important;}
+  /* native print -> Save as PDF (most reliable on iPhone/iPad/Android). Prints only the letter. */
+  @media print{
+    body{background:#fff !important;}
+    body.print-perm *{visibility:hidden !important;}
+    body.print-perm #permDoc, body.print-perm #permDoc *{visibility:visible !important;}
+    body.print-perm #permDoc{position:absolute;left:0;top:0;width:100% !important;max-width:none !important;
+      min-height:auto !important;margin:0 !important;padding:18px 22px !important;box-shadow:none !important;}
+    header.nav,.bar,.modal,#exportBusy{display:none !important;}
+    @page{size:A4;margin:12mm;}
+  }
 </style>
 </head>
 <body>
@@ -420,7 +430,7 @@
       </div>
       <div class="bar" style="margin-top:16px">
         <button class="btn b-png" onclick="exportNode('permDoc','image','PermissionRequest')">📷 បង្កើតរូបភាព</button>
-        <button class="btn b-pdf" onclick="exportNode('permDoc','pdf','PermissionRequest')">📄 បង្កើត PDF</button>
+        <button class="btn b-pdf" onclick="printPerm()">📄 បង្កើត PDF</button>
       </div>
     </div>
 
@@ -655,7 +665,15 @@ async function captureCanvas(el){
   if(document.fonts && document.fonts.ready){ try{ await withTimeout(document.fonts.ready, 3000, 'fonts'); }catch(e){} }
   const tall = el.scrollHeight*2 > 3800;            // stay under mobile canvas pixel limit
   return withTimeout(html2canvas(el,{
-    backgroundColor:'#fff', useCORS:true, logging:false, imageTimeout:8000, removeContainer:true,
+    backgroundColor:'#fff', useCORS:true, logging:false, imageTimeout:4000, removeContainer:true,
+    // Skip the nav and every section that doesn't contain the target, so html2canvas
+    // doesn't try to load all the leader/memory/slideshow images (the cause of slow hangs on mobile).
+    ignoreElements:(node)=>{
+      if(!node || node.nodeType!==1) return false;
+      if(node.tagName==='HEADER') return true;
+      if(node.tagName==='SECTION' && node!==el && !node.contains(el)) return true;
+      return false;
+    },
     scale: tall ? 1.5 : 2, windowWidth:1024, scrollX:0, scrollY:0,
     onclone:(doc)=>{
       const c=doc.getElementById(el.id);
@@ -692,6 +710,15 @@ async function exportNode(elId, kind, name){
   }finally{
     el.classList.remove('export-mode'); exportBusy(false);
   }
+}
+// Native print -> Save as PDF. Most reliable for the letter on every device (perfect Khmer text, no html2canvas).
+function printPerm(){
+  if(typeof renderPerm==='function') renderPerm();
+  document.body.classList.add('print-perm');
+  const cleanup=()=>{ document.body.classList.remove('print-perm'); window.removeEventListener('afterprint',cleanup); };
+  window.addEventListener('afterprint',cleanup);
+  setTimeout(()=>{ window.print(); }, 60);
+  setTimeout(cleanup, 60000);   // safety: never leave the page in print mode
 }
 function exportPNG(){ exportNode('attendDoc','image','Attendance'); }
 function exportPDF(elId,name){ exportNode(elId,'pdf',name); }
