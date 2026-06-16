@@ -209,7 +209,7 @@
   .dlbtns .send{margin-top:0;}
   .modal .dlclose{background:#888;margin-top:12px;padding:9px 22px;}
   /* ---------- tables ---------- */
-  .scroll{overflow-x:auto;border-radius:10px;}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;}
   table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;}
   th,td{border:1px solid #cfd6e4;padding:7px 8px;text-align:center;}
   th{background:var(--blue);color:#fff;font-weight:600;position:relative;}
@@ -236,6 +236,31 @@
   .rank td.cnt{color:var(--absent);font-weight:700;}
   .foot{margin-top:14px;text-align:right;font-size:11px;color:#999;}
   @media(max-width:600px){.hero h1{font-size:24px}h2.page{font-size:19px}}
+  /* ---------- responsive / touch polish (phones, iPad, Android) ---------- */
+  .btn,.send{min-height:44px;}                 /* comfortable tap target */
+  .scroll{position:relative;}
+  @media(max-width:760px){
+    main{padding:18px 12px 60px;}
+    /* prevent iOS zoom-on-focus: form fields must be >=16px */
+    input,select,textarea{font-size:16px !important;}
+    /* export/action buttons stretch and stay easy to tap */
+    .bar{gap:8px;}
+    .bar .btn{flex:1 1 auto;text-align:center;}
+    /* tables scroll sideways instead of squashing */
+    .scroll{box-shadow:inset -14px 0 12px -12px rgba(0,0,0,.18);}
+    table{font-size:12.5px;}
+    th,td{padding:6px 6px;}
+    /* nav scrolls horizontally on small screens */
+    nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    nav button{flex:0 0 auto;}
+    .summary-row{gap:10px;} .pill{min-width:30%;}
+  }
+  @media(max-width:420px){
+    .pill span{font-size:22px;}
+    .doctitle{font-size:18px;}
+  }
+  /* fixed A4 letter when exporting, regardless of device width */
+  .permdoc.export-mode{width:794px !important;max-width:794px !important;min-height:1123px !important;}
 </style>
 </head>
 <body>
@@ -600,54 +625,65 @@ function doShare(){
     navigator.share({files:[_resultFile], title:'Phnom Penh New Life Student Center'}).catch(()=>{});
   }
 }
-function exportPNG(){
-  html2canvas(attendDoc,{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
-    c.toBlob(bl=>showResult(bl,'Attendance-'+stamp()+'.png','image'),'image/png');
-  });
-}
-function exportPDF(elId,name){
-  const {jsPDF}=window.jspdf;
-  html2canvas(document.getElementById(elId),{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
-    const img=c.toDataURL('image/png');
-    const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
-    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-    const w=pw-40, h=c.height*w/c.width;
-    if(h<=ph-40){ pdf.addImage(img,'PNG',20,20,w,h); }
-    else {
-      let sY=0; const pageH=ph-40; const ratio=c.width/w;
-      while(sY < c.height){
-        const slice=Math.min(c.height-sY, pageH*ratio);
-        const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
-        cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
-        if(sY>0) pdf.addPage();
-        pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio);
-        sY+=slice;
-      }
+// ---- busy overlay (so users on slow phones know it's working) ----
+function exportBusy(on){
+  let el=document.getElementById('exportBusy');
+  if(on){
+    if(!el){
+      el=document.createElement('div'); el.id='exportBusy';
+      el.style.cssText='position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(15,30,60,.45);';
+      el.innerHTML='<div style="background:var(--navy);color:#fff;padding:18px 26px;border-radius:14px;font-weight:700;font-size:16px">កំពុងបង្កើត… សូមរង់ចាំ</div>';
+      document.body.appendChild(el);
     }
-    showResult(pdf.output('blob'), name+'-'+stamp()+'.pdf','pdf');
+    el.style.display='flex';
+  } else if(el){ el.style.display='none'; }
+}
+// ---- core capture: waits for Khmer fonts, fixes A4 width, caps size for iOS ----
+async function captureCanvas(el){
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  const tall = el.scrollHeight*2 > 3800;            // stay under mobile canvas pixel limit
+  return html2canvas(el,{
+    backgroundColor:'#fff', useCORS:true, logging:false,
+    scale: tall ? 1.6 : 2, windowWidth:1024, scrollX:0, scrollY:0,
+    onclone:(doc)=>{
+      const c=doc.getElementById(el.id);
+      if(c && el.id==='permDoc'){ c.style.width='794px'; c.style.maxWidth='794px'; c.style.minHeight='1123px'; c.style.margin='0 auto'; }
+    }
   });
 }
-function share(t){ exportPNG(); }  // share sheet (in result popup) includes Telegram & Messenger
-// generic exporter for any element -> image or pdf
-function exportNode(elId, kind, name){
-  const el=document.getElementById(elId); el.classList.add('export-mode');
-  const done=()=>el.classList.remove('export-mode');
-  html2canvas(el,{scale:2,backgroundColor:'#fff',windowWidth:1024}).then(c=>{
-    done();
-    if(kind==='image'){ c.toBlob(b=>showResult(b,name+'-'+stamp()+'.png','image'),'image/png'); return; }
-    const {jsPDF}=window.jspdf;
-    const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
-    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-    const w=pw-40, h=c.height*w/c.width;
-    if(h<=ph-40){ pdf.addImage(c.toDataURL('image/png'),'PNG',20,20,w,h); }
-    else { let sY=0; const pageH=ph-40, ratio=c.width/w;
-      while(sY<c.height){ const slice=Math.min(c.height-sY,pageH*ratio);
-        const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
-        cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
-        if(sY>0) pdf.addPage(); pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio); sY+=slice; } }
-    showResult(pdf.output('blob'), name+'-'+stamp()+'.pdf','pdf');
-  });
+function canvasToPDF(c,name){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
+  const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
+  const w=pw-40, h=c.height*w/c.width;
+  if(h<=ph-40){ pdf.addImage(c.toDataURL('image/png'),'PNG',20,20,w,h); }
+  else { let sY=0; const pageH=ph-40, ratio=c.width/w;
+    while(sY<c.height){ const slice=Math.min(c.height-sY,pageH*ratio);
+      const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
+      cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
+      if(sY>0) pdf.addPage(); pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio); sY+=slice; } }
+  showResult(pdf.output('blob'), name+'-'+stamp()+'.pdf','pdf');
 }
+// generic exporter for any element -> image or pdf (works on iPhone, iPad, Android, desktop)
+async function exportNode(elId, kind, name){
+  const el=document.getElementById(elId); if(!el) return;
+  exportBusy(true); el.classList.add('export-mode');
+  try{
+    const c=await captureCanvas(el);
+    if(kind==='image'){
+      await new Promise(res=>c.toBlob(b=>{ showResult(b,name+'-'+stamp()+'.png','image'); res(); },'image/png'));
+    } else {
+      canvasToPDF(c,name);
+    }
+  }catch(err){
+    if(window.msgModal){ msgTitle.textContent='បង្កើតមិនបាន (export failed)'; msgText.textContent=(err&&err.message)||'សូមព្យាយាមម្ដងទៀត។'; msgModal.classList.add('show'); }
+  }finally{
+    el.classList.remove('export-mode'); exportBusy(false);
+  }
+}
+function exportPNG(){ exportNode('attendDoc','image','Attendance'); }
+function exportPDF(elId,name){ exportNode(elId,'pdf',name); }
+function share(t){ exportNode('attendDoc','image','Attendance'); }  // result popup has Telegram/Messenger
 /* ---- permission request letter ---- */
 function pv(id){ const el=document.getElementById(id); return el?(el.value||'').trim():''; }
 function U(s){ return `<span class="u">${s||'&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`; }
