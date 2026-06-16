@@ -638,18 +638,30 @@ function exportBusy(on){
     el.style.display='flex';
   } else if(el){ el.style.display='none'; }
 }
-// ---- core capture: waits for Khmer fonts, fixes A4 width, caps size for iOS ----
+// ---- helpers: never let the spinner hang forever ----
+function withTimeout(p, ms, label){
+  return Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error((label||'Timeout')+' '+ms+'ms')), ms))]);
+}
+// iOS Safari's canvas.toBlob() callback can silently never fire; toDataURL is synchronous and reliable.
+function canvasToBlob(c){
+  const durl=c.toDataURL('image/png');
+  const [head,b64]=durl.split(','); const mime=(head.match(/:(.*?);/)||[])[1]||'image/png';
+  const bin=atob(b64), len=bin.length, arr=new Uint8Array(len);
+  for(let i=0;i<len;i++) arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime});
+}
+// ---- core capture: waits for Khmer fonts (capped), fixes A4 width, caps size for iOS ----
 async function captureCanvas(el){
-  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  if(document.fonts && document.fonts.ready){ try{ await withTimeout(document.fonts.ready, 3000, 'fonts'); }catch(e){} }
   const tall = el.scrollHeight*2 > 3800;            // stay under mobile canvas pixel limit
-  return html2canvas(el,{
-    backgroundColor:'#fff', useCORS:true, logging:false,
-    scale: tall ? 1.6 : 2, windowWidth:1024, scrollX:0, scrollY:0,
+  return withTimeout(html2canvas(el,{
+    backgroundColor:'#fff', useCORS:true, logging:false, imageTimeout:8000, removeContainer:true,
+    scale: tall ? 1.5 : 2, windowWidth:1024, scrollX:0, scrollY:0,
     onclone:(doc)=>{
       const c=doc.getElementById(el.id);
       if(c && el.id==='permDoc'){ c.style.width='794px'; c.style.maxWidth='794px'; c.style.minHeight='1123px'; c.style.margin='0 auto'; }
     }
-  });
+  }), 25000, 'capture');
 }
 function canvasToPDF(c,name){
   const {jsPDF}=window.jspdf;
@@ -671,7 +683,7 @@ async function exportNode(elId, kind, name){
   try{
     const c=await captureCanvas(el);
     if(kind==='image'){
-      await new Promise(res=>c.toBlob(b=>{ showResult(b,name+'-'+stamp()+'.png','image'); res(); },'image/png'));
+      showResult(canvasToBlob(c), name+'-'+stamp()+'.png','image');
     } else {
       canvasToPDF(c,name);
     }
