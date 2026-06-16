@@ -704,6 +704,7 @@ async function captureCanvas(el){
       if(!node || node.nodeType!==1) return false;
       if(node.tagName==='HEADER') return true;
       if(node.tagName==='SECTION' && node!==el && !node.contains(el)) return true;
+      if(node.classList && (node.classList.contains('modal')||node.classList.contains('slideshow')) && !node.contains(el)) return true;
       return false;
     },
     scale: tall ? 1.5 : 2, windowWidth:1024, scrollX:0, scrollY:0,
@@ -711,7 +712,7 @@ async function captureCanvas(el){
       const c=doc.getElementById(el.id);
       if(c && (el.id==='permDoc'||el.id==='permitDoc')){ c.style.width='794px'; c.style.maxWidth='794px'; c.style.minHeight='1123px'; c.style.margin='0 auto'; }
     }
-  }), 25000, 'capture');
+  }), 40000, 'capture');
 }
 function canvasToPDFBlob(c,fitOnePage){
   const {jsPDF}=window.jspdf;
