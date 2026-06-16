@@ -17,4 +17,7 @@ const sb = window.supabase.createClient(SB_URL, SB_ANON_KEY, {
    Fill both values to get a Telegram message on every saved permission request.
    Leave the placeholders to disable notifications. */
 const TG_BOT_TOKEN = "8679739566:AAGlAmiSXiqLR0LRy3HBgiO1BlQKrihYidQ";   // from @BotFather
-const TG_CHAT_ID   = "857114152";              // your Telegram chat id
+const TG_CHAT_ID   = "857114152";              // your (admin) Telegram chat id
+// Optional: a channel/group that ALL students join, so everyone is notified too.
+// Public channel: use "@channel_username".  Private channel/group: use its "-100..." id.
+const TG_CHANNEL_ID = "@ppnlsc_permission";                       // leave "" to notify admin only
