@@ -38,6 +38,8 @@ async function loadData(){
   if (e2) return toast(e2.message);
 
   STUDENTS = students || [];
+  // sort: all males (M) first, then females (F); keep seq order within each group
+  STUDENTS.sort((a, b) => (a.gender !== b.gender) ? (a.gender === "M" ? -1 : 1) : ((a.seq || 0) - (b.seq || 0)));
   DATA = STUDENTS.map(s => ({
     id: s.id, name: s.name, gender: s.gender,
     att: Array.from({ length: 4 }, () => ({ s: "", r: "" }))
@@ -77,7 +79,8 @@ function renderStudents(){
       ? `<td class="name" onclick="showLock()">${d.name}</td>`
       : `<td class="name" contenteditable onblur="saveStudentName(${i}, this.innerText)">${d.name}</td>`;
     const genderCell = `<td class="gender ${d.gender}" onclick="${!isStaff ? "showLock()" : "toggleGender(" + i + ")"}" title="ចុចដើម្បីប្ដូរ M/F">${d.gender}</td>`;
-    b.innerHTML += `<tr><td>${i + 1}</td>${nameCell}${genderCell}</tr>`;
+    const delCell = `<td class="del-col">${ isStaff ? `<button class="rowdel" onclick="deleteStudent(${i})" title="លុបសិស្ស">🗑</button>` : "" }</td>`;
+    b.innerHTML += `<tr><td>${i + 1}</td>${nameCell}${genderCell}${delCell}</tr>`;
   });
   refreshCounts();
 }
@@ -162,10 +165,19 @@ function toggleGender(i){
     .then(({ error }) => { if (error) toast(error.message); });
 }
 
-async function addStudent(){
+async function deleteStudent(i){
   if (!isStaff) { showLock(); return; }
+  const d = DATA[i]; if (!d || !d.id) return;
+  if (!confirm("លុបសិស្ស «" + (d.name || "—") + "» ? (ការលុបមិនអាចត្រឡប់វិញបានទេ)")) return;
+  const { error } = await sb.from("students").delete().eq("id", d.id);   // attendance rows cascade-delete
+  if (error) toast(error.message);   // realtime reloads the list + counts
+}
+
+async function addStudent(gender){
+  if (!isStaff) { showLock(); return; }
+  const g = (gender === "F") ? "F" : "M";
   const seq = STUDENTS.reduce((m, s) => Math.max(m, s.seq), 0) + 1;
-  const { data, error } = await sb.from("students").insert({ seq, name: "", gender: "M" }).select().single();
+  const { data, error } = await sb.from("students").insert({ seq, name: "", gender: g }).select().single();
   if (error) return toast(error.message);
   await sb.from("attendance").insert([0, 1, 2, 3].map(w => ({ student_id: data.id, week_idx: w })));
   // realtime reloads

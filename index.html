@@ -273,6 +273,11 @@
   .permit-card .pc-date{color:#9aa3b2;font-size:12px;margin-top:2px;}
   .permit-card .pc-act{display:flex;gap:8px;flex-wrap:wrap;}
   .permit-card .pc-act .btn{padding:8px 12px;font-size:13px;}
+  /* delete-student button + column */
+  .rowdel{background:#FDEDEC;color:var(--absent);border:1px solid #f3c7c3;border-radius:8px;
+    padding:4px 10px;font-size:15px;cursor:pointer;line-height:1;}
+  .rowdel:hover{background:#f9d7d4;}
+  .export-mode .del-col{display:none;}   /* keep the PDF clean (no delete column) */
   /* native print -> Save as PDF (most reliable on iPhone/iPad/Android). Prints only the letter. */
   @media print{
     body{background:#fff !important;}
@@ -342,7 +347,8 @@
     <p class="muted">ឈ្មោះ និងភេទ អាចកែប្រែបាន។ ចំនួនប្រុស/ស្រី គណនាស្វ័យប្រវត្តិ។</p>
     <div class="bar">
       <button class="btn b-lock" id="sLockBtn" onclick="toggleSLock()">🔒 ដោះសោកែ (អ្នកទទួលបន្ទុក)</button>
-      <button class="btn b-add" onclick="addStudent()">➕ បន្ថែមសិស្ស</button>
+      <button class="btn" style="background:var(--male)" onclick="addStudent('M')">➕ បន្ថែមសិស្សប្រុស (M)</button>
+      <button class="btn" style="background:var(--female)" onclick="addStudent('F')">➕ បន្ថែមសិស្សស្រី (F)</button>
       <button class="btn b-pdf" onclick="exportPDF('studentDoc','បញ្ជីសិស្ស')">📄 បង្កើតជា PDF</button>
     </div>
     <div class="lockbar locked" id="sLockBar">🔒 ការកែឈ្មោះ/ភេទ ត្រូវបានចាក់សោ។ អ្នកគ្រប់គ្នាអាចបង្កើត PDF បាន។</div>
@@ -354,7 +360,7 @@
         <div class="pill f">សិស្សស្រី (F)<span id="sFemale">0</span></div>
       </div>
       <div class="scroll">
-        <table><thead><tr><th>ល.រ</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th></tr></thead>
+        <table><thead><tr><th>ល.រ</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th><th class="del-col">លុប</th></tr></thead>
         <tbody id="studentBody"></tbody></table>
       </div>
       <div class="foot" id="sStamp"></div>
