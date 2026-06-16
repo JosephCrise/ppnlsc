@@ -190,15 +190,23 @@ async function addMemFiles(files){
 /* ---------- AUTH: staff sign in / out ---------- */
 async function staffAuth(){
   const { data: { session } } = await sb.auth.getSession();
-  if (session) { await sb.auth.signOut(); return; }
-  const email = prompt("អ៊ីមែលបុគ្គលិក (staff email):"); if (!email) return;
-  const password = prompt("ពាក្យសម្ងាត់ (password):"); if (password === null) return;
-  const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
-  if (error) {
-    window.msgTitle.textContent = "ចូលប្រើមិនបាន";
-    window.msgText.textContent  = error.message;
-    window.msgModal.classList.add("show");
-  }
+  if (session) { await sb.auth.signOut(); return; }   // signed in -> sign out
+  // open the in-app login popup (no browser prompt)
+  const m = document.getElementById("loginModal"); if (!m) return;
+  document.getElementById("loginErr").style.display = "none";
+  document.getElementById("loginPass").value = "";
+  m.classList.add("show");
+  setTimeout(() => { const e=document.getElementById("loginEmail"); if(e) e.focus(); }, 50);
+}
+function closeLogin(){ const m=document.getElementById("loginModal"); if(m) m.classList.remove("show"); }
+async function doStaffLogin(){
+  const email = (document.getElementById("loginEmail").value || "").trim();
+  const password = document.getElementById("loginPass").value || "";
+  const err = document.getElementById("loginErr");
+  if (!email || !password) { err.textContent = "សូមបញ្ចូលអ៊ីមែល និងពាក្យសម្ងាត់។"; err.style.display = "block"; return; }
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { err.textContent = error.message; err.style.display = "block"; return; }
+  closeLogin();   // onAuthStateChange updates the rest of the UI
 }
 // The lock buttons now trigger sign-in/out instead of a client passcode.
 function toggleLock(){ staffAuth(); }
@@ -237,7 +245,13 @@ async function loadPermits(){
   renderPermits();
 }
 
+function updatePermitAuthBtn(){
+  const b = document.getElementById("permitAuthBtn"); if(!b) return;
+  b.textContent = isStaff ? "🔓 ចេញពីគណនី (Admin)" : "🔒 ចូលជាអ្នកគ្រប់គ្រង (Admin)";
+  b.classList.toggle("open", isStaff);
+}
 function renderPermits(){
+  updatePermitAuthBtn();
   const w = document.getElementById("permitListWrap"); if(!w) return;
   if(!PERMITS.length){ w.innerHTML = '<div class="empty">មិនទាន់មានពាក្យសុំច្បាប់។</div>'; return; }
   w.innerHTML = PERMITS.map(p => {

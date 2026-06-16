@@ -474,7 +474,8 @@
   <!-- ======== FEEDBACK ======== -->
   <section id="permitlist">
     <h2 class="page">ប្រកាសសុំច្បាប់</h2>
-    <p class="muted">បញ្ជីពាក្យសុំច្បាប់ដែលបានដាក់ស្នើ។ ចុច «មើល / ទាញយក» ដើម្បីបើកមើល បង្កើតរូបភាព ឬ PDF។ ការលុបធ្វើបានតែអ្នកទទួលបន្ទុក (ត្រូវចូលប្រើ)។</p>
+    <p class="muted">បញ្ជីពាក្យសុំច្បាប់ដែលបានដាក់ស្នើ។ ចុច «មើល / ទាញយក» ដើម្បីបើកមើល បង្កើតរូបភាព ឬ PDF។ ការលុបធ្វើបានតែអ្នកគ្រប់គ្រង (Admin) ដែលបានចូលប្រើ។</p>
+    <div class="bar"><button id="permitAuthBtn" class="btn b-lock" onclick="staffAuth()">🔒 ចូលជាអ្នកគ្រប់គ្រង (Admin)</button></div>
     <div id="permitListWrap"><div class="empty">កំពុងផ្ទុក…</div></div>
   </section>
 
@@ -486,6 +487,26 @@
         <button class="btn b-png" onclick="exportNode('permitDoc','image','PermissionRequest')">📷 រូបភាព</button>
         <button class="btn b-pdf" onclick="exportNode('permitDoc','pdf','PermissionRequest')">📄 PDF</button>
         <button class="btn b-clear" onclick="document.getElementById('permitView').classList.remove('show')">បិទ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- admin login popup (replaces the browser prompt) -->
+  <div id="loginModal" class="modal">
+    <div class="box" style="text-align:left">
+      <div class="ic" style="text-align:center">🔒</div>
+      <h3 style="text-align:center">ចូលជាអ្នកគ្រប់គ្រង (Admin)</h3>
+      <label style="display:block;font-size:13px;color:#556;margin:6px 0 4px">អ៊ីមែល (Email)</label>
+      <input id="loginEmail" type="email" autocomplete="username" placeholder="staff@example.com"
+        style="width:100%;padding:12px;border:1px solid #c3ccdd;border-radius:9px;font-size:16px">
+      <label style="display:block;font-size:13px;color:#556;margin:10px 0 4px">ពាក្យសម្ងាត់ (Password)</label>
+      <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')doStaffLogin()"
+        style="width:100%;padding:12px;border:1px solid #c3ccdd;border-radius:9px;font-size:16px">
+      <div id="loginErr" style="color:#9C0006;font-size:13px;margin-top:8px;display:none"></div>
+      <div class="dlbtns" style="margin-top:16px">
+        <button class="send" onclick="doStaffLogin()">ចូល (Sign in)</button>
+        <button class="dlclose" onclick="closeLogin()">បោះបង់</button>
       </div>
     </div>
   </div>
