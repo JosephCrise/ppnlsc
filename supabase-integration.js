@@ -28,11 +28,61 @@ function fmtStamp(ts){
   return ts ? "ផ្លាស់ប្ដូរចុងក្រោយ " + new Date(ts).toLocaleString("en-GB") : "";
 }
 
-/* ---------- LOAD: students + attendance ---------- */
+/* ---------- monthly attendance ---------- */
+const KH_DIGITS = ["០","១","២","៣","៤","៥","៦","៧","៨","៩"];
+const KH_MONTHS = ["មករា","កុម្ភៈ","មីនា","មេសា","ឧសភា","មិថុនា","កក្កដា","សីហា","កញ្ញា","តុលា","វិច្ឆិកា","ធ្នូ"];
+function khNum(n){ return String(n).replace(/\d/g, d => KH_DIGITS[+d]); }
+function curMonthStr(){ const t = new Date(); return t.getFullYear() + "-" + String(t.getMonth()+1).padStart(2,"0"); }
+let CUR_MONTH = curMonthStr();
+let MONTH_FRIDAYS = [];          // [{idx, day, label}]
+
+// every Friday in a given "YYYY-MM"
+function fridaysOf(monthStr){
+  const [y,m] = monthStr.split("-").map(Number);
+  const out=[]; const d=new Date(y, m-1, 1);
+  while(d.getMonth() === m-1){ if(d.getDay()===5) out.push(d.getDate()); d.setDate(d.getDate()+1); }
+  return out.map((day,idx) => ({ idx, day, label: "សុក្រ " + khNum(day) + " " + KH_MONTHS[m-1] }));
+}
+function monthLabelKh(monthStr){
+  const [y,m] = monthStr.split("-").map(Number);
+  return "ខែ " + KH_MONTHS[m-1] + " ឆ្នាំ " + khNum(y);
+}
+
+// header built from the selected month's Fridays (4 or 5 columns)
+function renderAttHead(){
+  const head = window.attHead; if(!head) return;
+  if(!MONTH_FRIDAYS.length) MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
+  let h = '<tr><th rowspan="2">ល.រ</th><th rowspan="2">ឈ្មោះសិស្ស</th><th rowspan="2">ភេទ</th>';
+  MONTH_FRIDAYS.forEach(f => h += `<th class="wk" colspan="2">${f.label}</th>`);
+  h += '<th rowspan="2">វត្តមាន</th><th rowspan="2">អវត្តមាន</th></tr><tr>';
+  MONTH_FRIDAYS.forEach(() => h += '<th>ស្ថានភាព</th><th>មូលហេតុ</th>');
+  h += '</tr>';
+  head.innerHTML = h;
+  const sub = document.querySelector('#attendDoc .docsub');
+  if(sub) sub.textContent = monthLabelKh(CUR_MONTH) + " — ប្រជុំរៀងរាល់ថ្ងៃសុក្រ";
+}
+
+function changeMonth(m){
+  CUR_MONTH = m;
+  MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
+  loadData();
+}
+async function loadMonths(){
+  const sel = document.getElementById("monthSel"); if(!sel) return;
+  const { data } = await sb.from("attendance").select("month");
+  const set = new Set((data||[]).map(r => r.month).filter(Boolean));
+  set.add(curMonthStr()); set.add(CUR_MONTH);
+  const months = Array.from(set).sort().reverse();   // newest first
+  sel.innerHTML = months.map(m => `<option value="${m}" ${m===CUR_MONTH?"selected":""}>${monthLabelKh(m)}</option>`).join("");
+}
+
+/* ---------- LOAD: students + attendance (for CUR_MONTH) ---------- */
 async function loadData(){
+  if(!MONTH_FRIDAYS.length) MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
+  const nW = MONTH_FRIDAYS.length;
   const [{ data: students, error: e1 }, { data: att, error: e2 }] = await Promise.all([
     sb.from("students").select("*").order("seq"),
-    sb.from("attendance").select("*")
+    sb.from("attendance").select("*").eq("month", CUR_MONTH)
   ]);
   if (e1) return toast(e1.message);
   if (e2) return toast(e2.message);
@@ -42,11 +92,11 @@ async function loadData(){
   STUDENTS.sort((a, b) => (a.gender !== b.gender) ? (a.gender === "M" ? -1 : 1) : ((a.seq || 0) - (b.seq || 0)));
   DATA = STUDENTS.map(s => ({
     id: s.id, name: s.name, gender: s.gender,
-    att: Array.from({ length: 4 }, () => ({ s: "", r: "" }))
+    att: Array.from({ length: nW }, () => ({ s: "", r: "" }))
   }));
   (att || []).forEach(a => {
     const i = STUDENTS.findIndex(s => s.id === a.student_id);
-    if (i >= 0 && a.week_idx >= 0 && a.week_idx < 4)
+    if (i >= 0 && a.week_idx >= 0 && a.week_idx < nW)
       DATA[i].att[a.week_idx] = { s: a.status || "", r: a.reason || "" };
   });
 
@@ -56,7 +106,7 @@ async function loadData(){
   if (window.sStamp) sStamp.textContent = fmtStamp(last);
   if (window.aStamp) aStamp.textContent = fmtStamp(last);
 
-  renderStudents(); renderAtt(); refreshCounts();
+  renderAttHead(); renderStudents(); renderAtt(); refreshCounts();
 }
 
 /* ---------- LOAD: memories (Storage public URLs) ---------- */
@@ -90,12 +140,14 @@ function renderAtt(){
   DATA.forEach((d, i) => {
     let row = `<td>${i + 1}</td><td class="name">${d.name || '<i style=color:#bbb>—</i>'}</td><td class="gender ${d.gender}">${d.gender}</td>`;
     d.att.forEach((w, j) => {
-      row += `<td class="att ${w.s} ${!isStaff ? "lock" : ""}" onclick="cycle(${i},${j})">${w.s}</td>`;
+      const label = w.s === "AP" ? "A✓" : w.s;   // AP = absent WITH permission
+      row += `<td class="att ${w.s} ${!isStaff ? "lock" : ""}" onclick="cycle(${i},${j})">${label}</td>`;
       row += !isStaff
         ? `<td class="reason" onclick="showLock()">${w.r}</td>`
         : `<td class="reason" contenteditable onblur="saveReason(${i},${j}, this.innerText)">${w.r}</td>`;
     });
-    const p = d.att.filter(w => w.s === "P").length, a = d.att.filter(w => w.s === "A").length;
+    const p = d.att.filter(w => w.s === "P").length;
+    const a = d.att.filter(w => w.s === "A" || w.s === "AP").length;   // total absences (with or without permission)
     row += `<td class="present">${p}</td><td class="absent">${a}</td>`;
     b.innerHTML += `<tr>${row}</tr>`;
   });
@@ -124,13 +176,14 @@ function slideImages(){ return MEM_DB.filter(m => m.type === "image"); }
 function cycle(i, j){
   if (!isStaff) { showLock(); return; }
   const cur = DATA[i].att[j].s;
-  const ns = cur === "" ? "P" : cur === "P" ? "A" : "";
+  // cycle: blank -> P (present) -> A (absent, no permission) -> AP (absent, with permission) -> blank
+  const ns = cur === "" ? "P" : cur === "P" ? "A" : cur === "A" ? "AP" : "";
   DATA[i].att[j].s = ns;
-  if (ns !== "A") DATA[i].att[j].r = "";
+  if (ns === "P" || ns === "") DATA[i].att[j].r = "";   // a reason only applies to an absence
   renderAtt();
   sb.from("attendance")
-    .upsert({ student_id: DATA[i].id, week_idx: j, status: ns, reason: DATA[i].att[j].r },
-            { onConflict: "student_id,week_idx" })
+    .upsert({ student_id: DATA[i].id, month: CUR_MONTH, week_idx: j, status: ns, reason: DATA[i].att[j].r },
+            { onConflict: "student_id,month,week_idx" })
     .then(({ error }) => { if (error) toast(error.message); });
 }
 
@@ -138,14 +191,15 @@ function saveReason(i, j, txt){
   const r = (txt || "").trim();
   DATA[i].att[j].r = r;
   sb.from("attendance")
-    .upsert({ student_id: DATA[i].id, week_idx: j, reason: r },
-            { onConflict: "student_id,week_idx" })
+    .upsert({ student_id: DATA[i].id, month: CUR_MONTH, week_idx: j, reason: r },
+            { onConflict: "student_id,month,week_idx" })
     .then(({ error }) => { if (error) toast(error.message); });
 }
 
 async function clearAtt(){
   if (!isStaff) { showLock(); return; }
-  const { error } = await sb.from("attendance").update({ status: "", reason: "" }).gte("week_idx", 0);
+  // clears only the month currently shown
+  const { error } = await sb.from("attendance").update({ status: "", reason: "" }).eq("month", CUR_MONTH);
   if (error) toast(error.message);   // realtime reloads every client
 }
 
@@ -177,10 +231,9 @@ async function addStudent(gender){
   if (!isStaff) { showLock(); return; }
   const g = (gender === "F") ? "F" : "M";
   const seq = STUDENTS.reduce((m, s) => Math.max(m, s.seq), 0) + 1;
-  const { data, error } = await sb.from("students").insert({ seq, name: "", gender: g }).select().single();
+  const { error } = await sb.from("students").insert({ seq, name: "", gender: g });
   if (error) return toast(error.message);
-  await sb.from("attendance").insert([0, 1, 2, 3].map(w => ({ student_id: data.id, week_idx: w })));
-  // realtime reloads
+  // attendance cells are created on demand when you mark them (per month). realtime reloads.
 }
 
 /* ---------- WRITE: memories upload (Storage) ---------- */
@@ -359,6 +412,9 @@ sb.channel("ppnlsc-rt")
   isStaff = !!session;
   attendLocked = !isStaff;
   studentLocked = !isStaff;
+  CUR_MONTH = curMonthStr();
+  MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
+  await loadMonths();
   await loadData();
   await loadMemories();
   await loadPermits();
