@@ -253,7 +253,6 @@ async function savePermitAndImage(){
 async function notifyPermitSaved(d){
   try{
     if(typeof TG_BOT_TOKEN==="undefined" || !TG_BOT_TOKEN || TG_BOT_TOKEN.indexOf("YOUR")>=0) return;
-    if(typeof TG_CHAT_ID==="undefined" || !TG_CHAT_ID || String(TG_CHAT_ID).indexOf("YOUR")>=0) return;
     const roleKh = d.role==="student" ? "សិស្ស" : d.role==="staff" ? "បុគ្គលិក" : "និស្សិត";
     const text =
       "📋 ពាក្យសុំច្បាប់ថ្មី (New permission request)\n" +
@@ -261,9 +260,15 @@ async function notifyPermitSaved(d){
       "📝 មូលហេតុ: " + (d.reason||"-") + "\n" +
       "📅 ចាប់ពី: " + (d.from_date||"-") + " → " + (d.to_date||"-") + "\n" +
       "☎️ ទូរស័ព្ទ: " + (d.phone||"-");
-    const url = "https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage" +
-      "?chat_id=" + encodeURIComponent(TG_CHAT_ID) + "&text=" + encodeURIComponent(text);
-    await fetch(url);
+    // send to admin chat and/or the student channel (whichever is configured)
+    const targets = [];
+    if(typeof TG_CHAT_ID!=="undefined" && TG_CHAT_ID && String(TG_CHAT_ID).indexOf("YOUR")<0) targets.push(TG_CHAT_ID);
+    if(typeof TG_CHANNEL_ID!=="undefined" && TG_CHANNEL_ID && String(TG_CHANNEL_ID).indexOf("YOUR")<0) targets.push(TG_CHANNEL_ID);
+    for(const id of targets){
+      const url = "https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage" +
+        "?chat_id=" + encodeURIComponent(id) + "&text=" + encodeURIComponent(text);
+      try{ await fetch(url); }catch(e){ console.warn("[PPNLSC] tg send failed for", id, e && e.message); }
+    }
   }catch(e){ console.warn("[PPNLSC] telegram notify failed:", e && e.message); }
 }
 

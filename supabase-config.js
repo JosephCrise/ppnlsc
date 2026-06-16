@@ -20,4 +20,4 @@ const TG_BOT_TOKEN = "8679739566:AAGlAmiSXiqLR0LRy3HBgiO1BlQKrihYidQ";   // from
 const TG_CHAT_ID   = "857114152";              // your (admin) Telegram chat id
 // Optional: a channel/group that ALL students join, so everyone is notified too.
 // Public channel: use "@channel_username".  Private channel/group: use its "-100..." id.
-const TG_CHANNEL_ID = "@ppnlsc_permission";                       // leave "" to notify admin only
+const TG_CHANNEL_ID = "";                       // leave "" to notify admin only
