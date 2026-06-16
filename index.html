@@ -430,7 +430,7 @@
       </div>
       <div class="bar" style="margin-top:16px">
         <button class="btn b-png" onclick="exportNode('permDoc','image','PermissionRequest')">📷 បង្កើតរូបភាព</button>
-        <button class="btn b-pdf" onclick="printPerm()">📄 បង្កើត PDF</button>
+        <button class="btn b-pdf" onclick="exportNode('permDoc','pdf','PermissionRequest')">📄 បង្កើត PDF</button>
       </div>
     </div>
 
@@ -681,30 +681,48 @@ async function captureCanvas(el){
     }
   }), 25000, 'capture');
 }
-function canvasToPDF(c,name){
+function canvasToPDFBlob(c,fitOnePage){
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:c.width>c.height?'l':'p',unit:'pt',format:'a4'});
+  const portrait = c.height>=c.width;
+  const pdf=new jsPDF({orientation:portrait?'p':'l',unit:'pt',format:'a4'});
   const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight();
-  const w=pw-40, h=c.height*w/c.width;
-  if(h<=ph-40){ pdf.addImage(c.toDataURL('image/png'),'PNG',20,20,w,h); }
-  else { let sY=0; const pageH=ph-40, ratio=c.width/w;
-    while(sY<c.height){ const slice=Math.min(c.height-sY,pageH*ratio);
-      const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
-      cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
-      if(sY>0) pdf.addPage(); pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio); sY+=slice; } }
-  showResult(pdf.output('blob'), name+'-'+stamp()+'.pdf','pdf');
+  const mw=pw-40, mh=ph-40;
+  if(fitOnePage){
+    // scale the whole letter to fit one A4 page, keep aspect ratio, centered (no overflow / no blank 2nd page)
+    const r=Math.min(mw/c.width, mh/c.height);
+    const w=c.width*r, h=c.height*r;
+    pdf.addImage(c.toDataURL('image/png'),'PNG',(pw-w)/2,20,w,h);
+  } else {
+    const w=mw, h=c.height*w/c.width;
+    if(h<=mh){ pdf.addImage(c.toDataURL('image/png'),'PNG',20,20,w,h); }
+    else { let sY=0; const pageH=mh, ratio=c.width/w;
+      while(sY<c.height){ const slice=Math.min(c.height-sY,pageH*ratio);
+        const cv=document.createElement('canvas'); cv.width=c.width; cv.height=slice;
+        cv.getContext('2d').drawImage(c,0,sY,c.width,slice,0,0,c.width,slice);
+        if(sY>0) pdf.addPage(); pdf.addImage(cv.toDataURL('image/png'),'PNG',20,20,w,slice/ratio); sY+=slice; } }
+  }
+  return pdf.output('blob');
+}
+// Deliver a file: try the native share sheet FIRST (so phones can "Save Image"/"Save to Files" in one tap),
+// then fall back to the in-app popup (desktop, or if sharing is blocked/cancelled).
+async function deliver(blob, filename, kind){
+  const file=new File([blob], filename, {type:blob.type});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    exportBusy(false);
+    try{ await navigator.share({files:[file], title:'Phnom Penh New Life Student Center'}); return; }
+    catch(e){ if(e && e.name==='AbortError') return; /* user cancelled */ }
+  } else { exportBusy(false); }
+  showResult(blob, filename, kind);
 }
 // generic exporter for any element -> image or pdf (works on iPhone, iPad, Android, desktop)
 async function exportNode(elId, kind, name){
   const el=document.getElementById(elId); if(!el) return;
+  const fitOnePage = (elId==='permDoc');   // the letter is one A4 page
   exportBusy(true); el.classList.add('export-mode');
   try{
     const c=await captureCanvas(el);
-    if(kind==='image'){
-      showResult(canvasToBlob(c), name+'-'+stamp()+'.png','image');
-    } else {
-      canvasToPDF(c,name);
-    }
+    if(kind==='image'){ await deliver(canvasToBlob(c), name+'-'+stamp()+'.png','image'); }
+    else { await deliver(canvasToPDFBlob(c,fitOnePage), name+'-'+stamp()+'.pdf','pdf'); }
   }catch(err){
     if(window.msgModal){ msgTitle.textContent='បង្កើតមិនបាន (export failed)'; msgText.textContent=(err&&err.message)||'សូមព្យាយាមម្ដងទៀត។'; msgModal.classList.add('show'); }
   }finally{
