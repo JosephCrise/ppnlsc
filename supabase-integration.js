@@ -216,13 +216,13 @@ function toggleSLock(){ staffAuth(); }
 let PERMITS = [];
 function escHtml(v){ return (v==null?"":String(v)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
 
-// Save the current form as a public submission.
-async function savePermit(){
+// Save the current form as a public submission. Returns true on success.
+async function savePermit(silent){
   const d = collectPerm();
   if(!d.name || !d.name.trim()){
     window.msgTitle.textContent = "សូមបំពេញឈ្មោះ";
     window.msgText.textContent  = "សូមបញ្ចូលឈ្មោះមុននឹងរក្សាទុក។";
-    window.msgModal.classList.add("show"); return;
+    window.msgModal.classList.add("show"); return false;
   }
   const row = {
     no:d.no, name:d.name, sex:d.sex, age:d.age, phone:d.phone, role:d.role,
@@ -231,11 +231,40 @@ async function savePermit(){
     place:d.place, write_date:d.write_date
   };
   const { error } = await sb.from("permissions").insert(row);
-  if(error){ toast(error.message); return; }
-  window.msgTitle.textContent = "បានរក្សាទុក ✓";
-  window.msgText.textContent  = "ពាក្យសុំច្បាប់ត្រូវបានរក្សាទុកក្នុងម៉ឺនុយ «ប្រកាសសុំច្បាប់»។";
-  window.msgModal.classList.add("show");
-  // realtime will refresh the list
+  if(error){ toast(error.message); return false; }
+  notifyPermitSaved(d);            // requirement 2: send a notification on success
+  if(!silent){
+    window.msgTitle.textContent = "បានរក្សាទុក ✓";
+    window.msgText.textContent  = "ពាក្យសុំច្បាប់ត្រូវបានរក្សាទុកក្នុងម៉ឺនុយ «ប្រកាសសុំច្បាប់»។";
+    window.msgModal.classList.add("show");
+  }
+  return true;   // realtime refreshes the list
+}
+
+// Image button now ALSO saves: save silently first, then generate the image.
+async function savePermitAndImage(){
+  const ok = await savePermit(true);
+  if(!ok) return;                  // stop if name missing / save failed
+  await exportNode("permDoc", "image", "PermissionRequest");
+}
+
+// Notify via Telegram on successful submission (free, instant).
+// Uses a GET request (no CORS preflight). Disabled until tokens are set in supabase-config.js.
+async function notifyPermitSaved(d){
+  try{
+    if(typeof TG_BOT_TOKEN==="undefined" || !TG_BOT_TOKEN || TG_BOT_TOKEN.indexOf("YOUR")>=0) return;
+    if(typeof TG_CHAT_ID==="undefined" || !TG_CHAT_ID || String(TG_CHAT_ID).indexOf("YOUR")>=0) return;
+    const roleKh = d.role==="student" ? "សិស្ស" : d.role==="staff" ? "បុគ្គលិក" : "និស្សិត";
+    const text =
+      "📋 ពាក្យសុំច្បាប់ថ្មី (New permission request)\n" +
+      "👤 ឈ្មោះ: " + (d.name||"-") + " (" + roleKh + ")\n" +
+      "📝 មូលហេតុ: " + (d.reason||"-") + "\n" +
+      "📅 ចាប់ពី: " + (d.from_date||"-") + " → " + (d.to_date||"-") + "\n" +
+      "☎️ ទូរស័ព្ទ: " + (d.phone||"-");
+    const url = "https://api.telegram.org/bot" + TG_BOT_TOKEN + "/sendMessage" +
+      "?chat_id=" + encodeURIComponent(TG_CHAT_ID) + "&text=" + encodeURIComponent(text);
+    await fetch(url);
+  }catch(e){ console.warn("[PPNLSC] telegram notify failed:", e && e.message); }
 }
 
 async function loadPermits(){

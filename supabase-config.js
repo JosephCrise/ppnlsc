@@ -12,3 +12,9 @@ const SB_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const sb = window.supabase.createClient(SB_URL, SB_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, storageKey: "ppnlsc-auth" }
 });
+
+/* ---- Telegram notification (see TELEGRAM-SETUP.md) ----
+   Fill both values to get a Telegram message on every saved permission request.
+   Leave the placeholders to disable notifications. */
+const TG_BOT_TOKEN = "YOUR-TELEGRAM-BOT-TOKEN";   // from @BotFather
+const TG_CHAT_ID   = "YOUR-CHAT-ID";              // your Telegram chat id
