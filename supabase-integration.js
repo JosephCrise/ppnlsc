@@ -204,18 +204,94 @@ async function staffAuth(){
 function toggleLock(){ staffAuth(); }
 function toggleSLock(){ staffAuth(); }
 
+/* ---------- ប្រកាសសុំច្បាប់ (permission letters) ---------- */
+let PERMITS = [];
+function escHtml(v){ return (v==null?"":String(v)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+// Save the current form as a public submission.
+async function savePermit(){
+  const d = collectPerm();
+  if(!d.name || !d.name.trim()){
+    window.msgTitle.textContent = "សូមបំពេញឈ្មោះ";
+    window.msgText.textContent  = "សូមបញ្ចូលឈ្មោះមុននឹងរក្សាទុក។";
+    window.msgModal.classList.add("show"); return;
+  }
+  const row = {
+    no:d.no, name:d.name, sex:d.sex, age:d.age, phone:d.phone, role:d.role,
+    student_class:d.klass, school:d.school, year_no:d.year, major:d.major, uni:d.uni, dept:d.dept,
+    to_whom:d.to_whom, from_date:d.from_date, to_date:d.to_date, reason:d.reason,
+    place:d.place, write_date:d.write_date
+  };
+  const { error } = await sb.from("permissions").insert(row);
+  if(error){ toast(error.message); return; }
+  window.msgTitle.textContent = "បានរក្សាទុក ✓";
+  window.msgText.textContent  = "ពាក្យសុំច្បាប់ត្រូវបានរក្សាទុកក្នុងម៉ឺនុយ «ប្រកាសសុំច្បាប់»។";
+  window.msgModal.classList.add("show");
+  // realtime will refresh the list
+}
+
+async function loadPermits(){
+  const { data, error } = await sb.from("permissions").select("*").order("created_at", { ascending: false });
+  if(error){ console.warn("[PPNLSC] permits:", error.message); PERMITS = []; renderPermits(); return; }  // fail quietly -> just show empty state
+  PERMITS = data || [];
+  renderPermits();
+}
+
+function renderPermits(){
+  const w = document.getElementById("permitListWrap"); if(!w) return;
+  if(!PERMITS.length){ w.innerHTML = '<div class="empty">មិនទាន់មានពាក្យសុំច្បាប់។</div>'; return; }
+  w.innerHTML = PERMITS.map(p => {
+    const roleKh = p.role==="student" ? "សិស្ស" : p.role==="staff" ? "បុគ្គលិក" : "និស្សិត";
+    const when = p.created_at ? new Date(p.created_at).toLocaleString("en-GB") : "";
+    const range = [p.from_date, p.to_date].filter(Boolean).join(" → ");
+    const del = isStaff ? `<button class="btn b-clear" onclick="deletePermit('${p.id}')">🗑 លុប</button>` : "";
+    return `<div class="permit-card">
+      <div class="pc-main">
+        <div class="pc-name">${escHtml(p.name)||"—"} <span class="pc-role">(${roleKh})</span></div>
+        <div class="pc-sub">មូលហេតុ៖ ${escHtml(p.reason)||"—"}${range?" · "+escHtml(range):""}</div>
+        <div class="pc-date">${escHtml(when)}</div>
+      </div>
+      <div class="pc-act">
+        <button class="btn b-png" onclick="viewPermit('${p.id}')">👁 មើល / ទាញយក</button>
+        ${del}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function viewPermit(id){
+  const p = PERMITS.find(x => x.id === id); if(!p) return;
+  const d = {
+    no:p.no, name:p.name, sex:p.sex, age:p.age, phone:p.phone, role:p.role,
+    klass:p.student_class, school:p.school, year:p.year_no, major:p.major, uni:p.uni, dept:p.dept,
+    to_whom:p.to_whom, from_date:p.from_date, to_date:p.to_date, reason:p.reason,
+    place:p.place, write_date:p.write_date
+  };
+  document.getElementById("permitDoc").innerHTML = permDocHTML(d);
+  document.getElementById("permitView").classList.add("show");
+}
+
+async function deletePermit(id){
+  if(!isStaff){ showLock(); return; }
+  if(!confirm("លុបពាក្យសុំច្បាប់នេះ?")) return;
+  const { error } = await sb.from("permissions").delete().eq("id", id);
+  if(error) toast(error.message);   // realtime refreshes the list
+}
+
 /* ---------- REALTIME + BOOT ---------- */
 sb.auth.onAuthStateChange((_evt, session) => {
   isStaff = !!session;
   attendLocked = !isStaff;
   studentLocked = !isStaff;
   applyLock(); applySLock();
+  renderPermits();   // show/hide the staff-only delete buttons
 });
 
 sb.channel("ppnlsc-rt")
-  .on("postgres_changes", { event: "*", schema: "public", table: "students"   }, loadData)
-  .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, loadData)
-  .on("postgres_changes", { event: "*", schema: "public", table: "memories"   }, loadMemories)
+  .on("postgres_changes", { event: "*", schema: "public", table: "students"    }, loadData)
+  .on("postgres_changes", { event: "*", schema: "public", table: "attendance"  }, loadData)
+  .on("postgres_changes", { event: "*", schema: "public", table: "memories"    }, loadMemories)
+  .on("postgres_changes", { event: "*", schema: "public", table: "permissions" }, loadPermits)
   .subscribe();
 
 (async () => {
@@ -225,5 +301,6 @@ sb.channel("ppnlsc-rt")
   studentLocked = !isStaff;
   await loadData();
   await loadMemories();
+  await loadPermits();
   applyLock(); applySLock();
 })();

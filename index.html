@@ -263,6 +263,16 @@
   }
   /* fixed A4 letter when exporting, regardless of device width */
   .permdoc.export-mode{width:794px !important;max-width:794px !important;min-height:1123px !important;}
+  /* ប្រកាសសុំច្បាប់ list */
+  #permitListWrap{display:flex;flex-direction:column;gap:10px;}
+  .permit-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:14px 16px;
+    display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+  .permit-card .pc-name{font-weight:700;color:var(--navy);font-size:15px;}
+  .permit-card .pc-role{color:#7a8699;font-weight:600;font-size:13px;}
+  .permit-card .pc-sub{color:#556;font-size:13px;margin-top:2px;}
+  .permit-card .pc-date{color:#9aa3b2;font-size:12px;margin-top:2px;}
+  .permit-card .pc-act{display:flex;gap:8px;flex-wrap:wrap;}
+  .permit-card .pc-act .btn{padding:8px 12px;font-size:13px;}
   /* native print -> Save as PDF (most reliable on iPhone/iPad/Android). Prints only the letter. */
   @media print{
     body{background:#fff !important;}
@@ -285,6 +295,7 @@
     <button data-s="attend" onclick="go('attend',this)">វត្តមាន</button>
     <button data-s="org" onclick="go('org',this)">រចនាសម្ព័ន្ធ</button>
     <button data-s="memory" onclick="go('memory',this)">អនុស្សាវរីយ៍</button>
+    <button data-s="permitlist" onclick="go('permitlist',this);loadPermits&&loadPermits()">ប្រកាសសុំច្បាប់</button>
     <button data-s="feedback" onclick="go('feedback',this)">មតិយោបល់</button>
   </nav>
 </header>
@@ -433,6 +444,7 @@
       <div class="bar" style="margin-top:16px">
         <button class="btn b-png" onclick="exportNode('permDoc','image','PermissionRequest')">📷 បង្កើតរូបភាព</button>
         <button class="btn b-pdf" onclick="exportNode('permDoc','pdf','PermissionRequest')">📄 បង្កើត PDF</button>
+        <button class="btn b-add" onclick="savePermit()">💾 រក្សាទុក / ប្រកាស</button>
       </div>
     </div>
 
@@ -460,6 +472,24 @@
   </section>
 
   <!-- ======== FEEDBACK ======== -->
+  <section id="permitlist">
+    <h2 class="page">ប្រកាសសុំច្បាប់</h2>
+    <p class="muted">បញ្ជីពាក្យសុំច្បាប់ដែលបានដាក់ស្នើ។ ចុច «មើល / ទាញយក» ដើម្បីបើកមើល បង្កើតរូបភាព ឬ PDF។ ការលុបធ្វើបានតែអ្នកទទួលបន្ទុក (ត្រូវចូលប្រើ)។</p>
+    <div id="permitListWrap"><div class="empty">កំពុងផ្ទុក…</div></div>
+  </section>
+
+  <!-- viewer popup: re-renders a saved letter for view / export -->
+  <div id="permitView" class="modal">
+    <div class="box" style="max-width:880px;max-height:92vh;overflow:auto;text-align:left">
+      <div class="permdoc" id="permitDoc"></div>
+      <div class="bar" style="justify-content:center;margin-top:14px">
+        <button class="btn b-png" onclick="exportNode('permitDoc','image','PermissionRequest')">📷 រូបភាព</button>
+        <button class="btn b-pdf" onclick="exportNode('permitDoc','pdf','PermissionRequest')">📄 PDF</button>
+        <button class="btn b-clear" onclick="document.getElementById('permitView').classList.remove('show')">បិទ</button>
+      </div>
+    </div>
+  </div>
+
   <section id="feedback">
     <h2 class="page">មតិយោបល់ / រាយការណ៍បញ្ហា</h2>
     <p class="muted">បើអ្នកជួបបញ្ហា ឬមានសំណូមពរ សូមបំពេញទម្រង់ខាងក្រោម។ ប៊ូតុង «ផ្ញើ» នឹងបើកកម្មវិធីអ៊ីមែលរបស់អ្នក ដោយមានបំពេញសារស្រាប់។</p>
@@ -679,7 +709,7 @@ async function captureCanvas(el){
     scale: tall ? 1.5 : 2, windowWidth:1024, scrollX:0, scrollY:0,
     onclone:(doc)=>{
       const c=doc.getElementById(el.id);
-      if(c && el.id==='permDoc'){ c.style.width='794px'; c.style.maxWidth='794px'; c.style.minHeight='1123px'; c.style.margin='0 auto'; }
+      if(c && (el.id==='permDoc'||el.id==='permitDoc')){ c.style.width='794px'; c.style.maxWidth='794px'; c.style.minHeight='1123px'; c.style.margin='0 auto'; }
     }
   }), 25000, 'capture');
 }
@@ -719,7 +749,7 @@ async function deliver(blob, filename, kind){
 // generic exporter for any element -> image or pdf (works on iPhone, iPad, Android, desktop)
 async function exportNode(elId, kind, name){
   const el=document.getElementById(elId); if(!el) return;
-  const fitOnePage = (elId==='permDoc');   // the letter is one A4 page
+  const fitOnePage = (elId==='permDoc'||elId==='permitDoc');   // the letter is one A4 page
   exportBusy(true); el.classList.add('export-mode');
   try{
     const c=await captureCanvas(el);
@@ -761,34 +791,47 @@ function roleLine(){
   if(r==='staff')   return `ជា បុគ្គលិក ផ្នែក ${U(pv('pDept'))}`;
   return `ជា និស្សិតឆ្នាំទី ${U(pv('pYear'))} ផ្នែក ${U(pv('pMajor'))} នៃ ${U(pv('pUni'))}`;
 }
-function renderPerm(){
-  const f=khDate(pv('pFrom')), t=khDate(pv('pToDate')), wd=khDate(pv('pWriteDate'));
-  const days=daysBetween(pv('pFrom'),pv('pToDate'));
-  const role=document.querySelector('input[name=pRole]:checked').value;
+function esc(v){ return (v==null?'':String(v)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+// gather the current form into a plain data object (used for live render + saving)
+function collectPerm(){
+  return {
+    no:pv('pNo'), name:pv('pName'), sex:pv('pSex'), age:pv('pAge'), phone:pv('pPhone'),
+    role:(document.querySelector('input[name=pRole]:checked')||{}).value||'uni',
+    klass:pv('pClass'), school:pv('pSchool'), year:pv('pYear'), major:pv('pMajor'), uni:pv('pUni'),
+    dept:pv('pDept'), to_whom:pv('pTo'), from_date:pv('pFrom'), to_date:pv('pToDate'),
+    reason:pv('pReason'), place:pv('pPlace'), write_date:pv('pWriteDate')
+  };
+}
+// build the A4 letter HTML from a data object (form OR a saved record)
+function permDocHTML(d){
+  const f=khDate(d.from_date), t=khDate(d.to_date), wd=khDate(d.write_date);
+  const days=daysBetween(d.from_date,d.to_date);
+  const role=d.role||'uni';
   const cb=v=>`<span class="cb">${role===v?'✓':''}</span>`;
   const s=role==='student', u=role==='uni', st=role==='staff';
-  permDoc.innerHTML = `
+  return `
    <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small></div></div>
-   <div class="no">N°. <span class="u" style="min-width:130px">${pv('pNo')}</span></div>
+   <div class="no">N°. <span class="u" style="min-width:130px">${esc(d.no)}</span></div>
    <div class="pt">ពាក្យសុំច្បាប់</div>
-   <div class="pline"><span class="t">ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ៖</span> <span class="u grow">${pv('pName')}</span> <span class="t">ភេទ</span> <span class="u">${pv('pSex')}</span> <span class="t">អាយុ</span> <span class="u">${pv('pAge')}</span> <span class="t">លេខទូរស័ព្ទ</span> <span class="u">${pv('pPhone')}</span></div>
+   <div class="pline"><span class="t">ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ៖</span> <span class="u grow">${esc(d.name)}</span> <span class="t">ភេទ</span> <span class="u">${esc(d.sex)}</span> <span class="t">អាយុ</span> <span class="u">${esc(d.age)}</span> <span class="t">លេខទូរស័ព្ទ</span> <span class="u">${esc(d.phone)}</span></div>
    <div class="rolewrap"><span class="ja">ជា</span><div class="rolecol">
-     <div class="pline">${cb('student')} <span class="t">សិស្ស ថ្នាក់ទី</span> <span class="u">${s?pv('pClass'):''}</span> <span class="t">នៃ</span> <span class="u grow">${s?pv('pSchool'):''}</span></div>
-     <div class="pline">${cb('uni')} <span class="t">និស្សិត ឆ្នាំទី</span> <span class="u">${u?pv('pYear'):''}</span> <span class="t">ផ្នែក</span> <span class="u">${u?pv('pMajor'):''}</span> <span class="t">នៃ</span> <span class="u grow">${u?pv('pUni'):''}</span></div>
-     <div class="pline">${cb('staff')} <span class="t">បុគ្គលិក ផ្នែក</span> <span class="u grow">${st?pv('pDept'):''}</span></div>
+     <div class="pline">${cb('student')} <span class="t">សិស្ស ថ្នាក់ទី</span> <span class="u">${s?esc(d.klass):''}</span> <span class="t">នៃ</span> <span class="u grow">${s?esc(d.school):''}</span></div>
+     <div class="pline">${cb('uni')} <span class="t">និស្សិត ឆ្នាំទី</span> <span class="u">${u?esc(d.year):''}</span> <span class="t">ផ្នែក</span> <span class="u">${u?esc(d.major):''}</span> <span class="t">នៃ</span> <span class="u grow">${u?esc(d.uni):''}</span></div>
+     <div class="pline">${cb('staff')} <span class="t">បុគ្គលិក ផ្នែក</span> <span class="u grow">${st?esc(d.dept):''}</span></div>
    </div></div>
    <div class="recip">សូមគោរពចូលមក<br>បុគ្គលិកទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
-   <div class="pline"><span class="t label"><span class="ttl">តាមរយះ</span>៖</span> <span class="t" style="color:var(--navy);font-weight:700">${pv('pTo')}</span></div>
-   <div class="pline"><span class="t label"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">សំណើសុំច្បាប់ដើម្បីឈប់សម្រាក ចំនួន</span> <span class="u">${days}</span> <span class="t">ថ្ងៃ</span></div>
-   <div class="pline daterow"><span class="t label" style="visibility:hidden"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">ចាប់ពីថ្ងៃទី</span> <span class="u">${f.d}</span> <span class="t">ខែ</span> <span class="u">${f.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${f.y}</span> <span class="t">ដល់ថ្ងៃទី</span> <span class="u">${t.d}</span> <span class="t">ខែ</span> <span class="u">${t.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${t.y}</span></div>
-   <div class="pline"><span class="t label"><span class="ttl">មូលហេតុ</span>៖</span> <span class="u grow" style="text-align:left">${pv('pReason')}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">តាមរយះ</span>៖</span> <span class="t" style="color:var(--navy);font-weight:700">${esc(d.to_whom)}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">សំណើសុំច្បាប់ដើម្បីឈប់សម្រាក ចំនួន</span> <span class="u">${esc(days)}</span> <span class="t">ថ្ងៃ</span></div>
+   <div class="pline daterow"><span class="t label" style="visibility:hidden"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">ចាប់ពីថ្ងៃទី</span> <span class="u">${esc(f.d)}</span> <span class="t">ខែ</span> <span class="u">${esc(f.m)}</span> <span class="t">ឆ្នាំ</span> <span class="u">${esc(f.y)}</span> <span class="t">ដល់ថ្ងៃទី</span> <span class="u">${esc(t.d)}</span> <span class="t">ខែ</span> <span class="u">${esc(t.m)}</span> <span class="t">ឆ្នាំ</span> <span class="u">${esc(t.y)}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">មូលហេតុ</span>៖</span> <span class="u grow" style="text-align:left">${esc(d.reason)}</span></div>
    <div class="para">អាស្រ័យដូចបានជំរាបជូនខាងលើនេះ សូមលោកនាយកមេត្តាអនុញ្ញាតច្បាប់សម្រាប់ទៅតាមការស្នើសុំរបស់ខ្ញុំបាទ-នាងខ្ញុំ ដោយយល់សេចក្ដីស្រឡាញ់នៃព្រះអម្ចាស់យេស៊ូវគ្រីស្ទ ។</div>
-   <div class="sign"><span class="t">${pv('pPlace')||'ភ្នំពេញ'}, ថ្ងៃទី</span> <span class="u">${wd.d}</span> <span class="t">ខែ</span> <span class="u">${wd.m}</span> <span class="t">ឆ្នាំ</span> <span class="u">${wd.y}</span><br>ហត្ថលេខា<br><span class="u" style="margin-top:6px">${pv('pName')}</span></div>
+   <div class="sign"><span class="t">${esc(d.place)||'ភ្នំពេញ'}, ថ្ងៃទី</span> <span class="u">${esc(wd.d)}</span> <span class="t">ខែ</span> <span class="u">${esc(wd.m)}</span> <span class="t">ឆ្នាំ</span> <span class="u">${esc(wd.y)}</span><br>ហត្ថលេខា<br><span class="u" style="margin-top:6px">${esc(d.name)}</span></div>
    <div class="decision">សេចក្ដីសម្រេចរបស់បុគ្គលិក<br>ទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
    <div class="blank"></div>
    <div class="blank"></div>
    <div style="text-align:center;margin-top:18px">ភ្នំពេញ, ថ្ងៃទី ____ ខែ ____ ឆ្នាំ ២០__<br>ហត្ថលេខា</div>`;
 }
+function renderPerm(){ if(window.permDoc) permDoc.innerHTML = permDocHTML(collectPerm()); }
 /* ---- memories gallery ---- */
 // To add more: put files in the "memories" folder, then add entries below.
 // image -> {type:"image", src:"memories/NAME.jpg", cap:"..."}
