@@ -61,17 +61,23 @@
   .lightbox .cap{color:#fff;margin-top:12px;font-size:15px;}
   .lightbox .x{position:absolute;top:16px;right:22px;color:#fff;font-size:34px;cursor:pointer;line-height:1;}
   .hero p{margin:0;opacity:.92;font-size:15px;}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:22px;}
-  .card{background:#fff;border-radius:14px;padding:22px;text-align:center;box-shadow:0 3px 14px rgba(0,0,0,.08);}
-  .card .num{font-size:38px;font-weight:700;line-height:1;}
-  .card .lbl{margin-top:8px;color:#556;font-weight:600;font-size:14px;}
-  .card.total .num{color:var(--navy);} .card.male .num{color:var(--male);} .card.female .num{color:var(--female);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:-26px;position:relative;z-index:4;padding:0 6px;}
+  .card{background:#fff;border-radius:16px;padding:20px 18px;text-align:center;box-shadow:0 6px 20px rgba(31,56,100,.10);
+    border:1px solid #eef1f6;border-top:4px solid #ccc;transition:.16s;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(31,56,100,.16);}
+  .card .cico{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;
+    font-size:23px;margin-bottom:10px;}
+  .card .num{font-size:40px;font-weight:800;line-height:1;letter-spacing:-.5px;}
+  .card .lbl{margin-top:7px;color:#667;font-weight:600;font-size:14px;}
+  .card.total{border-top-color:var(--navy);} .card.total .num{color:var(--navy);} .card.total .cico{background:var(--light);color:var(--navy);}
+  .card.male{border-top-color:var(--male);} .card.male .num{color:var(--male);} .card.male .cico{background:#E4F1FB;color:var(--male);}
+  .card.female{border-top-color:var(--female);} .card.female .num{color:var(--female);} .card.female .cico{background:#FBE7F2;color:var(--female);}
   .card.week .num{color:var(--present);font-size:30px;}
   .quick{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;justify-content:center;}
   .quick button{border:0;border-radius:12px;padding:16px 24px;font-size:15px;font-weight:700;cursor:pointer;color:#fff;}
   .q1{background:var(--blue);} .q2{background:var(--present);}
   /* ---------- modern home ---------- */
-  .hero2{position:relative;overflow:hidden;border-radius:22px;padding:40px 26px 34px;text-align:center;color:#fff;
+  .hero2{position:relative;overflow:hidden;border-radius:22px;padding:42px 26px 52px;text-align:center;color:#fff;
     background:linear-gradient(135deg,#0f2a4a 0%,#2E5496 55%,#2E86C1 100%);box-shadow:0 14px 40px rgba(15,42,74,.32);}
   .hero2-bg{position:absolute;inset:0;background:
      radial-gradient(circle at 18% 20%,rgba(255,255,255,.14),transparent 40%),
@@ -84,13 +90,17 @@
     backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:16px 20px;
     font-size:15.5px;line-height:1.9;}
   .verse-hero .ref{display:block;margin-top:8px;font-weight:700;opacity:.95;font-size:13.5px;}
-  .sec-h{color:var(--navy);font-size:18px;margin:30px 0 14px;padding-left:12px;border-left:4px solid var(--sky);}
+  .sec-h{color:var(--navy);font-size:19px;font-weight:700;margin:32px 0 16px;padding-left:13px;border-left:4px solid var(--sky);}
   .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
-  .tile{background:#fff;border-radius:16px;padding:22px 12px;text-align:center;cursor:pointer;
-    box-shadow:0 3px 14px rgba(0,0,0,.08);transition:.16s;border:1px solid #eef1f6;}
-  .tile:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(31,56,100,.18);border-color:var(--light);}
-  .tile .ti{display:block;font-size:32px;margin-bottom:8px;}
-  .tile span:not(.ti){font-weight:700;color:var(--navy);font-size:14.5px;}
+  .tile{background:#fff;border-radius:18px;padding:24px 12px;text-align:center;cursor:pointer;
+    box-shadow:0 3px 14px rgba(0,0,0,.07);transition:.16s;border:1px solid #eef1f6;}
+  .tile:hover{transform:translateY(-5px);box-shadow:0 14px 28px rgba(31,56,100,.18);border-color:var(--light);}
+  .tile .ti{display:inline-flex;align-items:center;justify-content:center;width:62px;height:62px;border-radius:50%;
+    font-size:30px;margin-bottom:12px;background:var(--light);transition:.16s;}
+  .tile:hover .ti{transform:scale(1.06);}
+  .tile span:not(.ti){display:block;font-weight:700;color:var(--navy);font-size:14.5px;}
+  .tile.t1 .ti{background:#E4F1FB;} .tile.t2 .ti{background:#E8F6EF;} .tile.t3 .ti{background:#FCEFE6;}
+  .tile.t4 .ti{background:#EDEAF7;} .tile.t5 .ti{background:#FBE7F2;} .tile.t6 .ti{background:#FFF4D6;}
   .verses{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
   .vcard{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 3px 14px rgba(0,0,0,.07);
     border-left:4px solid var(--sky);}
@@ -313,22 +323,26 @@
       <img src="picture1.png" class="herologo" alt="logo" onerror="this.style.display='none'">
       <h1>Phnom Penh New Life Student Center</h1>
       <p class="tagline">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</p>
+      <div class="verse-hero">
+        «ដ្បិតយើងស្គាល់គំនិតដែលយើងគិតចំពោះអ្នករាល់គ្នា គឺជាគំនិតប្រកបដោយសេចក្ដីសុខសាន្ត មិនមែនជាគំនិតនៃសេចក្ដីអាក្រក់ឡើយ ដើម្បីប្រទានឲ្យអ្នករាល់គ្នានូវអនាគត និងសេចក្ដីសង្ឃឹម។»
+        <span class="ref">— យេរេមៀ ២៩:១១ · ខគម្ពីរប្រចាំឆ្នាំ</span>
+      </div>
     </div>
 
     <div class="cards">
-      <div class="card total"><div class="num" id="hTotal">0</div><div class="lbl">សិស្សសរុប</div></div>
-      <div class="card male"><div class="num" id="hMale">0</div><div class="lbl">សិស្សប្រុស</div></div>
-      <div class="card female"><div class="num" id="hFemale">0</div><div class="lbl">សិស្សស្រី</div></div>
+      <div class="card total"><span class="cico">👥</span><div class="num" id="hTotal">0</div><div class="lbl">សិស្សសរុប</div></div>
+      <div class="card male"><span class="cico">👨</span><div class="num" id="hMale">0</div><div class="lbl">សិស្សប្រុស</div></div>
+      <div class="card female"><span class="cico">👩</span><div class="num" id="hFemale">0</div><div class="lbl">សិស្សស្រី</div></div>
     </div>
 
     <h3 class="sec-h">មុខងារ</h3>
     <div class="tiles">
-      <div class="tile" onclick="go('students',document.querySelector('[data-s=students]'))"><span class="ti">👥</span><span>បញ្ជីសិស្ស</span></div>
-      <div class="tile" onclick="go('attend',document.querySelector('[data-s=attend]'))"><span class="ti">📋</span><span>វត្តមាន</span></div>
-      <div class="tile" onclick="go('perm',document.querySelector('[data-s=perm]'))"><span class="ti">📝</span><span>ពាក្យសុំច្បាប់</span></div>
-      <div class="tile" onclick="go('org',document.querySelector('[data-s=org]'))"><span class="ti">🏛️</span><span>រចនាសម្ព័ន្ធ</span></div>
-      <div class="tile" onclick="go('memory',document.querySelector('[data-s=memory]'))"><span class="ti">📷</span><span>អនុស្សាវរីយ៍</span></div>
-      <div class="tile" onclick="go('feedback',document.querySelector('[data-s=feedback]'))"><span class="ti">💬</span><span>មតិយោបល់</span></div>
+      <div class="tile t1" onclick="go('students',document.querySelector('[data-s=students]'))"><span class="ti">👥</span><span>បញ្ជីសិស្ស</span></div>
+      <div class="tile t2" onclick="go('attend',document.querySelector('[data-s=attend]'))"><span class="ti">📋</span><span>វត្តមាន</span></div>
+      <div class="tile t3" onclick="go('perm',document.querySelector('[data-s=perm]'))"><span class="ti">📝</span><span>ពាក្យសុំច្បាប់</span></div>
+      <div class="tile t4" onclick="go('org',document.querySelector('[data-s=org]'))"><span class="ti">🏛️</span><span>រចនាសម្ព័ន្ធ</span></div>
+      <div class="tile t5" onclick="go('memory',document.querySelector('[data-s=memory]'))"><span class="ti">📷</span><span>អនុស្សាវរីយ៍</span></div>
+      <div class="tile t6" onclick="go('feedback',document.querySelector('[data-s=feedback]'))"><span class="ti">💬</span><span>មតិយោបល់</span></div>
     </div>
 
     <h3 class="sec-h">រូបភាពអនុស្សាវរីយ៍</h3>
@@ -670,7 +684,7 @@ function renderRank(){
     }))
     .filter(d=>d.name!=='' && d.a>0).sort((x,y)=>y.a-x.a);
   if(!ranked.length){ rb.innerHTML='<tr><td colspan="5" style="color:#999;padding:12px">មិនទាន់មានអវត្តមាន</td></tr>'; return; }
-  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td><td class="reason" style="text-align:left;font-size:17px">${r.reasons.length?'<ul style="margin:0;padding-left:18px">'+r.reasons.map(x=>`<li>${x}</li>`).join('')+'</ul>':'<i style=color:#bbb>—</i>'}</td></tr>`);
+  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td><td class="reason" style="text-align:left;font-size:13px">${r.reasons.length?'<ul style="margin:0;padding-left:18px">'+r.reasons.map(x=>`<li>${x}</li>`).join('')+'</ul>':'<i style=color:#bbb>—</i>'}</td></tr>`);
 }
 /* ---- export ---- */
 function stamp(){return new Date().toISOString().slice(0,10);}
