@@ -323,10 +323,6 @@
       <img src="picture1.png" class="herologo" alt="logo" onerror="this.style.display='none'">
       <h1>Phnom Penh New Life Student Center</h1>
       <p class="tagline">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</p>
-      <div class="verse-hero">
-        «ដ្បិតយើងស្គាល់គំនិតដែលយើងគិតចំពោះអ្នករាល់គ្នា គឺជាគំនិតប្រកបដោយសេចក្ដីសុខសាន្ត មិនមែនជាគំនិតនៃសេចក្ដីអាក្រក់ឡើយ ដើម្បីប្រទានឲ្យអ្នករាល់គ្នានូវអនាគត និងសេចក្ដីសង្ឃឹម។»
-        <span class="ref">— យេរេមៀ ២៩:១១ · ខគម្ពីរប្រចាំឆ្នាំ</span>
-      </div>
     </div>
 
     <div class="cards">
@@ -393,7 +389,7 @@
       <button class="btn b-lock" id="lockBtn" onclick="toggleLock()">🔒 ដោះសោ (អ្នកទទួលបន្ទុក)</button>
       <button class="btn b-clear" onclick="clearAtt()">↺ សម្អាតវត្តមាន</button>
       <button class="btn b-png" onclick="exportPNG()">📷 ទាញយករូបភាព PNG</button>
-      <button class="btn b-pdf" onclick="exportPDF('attendDoc','វត្តមាន')">📄 PDF</button>
+      <button class="btn b-pdf" onclick="exportPDF('rankDoc','MonthlySummary')">📄 PDF</button>
       <button class="btn b-tg" onclick="share('tg')">✈️ Telegram</button>
     </div>
     <div class="lockbar locked" id="lockBar">🔒 ផ្ទាំងនេះត្រូវបានចាក់សោ — សម្រាប់តែអ្នកទទួលបន្ទុកប៉ុណ្ណោះ។</div>
@@ -404,7 +400,7 @@
       <div class="scroll">
         <table id="attTable"><thead id="attHead"></thead><tbody id="attBody"></tbody></table>
       </div>
-      <div class="rankwrap">
+      <div class="rankwrap" id="rankDoc">
         <h3>លទ្ធផលបូកសរុបប្រចាំខែ</h3>
         <div class="scroll"><table class="rank">
           <thead><tr><th>លេខរៀង</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th><th>អវត្តមានសរុប</th><th>មូលហេតុ</th></tr></thead>
@@ -818,9 +814,9 @@ function printPerm(){
   setTimeout(()=>{ window.print(); }, 60);
   setTimeout(cleanup, 60000);   // safety: never leave the page in print mode
 }
-function exportPNG(){ exportNode('attendDoc','image','Attendance'); }
+function exportPNG(){ exportNode('rankDoc','image','MonthlySummary'); }
 function exportPDF(elId,name){ exportNode(elId,'pdf',name); }
-function share(t){ exportNode('attendDoc','image','Attendance'); }  // result popup has Telegram/Messenger
+function share(t){ exportNode('rankDoc','image','MonthlySummary'); }  // result popup has Telegram/Messenger
 /* ---- permission request letter ---- */
 function pv(id){ const el=document.getElementById(id); return el?(el.value||'').trim():''; }
 function U(s){ return `<span class="u">${s||'&nbsp;&nbsp;&nbsp;&nbsp;'}</span>`; }
