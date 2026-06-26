@@ -391,9 +391,9 @@
         <table id="attTable"><thead id="attHead"></thead><tbody id="attBody"></tbody></table>
       </div>
       <div class="rankwrap">
-        <h3>បញ្ជីសរុបអ្នកអវត្តមាន</h3>
+        <h3>លទ្ធផលបូកសរុបប្រចាំខែ</h3>
         <div class="scroll"><table class="rank">
-          <thead><tr><th>ចំណាត់ថ្នាក់</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th><th>អវត្តមានសរុប</th></tr></thead>
+          <thead><tr><th>លេខរៀង</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th><th>អវត្តមានសរុប</th><th>មូលហេតុ</th></tr></thead>
           <tbody id="rankBody"></tbody></table></div>
       </div>
       <div class="foot" id="aStamp"></div>
@@ -663,10 +663,14 @@ function cycle(i,j){
 function clearAtt(){ if(attendLocked){ showLock(); return; } DATA.forEach(d=>d.att=Array.from({length:4},()=>({s:"",r:""}))); renderAtt(); }
 function renderRank(){
   const rb=rankBody; rb.innerHTML='';
-  const ranked=DATA.map(d=>({name:d.name,g:d.gender,a:d.att.filter(w=>w.s==='A'||w.s==='AP').length}))
+  const ranked=DATA.map(d=>({
+      name:d.name,g:d.gender,
+      a:d.att.filter(w=>w.s==='A'||w.s==='AP').length,
+      reasons:[...new Set(d.att.filter(w=>(w.s==='A'||w.s==='AP')&&w.r&&w.r.trim()).map(w=>w.r.trim()))]
+    }))
     .filter(d=>d.name!=='' && d.a>0).sort((x,y)=>y.a-x.a);
-  if(!ranked.length){ rb.innerHTML='<tr><td colspan="4" style="color:#999;padding:12px">មិនទាន់មានអវត្តមាន</td></tr>'; return; }
-  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td></tr>`);
+  if(!ranked.length){ rb.innerHTML='<tr><td colspan="5" style="color:#999;padding:12px">មិនទាន់មានអវត្តមាន</td></tr>'; return; }
+  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td><td class="reason" style="text-align:left;font-size:17px">${r.reasons.length?'<ul style="margin:0;padding-left:18px">'+r.reasons.map(x=>`<li>${x}</li>`).join('')+'</ul>':'<i style=color:#bbb>—</i>'}</td></tr>`);
 }
 /* ---- export ---- */
 function stamp(){return new Date().toISOString().slice(0,10);}
