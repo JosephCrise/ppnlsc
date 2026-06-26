@@ -680,7 +680,7 @@ function renderRank(){
     }))
     .filter(d=>d.name!=='' && d.a>0).sort((x,y)=>y.a-x.a);
   if(!ranked.length){ rb.innerHTML='<tr><td colspan="5" style="color:#999;padding:12px">មិនទាន់មានអវត្តមាន</td></tr>'; return; }
-  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td><td class="reason" style="text-align:left;font-size:13px">${r.reasons.length?'<ul style="margin:0;padding-left:18px">'+r.reasons.map(x=>`<li>${x}</li>`).join('')+'</ul>':'<i style=color:#bbb>—</i>'}</td></tr>`);
+  ranked.forEach((r,i)=>rb.innerHTML+=`<tr><td>${i+1}</td><td style="text-align:left">${r.name}</td><td class="gender ${r.g}">${r.g}</td><td class="cnt">${r.a}</td><td class="reason" style="text-align:left;font-size:13px">${r.reasons.length?'<ul style="margin:0;padding-left:18px">'+r.reasons.map(x=>`<li${x.includes('អត់ច្បាប់ស្ងាត់ជ្រាប')?' style="color:var(--absent);font-weight:700"':''}>${x}</li>`).join('')+'</ul>':'<i style=color:#bbb>—</i>'}</td></tr>`);
 }
 /* ---- export ---- */
 function stamp(){return new Date().toISOString().slice(0,10);}
