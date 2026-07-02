@@ -289,9 +289,7 @@ async function savePermit(silent){
     window.msgText.textContent  = "សូមបញ្ចូលឈ្មោះមុននឹងរក្សាទុក។";
     window.msgModal.classList.add("show"); return false;
   }
-  // Empty <input> fields return "" — Postgres rejects "" for numeric/date columns
-  // ("invalid input syntax for type integer/date"). Send NULL instead, and coerce numbers.
-  const nn  = v => (v === "" || v == null) ? null : v;                 // "" -> null
+  const nn  = v => (v === "" || v == null) ? null : v;
   const num = v => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
   const row = {
     no:nn(d.no), name:d.name, sex:nn(d.sex), age:num(d.age), phone:nn(d.phone), role:d.role,
