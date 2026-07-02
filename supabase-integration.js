@@ -289,11 +289,15 @@ async function savePermit(silent){
     window.msgText.textContent  = "សូមបញ្ចូលឈ្មោះមុននឹងរក្សាទុក។";
     window.msgModal.classList.add("show"); return false;
   }
+  // Empty <input> fields return "" — Postgres rejects "" for numeric/date columns
+  // ("invalid input syntax for type integer/date"). Send NULL instead, and coerce numbers.
+  const nn  = v => (v === "" || v == null) ? null : v;                 // "" -> null
+  const num = v => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : null; };
   const row = {
-    no:d.no, name:d.name, sex:d.sex, age:d.age, phone:d.phone, role:d.role,
-    student_class:d.klass, school:d.school, year_no:d.year, major:d.major, uni:d.uni, dept:d.dept,
-    to_whom:d.to_whom, from_date:d.from_date, to_date:d.to_date, reason:d.reason,
-    place:d.place, write_date:d.write_date
+    no:nn(d.no), name:d.name, sex:nn(d.sex), age:num(d.age), phone:nn(d.phone), role:d.role,
+    student_class:nn(d.klass), school:nn(d.school), year_no:nn(d.year), major:nn(d.major), uni:nn(d.uni), dept:nn(d.dept),
+    to_whom:nn(d.to_whom), from_date:nn(d.from_date), to_date:nn(d.to_date), reason:nn(d.reason),
+    place:nn(d.place), write_date:nn(d.write_date)
   };
   const { error } = await sb.from("permissions").insert(row);
   if(error){ toast(error.message); return false; }
