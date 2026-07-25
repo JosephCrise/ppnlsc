@@ -297,7 +297,9 @@ function toggleLock(){ staffAuth(); }
 function toggleSLock(){ staffAuth(); }
 
 /* ---------- AUTH GATE: full-screen login blocking the whole app ---------- */
-let guestMode = false;   // true while someone is filling the public permission form without an account
+// No anonymous access at all: everything, including the permission-request
+// form, requires a real signed-in account. See security-rls-setup.sql for
+// the matching database-side lockdown (anon insert on "permissions" removed).
 
 function showGate(){
   const g = document.getElementById("authGate"); if (!g) return;
@@ -305,7 +307,6 @@ function showGate(){
   document.getElementById("gateErr").style.display = "none";
   document.getElementById("gateUser").value = "";
   document.getElementById("gatePass").value = "";
-  guestMode = false;
   setTimeout(() => { const e=document.getElementById("gateUser"); if(e) e.focus(); }, 50);
 }
 function hideGate(){
@@ -319,13 +320,6 @@ async function doGateLogin(){
   const { error } = await sb.auth.signInWithPassword({ email: usernameToEmail(username), password });
   if (error) { err.textContent = "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។"; err.style.display = "block"; return; }
   // onAuthStateChange hides the gate and boots the app
-}
-// Lets someone submit a leave request without an account. Only the "perm" form
-// is usable in this mode — protected data is never fetched until a real sign-in happens.
-function openGuestPermit(){
-  guestMode = true;
-  hideGate();
-  go("perm", null);
 }
 
 /* ---------- ប្រកាសសុំច្បាប់ (permission letters) ---------- */
@@ -468,7 +462,6 @@ async function bootAfterAuth(session){
   isStaff = isAdminSession(session);
   attendLocked = !isStaff;
   studentLocked = !isStaff;
-  guestMode = false;
   CUR_MONTH = curMonthStr();
   MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
   hideGate();

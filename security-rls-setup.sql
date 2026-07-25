@@ -75,14 +75,14 @@ create policy "memories: admin can write"
   with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- permissions ----------
--- The permission-request FORM stays public on purpose (students without
--- an account can still submit a leave request from the site). Any
--- signed-in account can view the list; only an admin can edit/delete it.
+-- Nothing is public here, on purpose: submitting a request requires a
+-- signed-in account, same as every other part of the site. Any signed-in
+-- account can submit and view the list; only an admin can edit/delete it.
 alter table public.permissions enable row level security;
 
-create policy "permissions: anyone can submit a request"
+create policy "permissions: any signed-in user can submit a request"
   on public.permissions for insert
-  to anon, authenticated
+  to authenticated
   with check (true);
 
 create policy "permissions: any signed-in user can read"
