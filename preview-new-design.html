@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>ការរចនាថ្មី — Preview (Christian vibe)</title>
+<link rel="icon" type="image/png" href="picture1.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700;800&family=Noto+Sans:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2A4A; --navy2:#243863; --gold:#C9962C; --gold-light:#F0DFA3; --gold-deep:#9C7419;
+    --cream:#FAF6EC; --ink:#26241C; --sub:#6B6455; --line:#e8e0cf; --burgundy:#7A2E3A;
+  }
+  *{box-sizing:border-box;font-family:'Noto Sans Khmer','Noto Sans',sans-serif;}
+  body{margin:0;background:var(--cream);color:var(--ink);}
+  .banner{background:var(--navy);color:var(--gold-light);text-align:center;font-size:12.5px;font-weight:700;padding:7px 10px;}
+  .banner b{color:#fff;}
+
+  header.nav{position:sticky;top:0;z-index:50;background:rgba(250,246,236,.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);padding:0 20px;display:flex;align-items:center;gap:20px;height:66px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:var(--navy);white-space:nowrap;line-height:1.2;}
+  .brand img{height:38px;width:38px;border-radius:50%;object-fit:contain;background:#fff;box-shadow:0 0 0 2px var(--gold-light);}
+  nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+  nav::-webkit-scrollbar{display:none;}
+  nav button{background:transparent;color:var(--sub);border:0;border-radius:999px;padding:9px 16px;
+    font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.15s;}
+  nav button:hover{background:#f1ead3;color:var(--navy);}
+  nav button.active{background:var(--navy);color:var(--gold-light);}
+
+  main{max-width:1140px;margin:0 auto;padding:0 0 80px;}
+  section{display:none;animation:fade .3s ease;}
+  section.show{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h2.page{color:var(--navy);font-size:26px;font-weight:800;margin:36px 0 4px;padding:0 20px;}
+  .muted{color:var(--sub);font-size:14px;margin:0 0 22px;padding:0 20px;line-height:1.6;}
+
+  /* ---- hero: cross photo + warm gold scrim + verse of the day ---- */
+  .hero{position:relative;min-height:460px;display:flex;align-items:center;justify-content:center;
+    text-align:center;overflow:hidden;background:#12192c;}
+  .hero img.bgshot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5;}
+  .hero .scrim{position:absolute;inset:0;background:
+    linear-gradient(180deg,rgba(20,25,45,.65),rgba(27,42,74,.88) 65%,rgba(27,42,74,.97));}
+  .hero .cross-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:260px;height:260px;
+    background:radial-gradient(circle,rgba(201,150,44,.35),transparent 70%);pointer-events:none;}
+  .hero .content{position:relative;z-index:2;color:#fff;padding:56px 24px 70px;max-width:720px;margin:0 auto;}
+  .hero img.herologo{height:74px;width:74px;border-radius:50%;object-fit:contain;background:#fff;padding:6px;
+    box-shadow:0 0 0 3px var(--gold),0 8px 24px rgba(0,0,0,.4);margin-bottom:16px;}
+  .hero h1{font-size:30px;font-weight:800;margin:0 0 6px;letter-spacing:.2px;}
+  .hero .tagline{margin:0 0 24px;opacity:.92;font-size:15.5px;font-weight:600;color:var(--gold-light);}
+  .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;}
+  .cbtn{border-radius:999px;padding:12px 24px;font-size:14.5px;font-weight:700;cursor:pointer;border:0;transition:.15s;}
+  .cbtn.fill{background:linear-gradient(90deg,var(--gold-deep),var(--gold));color:#241b03;box-shadow:0 8px 20px rgba(201,150,44,.35);}
+  .cbtn.fill:hover{transform:translateY(-2px);}
+  .cbtn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.5);}
+  .cbtn.ghost:hover{background:rgba(255,255,255,.22);}
+
+  .verse-hero{position:relative;margin:0 auto;max-width:600px;background:rgba(255,255,255,.1);
+    backdrop-filter:blur(6px);border:1px solid rgba(240,223,163,.4);border-radius:16px;padding:22px 26px;
+    font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:18px;line-height:1.7;color:#f5efe0;}
+  .verse-hero::before{content:'"';position:absolute;top:-6px;left:14px;font-family:Georgia,serif;font-size:56px;
+    color:var(--gold);opacity:.5;line-height:1;}
+  .verse-hero .ref{display:block;margin-top:12px;font-family:'Noto Sans Khmer','Noto Sans',sans-serif;
+    font-style:normal;font-weight:700;color:var(--gold-light);font-size:13px;}
+
+  /* ---- glass stat cards overlapping hero ---- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin:-46px 20px 0;position:relative;z-index:4;}
+  .card{background:#fff;border-radius:18px;padding:22px 16px;text-align:center;box-shadow:0 14px 34px rgba(27,42,74,.16);
+    border-top:3px solid var(--gold);}
+  .card .cico{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:14px;font-size:22px;margin-bottom:10px;}
+  .card .num{font-size:34px;font-weight:800;letter-spacing:-.5px;color:var(--navy);}
+  .card .lbl{margin-top:5px;color:var(--sub);font-weight:700;font-size:13px;}
+  .card.total .cico{background:var(--gold-light);color:var(--gold-deep);}
+  .card.male .cico{background:#dbe6f5;color:#2E5496;}
+  .card.female .cico{background:#f6dde6;color:var(--burgundy);}
+
+  .sec-h{color:var(--navy);font-size:20px;font-weight:800;margin:44px 20px 16px;display:flex;align-items:center;gap:9px;}
+  .sec-h::before{content:'✝';font-size:16px;color:var(--gold-deep);display:inline-block;}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding:0 20px;}
+  .tile{background:#fff;border-radius:18px;padding:24px 12px;text-align:center;cursor:pointer;
+    box-shadow:0 4px 16px rgba(27,42,74,.08);transition:.18s;border:1px solid var(--line);}
+  .tile:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(27,42,74,.14);border-color:var(--gold-light);}
+  .tile .ti{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:16px;
+    font-size:26px;margin-bottom:10px;color:#fff;}
+  .tile span:not(.ti){display:block;font-weight:700;color:var(--navy);font-size:14px;}
+  .tile.t1 .ti{background:linear-gradient(135deg,var(--navy),var(--navy2));}
+  .tile.t2 .ti{background:linear-gradient(135deg,#2f6f5e,#4b9c86);}
+  .tile.t3 .ti{background:linear-gradient(135deg,var(--gold-deep),var(--gold));}
+  .tile.t4 .ti{background:linear-gradient(135deg,var(--burgundy),#a24559);}
+  .tile.t5 .ti{background:linear-gradient(135deg,#2E5496,#5b8dce);}
+  .tile.t6 .ti{background:linear-gradient(135deg,#5b4a8a,#8570bd);}
+
+  /* ---- verse cards grid ---- */
+  .verses{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:0 20px;}
+  .vcard{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:0 4px 16px rgba(27,42,74,.08);
+    border-left:4px solid var(--gold);}
+  .vcard .vt{color:var(--ink);line-height:2;font-size:14px;}
+  .vcard .vr{margin-top:10px;font-weight:700;color:var(--gold-deep);font-size:13px;}
+
+  /* ---- gallery ---- */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;padding:0 20px;}
+  .gallery figure{position:relative;margin:0;border-radius:16px;overflow:hidden;cursor:pointer;box-shadow:0 4px 16px rgba(27,42,74,.1);}
+  .gallery img{width:100%;height:160px;object-fit:cover;display:block;transition:.35s;}
+  .gallery figure:hover img{transform:scale(1.06);}
+  .gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;
+    background:linear-gradient(transparent,rgba(20,25,45,.8));color:#fff;font-size:12.5px;font-weight:700;text-align:center;}
+
+  /* ---- functional pages: action bar becomes a floating speed-dial menu ---- */
+  .bar{position:fixed;right:24px;bottom:96px;z-index:65;display:flex;flex-direction:column;align-items:flex-end;
+    gap:10px;opacity:0;pointer-events:none;transform:translateY(12px) scale(.96);transition:.22s ease;}
+  .bar.open{opacity:1;pointer-events:auto;transform:none;}
+  .btn{border-radius:999px;padding:11px 20px;font-size:13.5px;font-weight:700;cursor:pointer;border:0;
+    background:#fff;color:var(--navy);transition:.15s;box-shadow:0 8px 22px rgba(27,42,74,.22);white-space:nowrap;}
+  .btn:hover{background:var(--gold-light);color:var(--gold-deep);transform:translateY(-1px);}
+  .btn.primary{background:linear-gradient(90deg,var(--gold-deep),var(--gold));color:#241b03;
+    box-shadow:0 8px 22px rgba(201,150,44,.45);}
+  .btn.primary:hover{color:#241b03;}
+  .btn.ghost-locked{background:#efe6ce;color:var(--gold-deep);}
+
+  /* ---- the FAB itself ---- */
+  .fab{position:fixed;right:24px;bottom:24px;z-index:66;width:60px;height:60px;border-radius:50%;border:0;
+    background:linear-gradient(135deg,var(--gold-deep),var(--gold));color:#241b03;font-size:26px;font-weight:800;
+    cursor:pointer;box-shadow:0 10px 28px rgba(201,150,44,.5),0 2px 8px rgba(0,0,0,.2);
+    display:none;align-items:center;justify-content:center;transition:transform .25s ease;}
+  .fab.show{display:flex;}
+  .fab.open{transform:rotate(45deg);}
+  .fab-backdrop{position:fixed;inset:0;background:rgba(15,20,35,.35);z-index:60;opacity:0;pointer-events:none;transition:.2s;}
+  .fab-backdrop.show{opacity:1;pointer-events:auto;}
+  @media(max-width:700px){.bar{right:16px;bottom:88px;} .fab{right:16px;bottom:16px;}}
+
+  .docwrap{margin:0 20px;background:#fff;border-radius:20px;padding:22px;box-shadow:0 4px 20px rgba(27,42,74,.08);}
+  .summary-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  .pill{flex:1;min-width:140px;text-align:center;padding:14px;border-radius:14px;font-weight:800;color:#fff;}
+  .pill span{display:block;font-size:24px;margin-top:2px;}
+  .pill.t{background:linear-gradient(135deg,var(--navy),var(--navy2));}
+  .pill.m{background:linear-gradient(135deg,#2E5496,#5b8dce);}
+  .pill.f{background:linear-gradient(135deg,var(--burgundy),#a24559);}
+
+  .scroll{overflow-x:auto;border-radius:14px;border:1px solid var(--line);}
+  table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;}
+  th,td{padding:10px;text-align:center;border-bottom:1px solid var(--line);}
+  th{background:#f5efdd;color:var(--gold-deep);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px;}
+  tr:last-child td{border-bottom:0;}
+  td.name{text-align:left;font-weight:700;}
+  td.gender.M{color:#2E5496;font-weight:800;} td.gender.F{color:var(--burgundy);font-weight:800;}
+  .att{font-weight:800;border-radius:999px;padding:4px 11px;display:inline-block;font-size:12px;color:#fff;}
+  .att.P{background:#1E8449;} .att.A{background:#9C0006;} .att.AP{background:#c9700e;}
+
+  .callout{margin:0 20px 18px;padding:12px 16px;border-radius:14px;font-size:13px;font-weight:700;
+    background:var(--gold-light);color:var(--gold-deep);text-align:center;}
+
+  /* ---- org: photo banner + cards ---- */
+  .orgbanner{position:relative;height:160px;overflow:hidden;margin-bottom:-56px;}
+  .orgbanner img{width:100%;height:100%;object-fit:cover;filter:brightness(.55) sepia(.15);}
+  .orgtitle{position:relative;z-index:2;text-align:center;color:#fff;font-size:20px;font-weight:800;
+    padding:60px 20px 0;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+  .org-top{display:flex;justify-content:center;margin:0 20px 8px;position:relative;z-index:3;}
+  .leader{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(27,42,74,.14);padding:18px 14px;text-align:center;transition:.18s;}
+  .leader:hover{transform:translateY(-3px);}
+  .leader img{width:104px;height:104px;border-radius:50%;object-fit:cover;background:#eee;box-shadow:0 0 0 4px var(--gold-light);}
+  .leader.head img{width:130px;height:130px;box-shadow:0 0 0 5px var(--gold);}
+  .leader .lname{font-weight:800;color:var(--navy);margin-top:12px;font-size:14.5px;}
+  .leader.head .lname{font-size:17px;}
+  .leader .lrole{color:var(--sub);font-size:12.5px;margin-top:4px;line-height:1.5;}
+  .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin:16px 20px 0;}
+
+  /* ---- feedback ---- */
+  .form{margin:0 20px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(27,42,74,.08);max-width:560px;}
+  .form label{display:block;font-weight:700;color:var(--navy);margin:14px 0 6px;font-size:13.5px;}
+  .form input,.form select,.form textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fdfbf5;}
+  .form input:focus,.form select:focus,.form textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,150,44,.2);background:#fff;}
+  .form textarea{min-height:110px;resize:vertical;}
+
+  @media(max-width:700px){
+    header.nav{padding:0 12px;gap:10px;}
+    .hero h1{font-size:25px;}
+    .cards{margin-top:-38px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="banner"><b>ការរចនាថ្មី — Preview</b> &nbsp;រចនាប័ទ្មគ្រិស្តបរិស័ទ (ព្រះបន្ទូល + មាស/ចម្បាំង) &nbsp;•&nbsp; ទិន្នន័យគំរូ សម្រាប់ពិនិត្យប៉ុណ្ណោះ</div>
+
+<header class="nav">
+  <div class="brand"><img src="picture1.png" alt="logo" onerror="this.style.display='none'">Phnom Penh New Life<br>Student Center</div>
+  <nav>
+    <button class="active" data-s="home" onclick="go('home',this)">ទំព័រដើម</button>
+    <button data-s="students" onclick="go('students',this)">បញ្ជីសិស្ស</button>
+    <button data-s="attend" onclick="go('attend',this)">វត្តមាន</button>
+    <button data-s="org" onclick="go('org',this)">រចនាសម្ព័ន្ធ</button>
+    <button data-s="memory" onclick="go('memory',this)">អនុស្សាវរីយ៍</button>
+    <button data-s="feedback" onclick="go('feedback',this)">មតិយោបល់</button>
+  </nav>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="home" class="show">
+    <div class="hero">
+      <img class="bgshot" src="memories/photo2.jpg" alt="">
+      <div class="scrim"></div>
+      <div class="cross-glow"></div>
+      <div class="content">
+        <img src="picture1.png" class="herologo" alt="logo" onerror="this.style.display='none'">
+        <h1>Phnom Penh New Life Student Center</h1>
+        <p class="tagline">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</p>
+        <div class="cta-row">
+          <button class="cbtn fill">ពាក្យសុំច្បាប់</button>
+          <button class="cbtn ghost" onclick="go('attend',document.querySelector('[data-s=attend]'))">វត្តមាន</button>
+        </div>
+        <div class="verse-hero" id="verseHero"></div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card total"><span class="cico">👥</span><div class="num">39</div><div class="lbl">សិស្សសរុប</div></div>
+      <div class="card male"><span class="cico">👨</span><div class="num">22</div><div class="lbl">សិស្សប្រុស</div></div>
+      <div class="card female"><span class="cico">👩</span><div class="num">17</div><div class="lbl">សិស្សស្រី</div></div>
+    </div>
+
+    <h3 class="sec-h">មុខងារ</h3>
+    <div class="tiles">
+      <div class="tile t1" onclick="go('students',document.querySelector('[data-s=students]'))"><span class="ti">👥</span><span>បញ្ជីសិស្ស</span></div>
+      <div class="tile t2" onclick="go('attend',document.querySelector('[data-s=attend]'))"><span class="ti">📋</span><span>វត្តមាន</span></div>
+      <div class="tile t3"><span class="ti">📝</span><span>ពាក្យសុំច្បាប់</span></div>
+      <div class="tile t4" onclick="go('org',document.querySelector('[data-s=org]'))"><span class="ti">🏛️</span><span>រចនាសម្ព័ន្ធ</span></div>
+      <div class="tile t5" onclick="go('memory',document.querySelector('[data-s=memory]'))"><span class="ti">📷</span><span>អនុស្សាវរីយ៍</span></div>
+      <div class="tile t6" onclick="go('feedback',document.querySelector('[data-s=feedback]'))"><span class="ti">💬</span><span>មតិយោបល់</span></div>
+    </div>
+
+    <h3 class="sec-h">រូបភាពអនុស្សាវរីយ៍</h3>
+    <div class="gallery">
+      <figure><img src="memories/photo1.jpg"><figcaption>ថ្ងៃប្រជុំសុក្រ</figcaption></figure>
+      <figure><img src="memories/photo3.jpg"><figcaption>ក្រុមចម្រៀង</figcaption></figure>
+      <figure><img src="memories/photo4.jpg"><figcaption>ការទស្សនកិច្ច</figcaption></figure>
+      <figure><img src="memories/photo5.jpg"><figcaption>សកម្មភាពក្រុម</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- STUDENTS -->
+  <section id="students">
+    <h2 class="page">បញ្ជីឈ្មោះសិស្សសរុប</h2>
+    <p class="muted">ឈ្មោះ និងភេទ អាចកែប្រែបាន។ ចំនួនប្រុស/ស្រី គណនាស្វ័យប្រវត្តិ។</p>
+    <div class="bar">
+      <button class="btn ghost-locked">🔒 ដោះសោកែ (អ្នកទទួលបន្ទុក)</button>
+      <button class="btn">➕ បន្ថែមសិស្សប្រុស</button>
+      <button class="btn">➕ បន្ថែមសិស្សស្រី</button>
+      <button class="btn primary">📄 បង្កើតជា PDF</button>
+    </div>
+    <div class="docwrap">
+      <div class="summary-row">
+        <div class="pill t">សិស្សសរុប<span>39</span></div>
+        <div class="pill m">សិស្សប្រុស<span>22</span></div>
+        <div class="pill f">សិស្សស្រី<span>17</span></div>
+      </div>
+      <div class="scroll">
+        <table><thead><tr><th>ល.រ</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="name">អែម ស៊ូលាង</td><td class="gender M">M</td></tr>
+          <tr><td>2</td><td class="name">ស៊ន ស្រីអាង</td><td class="gender F">F</td></tr>
+          <tr><td>3</td><td class="name">ឈើន ពេជវីរីយ៉ា</td><td class="gender F">F</td></tr>
+          <tr><td>4</td><td class="name">សំ សុផាន់ណា</td><td class="gender M">M</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ATTENDANCE -->
+  <section id="attend">
+    <h2 class="page">កត់ត្រាវត្តមាន</h2>
+    <p class="muted">ចុចប្រអប់ស្ថានភាព ដើម្បីប្ដូរ៖ P → A → A✓ → ទទេ។</p>
+    <div class="bar">
+      <button class="btn ghost-locked">🔒 ដោះសោ (អ្នកទទួលបន្ទុក)</button>
+      <button class="btn">↺ សម្អាតវត្តមាន</button>
+      <button class="btn">📷 PNG</button>
+      <button class="btn primary">📄 PDF</button>
+    </div>
+    <div class="callout">ខែ មិថុនា ឆ្នាំ ២០២៦ — ប្រជុំរៀងរាល់ថ្ងៃសុក្រ</div>
+    <div class="docwrap">
+      <div class="scroll">
+        <table>
+          <thead><tr><th>ឈ្មោះ</th><th>ភេទ</th><th>05/06</th><th>12/06</th><th>19/06</th><th>26/06</th></tr></thead>
+          <tbody>
+            <tr><td class="name">អែម ស៊ូលាង</td><td class="gender M">M</td><td><span class="att P">P</span></td><td><span class="att P">P</span></td><td><span class="att A">A</span></td><td><span class="att P">P</span></td></tr>
+            <tr><td class="name">ស៊ន ស្រីអាង</td><td class="gender F">F</td><td><span class="att P">P</span></td><td><span class="att AP">A✓</span></td><td><span class="att P">P</span></td><td><span class="att P">P</span></td></tr>
+            <tr><td class="name">សំ សុផាន់ណា</td><td class="gender M">M</td><td><span class="att A">A</span></td><td><span class="att P">P</span></td><td><span class="att P">P</span></td><td><span class="att P">P</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORG -->
+  <section id="org">
+    <h2 class="page" style="margin-bottom:0">រចនាសម្ព័ន្ធ</h2>
+    <div class="orgbanner"><img src="leaders/1.jpg" alt=""></div>
+    <div class="orgtitle">រចនាសម្ព័ន្ធ នៃ មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+    <div class="org-top">
+      <div class="leader head"><img src="leaders/1.jpg"><div class="lname">អែម ប៊ុនថន</div><div class="lrole">ប្រធានមណ្ឌលនិស្សិតជីវិតថ្មី</div></div>
+    </div>
+    <div class="org-grid">
+      <div class="leader"><img src="leaders/2.jpg"><div class="lname">សង ពិសិទ្ធ</div><div class="lrole">គ្រប់គ្រង គណនេយ្យ</div></div>
+      <div class="leader"><img src="leaders/3.jpg"><div class="lname">ខាំ យឺន</div><div class="lrole">គ្រប់គ្រង រដ្ឋបាល</div></div>
+      <div class="leader"><img src="leaders/4.jpg"><div class="lname">ហ៊ួ សេងហួត</div><div class="lrole">ពង្រឹងមេក្រុម និងវត្តមាន</div></div>
+      <div class="leader"><img src="leaders/7.jpg"><div class="lname">ហុក សុីយាន</div><div class="lrole">រៀបចំក្រុមតូចខាងស្រី</div></div>
+    </div>
+  </section>
+
+  <!-- MEMORY -->
+  <section id="memory">
+    <h2 class="page">រូបភាពអនុស្សាវរីយ៍</h2>
+    <p class="muted">ចុចលើរូបភាព ដើម្បីពង្រីកមើល។</p>
+    <div class="bar"><button class="btn primary">➕ បន្ថែមរូបភាព</button></div>
+    <div class="gallery">
+      <figure><img src="memories/photo1.jpg"><figcaption>រូបភាព ១</figcaption></figure>
+      <figure><img src="memories/photo2.jpg"><figcaption>រូបភាព ២</figcaption></figure>
+      <figure><img src="memories/photo3.jpg"><figcaption>រូបភាព ៣</figcaption></figure>
+      <figure><img src="memories/photo4.jpg"><figcaption>រូបភាព ៤</figcaption></figure>
+      <figure><img src="memories/photo5.jpg"><figcaption>រូបភាព ៥</figcaption></figure>
+      <figure><img src="memories/photo6.jpg"><figcaption>រូបភាព ៦</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section id="feedback">
+    <h2 class="page">មតិយោបល់ / រាយការណ៍បញ្ហា</h2>
+    <p class="muted">បើអ្នកជួបបញ្ហា ឬមានសំណូមពរ សូមបំពេញទម្រង់ខាងក្រោម។</p>
+    <div class="form">
+      <label>ឈ្មោះ (ស្រេចចិត្ត)</label>
+      <input placeholder="ឈ្មោះរបស់អ្នក">
+      <label>ប្រភេទ</label>
+      <select><option>បញ្ហាបច្ចេកទេស</option><option>សំណូមពរ / គំនិត</option><option>កំហុសទិន្នន័យ</option><option>ផ្សេងៗ</option></select>
+      <label>សារ</label>
+      <textarea placeholder="សូមពិពណ៌នាបញ្ហា ឬមតិរបស់អ្នក..."></textarea>
+      <button class="btn primary" style="margin-top:18px;padding:12px 22px;">📧 ផ្ញើមតិយោបល់</button>
+    </div>
+  </section>
+</main>
+
+<div class="fab-backdrop" id="fabBackdrop" onclick="closeFab()"></div>
+<button class="fab" id="fabBtn" onclick="toggleFab()">+</button>
+
+<script>
+function go(id,btn){
+  document.querySelectorAll('main > section').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0});
+  closeFab();
+  updateFabVisibility();
+}
+
+function updateFabVisibility(){
+  const activeBar = document.querySelector('main > section.show .bar');
+  document.getElementById('fabBtn').classList.toggle('show', !!activeBar);
+}
+function toggleFab(){
+  const activeBar = document.querySelector('main > section.show .bar');
+  if(!activeBar) return;
+  const isOpen = activeBar.classList.toggle('open');
+  document.getElementById('fabBtn').classList.toggle('open', isOpen);
+  document.getElementById('fabBackdrop').classList.toggle('show', isOpen);
+}
+function closeFab(){
+  document.querySelectorAll('.bar.open').forEach(b=>b.classList.remove('open'));
+  document.getElementById('fabBtn').classList.remove('open');
+  document.getElementById('fabBackdrop').classList.remove('show');
+}
+updateFabVisibility();
+
+/* real Bible verse content, ported from index.html's (currently unused) VERSES array */
+const VERSES = [
+  {t:"ត្បិតព្រះទ្រង់ស្រឡាញ់មនុស្សលោក ដល់ម៉្លេះបានជាទ្រង់ប្រទានព្រះរាជបុត្រាទ្រង់តែ១ ដើម្បីឲ្យអ្នកណាដែលជឿដល់ព្រះរាជបុត្រានោះ មិនត្រូវវិនាសឡើយ គឺឲ្យបានជីវិតអស់កល្បជានិច្ចវិញ។",
+   en:"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+   r:"យ៉ូហាន ៣:១៦ (១៩៥៤)", ren:"John 3:16 (KJV)"},
+  {t:"ព្រះយេហូវ៉ាទ្រង់ជាគង្វាលរបស់ខ្ញុំ ខ្ញុំនឹងមិនខ្វះអ្វីឡើយ។",
+   en:"The LORD is my shepherd; I shall not want.",
+   r:"ទំនុកដំកើង ២៣:១ (១៩៥៤)", ren:"Psalm 23:1 (KJV)"},
+  {t:"ខ្ញុំអាចនឹងធ្វើគ្រប់ការទាំងអស់បាន ដោយសារព្រះគ្រីស្ទ ដែលទ្រង់ចំរើនកំឡាំងដល់ខ្ញុំ។",
+   en:"I can do all things through Christ which strengtheneth me.",
+   r:"ភីលីព ៤:១៣ (១៩៥៤)", ren:"Philippians 4:13 (KJV)"},
+  {t:"ចូរទុកចិត្តនឹងព្រះយេហូវ៉ាអស់អំពីចិត្ត កុំឲ្យពឹងផ្អែកលើប្រាជ្ញារបស់ឯងឡើយ។",
+   en:"Trust in the LORD with all thine heart, and lean not unto thine own understanding.",
+   r:"សុភាសិត ៣:៥ (១៩៥៤)", ren:"Proverbs 3:5 (KJV)"},
+  {t:"ខ្ញុំនេះឯងជាផ្លូវ ជាសេចក្ដីពិត ហើយជាជីវិត គ្មាននរណាមកឯព្រះវរបិតាបានឡើយ លើកលែងតែមកតាមខ្ញុំ។",
+   en:"I am the way, the truth, and the life: no man cometh unto the Father, but by me.",
+   r:"យ៉ូហាន ១៤:៦ (១៩៥៤)", ren:"John 14:6 (KJV)"},
+  {t:"យើងដឹងថា គ្រប់ការទាំងអស់តែងធ្វើការជាមួយគ្នា ដើម្បីសេចក្ដីល្អ ដល់អស់អ្នកដែលស្រឡាញ់ដល់ព្រះ។",
+   en:"And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+   r:"រ៉ូម ៨:២៨ (១៩៥៤)", ren:"Romans 8:28 (KJV)"},
+];
+const verseHero=document.getElementById('verseHero');
+let vi=Math.floor(Math.random()*VERSES.length);
+const showVerse=()=>{ const v=VERSES[vi];
+  verseHero.innerHTML=`${v.en}<span class="ref">— ${v.ren}</span>`; };
+showVerse(); setInterval(()=>{ vi=(vi+1)%VERSES.length; showVerse(); }, 7000);
+</script>
+</body>
+</html>

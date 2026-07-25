@@ -41,22 +41,21 @@ function fridaysOf(monthStr){
   const [y,m] = monthStr.split("-").map(Number);
   const out=[]; const d=new Date(y, m-1, 1);
   while(d.getMonth() === m-1){ if(d.getDay()===5) out.push(d.getDate()); d.setDate(d.getDate()+1); }
-  return out.map((day,idx) => ({ idx, day, label: "សុក្រ " + khNum(day) + " " + KH_MONTHS[m-1] }));
+  return out.map((day,idx) => ({ idx, day, month: m, label: "សុក្រ " + khNum(day) + " " + KH_MONTHS[m-1] }));
 }
 function monthLabelKh(monthStr){
   const [y,m] = monthStr.split("-").map(Number);
   return "ខែ " + KH_MONTHS[m-1] + " ឆ្នាំ " + khNum(y);
 }
 
-// header built from the selected month's Fridays (4 or 5 columns)
+// header built from the selected month's Fridays (4 or 5 columns) — one column per week,
+// "day/month" label; the full "សុក្រ ៣ កក្កដា" label lives in each <th title="">.
 function renderAttHead(){
   const head = window.attHead; if(!head) return;
   if(!MONTH_FRIDAYS.length) MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
-  let h = '<tr><th rowspan="2">ល.រ</th><th rowspan="2">ឈ្មោះសិស្ស</th><th rowspan="2">ភេទ</th>';
-  MONTH_FRIDAYS.forEach(f => h += `<th class="wk" colspan="2">${f.label}</th>`);
-  h += '<th rowspan="2">វត្តមាន</th><th rowspan="2">អវត្តមាន</th></tr><tr>';
-  MONTH_FRIDAYS.forEach(() => h += '<th>ស្ថានភាព</th><th>មូលហេតុ</th>');
-  h += '</tr>';
+  let h = '<tr><th>ល.រ</th><th>ឈ្មោះសិស្ស</th><th>ភេទ</th>';
+  MONTH_FRIDAYS.forEach(f => h += `<th class="wk" title="${f.label}">${khNum(f.day)}/${khNum(f.month)}</th>`);
+  h += '<th>វត្តមាន</th><th>អវត្តមាន</th></tr>';
   head.innerHTML = h;
   const sub = document.querySelector('#attendDoc .docsub');
   if(sub) sub.textContent = monthLabelKh(CUR_MONTH) + " — ប្រជុំរៀងរាល់ថ្ងៃសុក្រ";
@@ -125,12 +124,19 @@ async function loadMemories(){
 function renderStudents(){
   const b = window.studentBody; if (!b) return; b.innerHTML = "";
   DATA.forEach((d, i) => {
-    const nameCell = !isStaff
-      ? `<td class="name" onclick="showLock()">${d.name}</td>`
-      : `<td class="name" contenteditable onblur="saveStudentName(${i}, this.innerText)">${d.name}</td>`;
-    const genderCell = `<td class="gender ${d.gender}" onclick="${!isStaff ? "showLock()" : "toggleGender(" + i + ")"}" title="ចុចដើម្បីប្ដូរ M/F">${d.gender}</td>`;
-    const delCell = `<td class="del-col">${ isStaff ? `<button class="rowdel" onclick="deleteStudent(${i})" title="លុបសិស្ស">🗑</button>` : "" }</td>`;
-    b.innerHTML += `<tr><td>${i + 1}</td>${nameCell}${genderCell}${delCell}</tr>`;
+    const initial = (d.name || "?").trim().charAt(0).toUpperCase() || "?";
+    const nameEl = !isStaff
+      ? `<div class="sname" onclick="showLock()">${d.name}</div>`
+      : `<div class="sname" contenteditable onblur="saveStudentName(${i}, this.innerText)">${d.name}</div>`;
+    const genderEl = `<div class="sgender ${d.gender}" onclick="${!isStaff ? "showLock()" : "toggleGender(" + i + ")"}" title="ចុចដើម្បីប្ដូរ M/F">${d.gender}</div>`;
+    const delEl = isStaff ? `<button class="rowdel" onclick="deleteStudent(${i})" title="លុបសិស្ស">🗑</button>` : "";
+    b.innerHTML += `<div class="srow">
+      <div class="sidx">${i + 1}</div>
+      <div class="savatar ${d.gender}">${initial}</div>
+      ${nameEl}
+      ${genderEl}
+      ${delEl}
+    </div>`;
   });
   refreshCounts();
 }
@@ -140,11 +146,13 @@ function renderAtt(){
   DATA.forEach((d, i) => {
     let row = `<td>${i + 1}</td><td class="name">${d.name || '<i style=color:#bbb>—</i>'}</td><td class="gender ${d.gender}">${d.gender}</td>`;
     d.att.forEach((w, j) => {
-      const label = w.s === "AP" ? "A✓" : w.s;   // AP = absent WITH permission
-      row += `<td class="att ${w.s} ${!isStaff ? "lock" : ""}" onclick="cycle(${i},${j})">${label}</td>`;
-      row += !isStaff
-        ? `<td class="reason" onclick="showLock()">${w.r}</td>`
-        : `<td class="reason" contenteditable onblur="saveReason(${i},${j}, this.innerText)">${w.r}</td>`;
+      const s = w.s || "";
+      const label = s === "" ? "·" : s === "P" ? "✓" : s === "AP" ? "A✓" : "A";   // AP = absent WITH permission
+      const showReason = s === "A" || s === "AP";   // only absences carry a reason — present/blank stay a single quiet badge
+      const reasonHtml = !showReason ? "" : !isStaff
+        ? `<div class="reason" onclick="showLock()">${w.r}</div>`
+        : `<div class="reason" contenteditable onblur="saveReason(${i},${j}, this.innerText)">${w.r}</div>`;
+      row += `<td class="wkcell"><div class="badge ${s || "blank"} ${!isStaff ? "lock" : ""}" onclick="cycle(${i},${j})">${label}</div>${reasonHtml}</td>`;
     });
     const p = d.att.filter(w => w.s === "P").length;
     const a = d.att.filter(w => w.s === "A" || w.s === "AP").length;   // total absences (with or without permission)
@@ -238,7 +246,6 @@ async function addStudent(gender){
 
 /* ---------- WRITE: memories upload (Storage) ---------- */
 async function addMemFiles(files){
-  if (!isStaff) { showLock(); return; }
   for (const f of files) {
     const type = f.type.startsWith("video") ? "video" : "image";
     const ext  = (f.name.split(".").pop() || "bin").toLowerCase();
@@ -341,9 +348,10 @@ async function notifyPermitSaved(d){
 
 async function loadPermits(){
   const { data, error } = await sb.from("permissions").select("*").order("created_at", { ascending: false });
-  if(error){ console.warn("[PPNLSC] permits:", error.message); PERMITS = []; renderPermits(); return; }  // fail quietly -> just show empty state
+  if(error){ console.warn("[PPNLSC] permits:", error.message); PERMITS = []; renderPermits(); refreshCounts(); return; }  // fail quietly -> just show empty state
   PERMITS = data || [];
   renderPermits();
+  refreshCounts();
 }
 
 function updatePermitAuthBtn(){
