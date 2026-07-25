@@ -21,19 +21,27 @@
 -- CANNOT grant it to themselves (unlike user_metadata, which any
 -- user can rewrite on themselves via the client SDK).
 --
+-- SAFE TO RE-RUN: this file drops every policy name used by any
+-- earlier version of this same file before recreating the current
+-- ones, so it's safe to paste and run again even if you already ran
+-- an older version earlier in this project's setup. RLS policies are
+-- additive (a request is allowed if ANY matching policy allows it),
+-- so without these drops, an old permissive policy left over from an
+-- earlier run would silently keep working alongside the new ones.
+--
 -- ONE-TIME SETUP:
 -- 1. Open your Supabase project -> SQL Editor -> "New query".
--- 2. BEFORE running this: go to Table Editor -> students (then
---    attendance, memories, permissions) -> the "RLS policies" tab
---    for each table, and delete any existing policy that grants
---    the "anon" role SELECT/read/write access. This file assumes
---    a clean slate; it won't remove policies you already have.
--- 3. Paste this WHOLE file into the SQL Editor and click "Run".
--- 4. Also do the Storage step, and the "grant admin" step, below.
+-- 2. Paste this WHOLE file and click "Run" — safe even on a second run.
+-- 3. Also check the "grant admin" step near the bottom.
 -- ============================================================
 
 -- ---------- students ----------
 alter table public.students enable row level security;
+
+drop policy if exists "students: authenticated can read" on public.students;
+drop policy if exists "students: authenticated can write" on public.students;
+drop policy if exists "students: any signed-in user can read" on public.students;
+drop policy if exists "students: admin can write" on public.students;
 
 create policy "students: any signed-in user can read"
   on public.students for select
@@ -49,6 +57,11 @@ create policy "students: admin can write"
 -- ---------- attendance ----------
 alter table public.attendance enable row level security;
 
+drop policy if exists "attendance: authenticated can read" on public.attendance;
+drop policy if exists "attendance: authenticated can write" on public.attendance;
+drop policy if exists "attendance: any signed-in user can read" on public.attendance;
+drop policy if exists "attendance: admin can write" on public.attendance;
+
 create policy "attendance: any signed-in user can read"
   on public.attendance for select
   to authenticated
@@ -62,6 +75,11 @@ create policy "attendance: admin can write"
 
 -- ---------- memories ----------
 alter table public.memories enable row level security;
+
+drop policy if exists "memories: authenticated can read" on public.memories;
+drop policy if exists "memories: authenticated can write" on public.memories;
+drop policy if exists "memories: any signed-in user can read" on public.memories;
+drop policy if exists "memories: admin can write" on public.memories;
 
 create policy "memories: any signed-in user can read"
   on public.memories for select
@@ -79,6 +97,15 @@ create policy "memories: admin can write"
 -- signed-in account, same as every other part of the site. Any signed-in
 -- account can submit and view the list; only an admin can edit/delete it.
 alter table public.permissions enable row level security;
+
+drop policy if exists "permissions: anyone can submit a request" on public.permissions;
+drop policy if exists "permissions: authenticated can read" on public.permissions;
+drop policy if exists "permissions: authenticated can update/delete" on public.permissions;
+drop policy if exists "permissions: authenticated can delete" on public.permissions;
+drop policy if exists "permissions: any signed-in user can submit a request" on public.permissions;
+drop policy if exists "permissions: any signed-in user can read" on public.permissions;
+drop policy if exists "permissions: admin can update" on public.permissions;
+drop policy if exists "permissions: admin can delete" on public.permissions;
 
 create policy "permissions: any signed-in user can submit a request"
   on public.permissions for insert
@@ -110,6 +137,11 @@ create policy "permissions: admin can delete"
 -- regardless of RLS or login. Run this to flip it private:
 
 update storage.buckets set public = false where id = 'memories';
+
+drop policy if exists "memories bucket: authenticated can read" on storage.objects;
+drop policy if exists "memories bucket: authenticated can write" on storage.objects;
+drop policy if exists "memories bucket: any signed-in user can read" on storage.objects;
+drop policy if exists "memories bucket: admin can write" on storage.objects;
 
 -- Any signed-in user can view memories; only admin can upload/delete.
 create policy "memories bucket: any signed-in user can read"
@@ -146,6 +178,7 @@ where email = 'sreyang@ppnlsc.local';   -- <-- change this to the account you're
 
 -- ============================================================
 -- VERIFY (run these after, in a new query, to sanity-check):
+--   select policyname, tablename, cmd, roles from pg_policies where schemaname = 'public';
 --   select email, raw_app_meta_data from auth.users;   -- confirm who has role=admin
 --   select * from public.students limit 1;             -- should error/empty when NOT logged in
 -- Test the anon (logged-out) and non-admin behavior using your site
