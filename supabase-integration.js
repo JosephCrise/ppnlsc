@@ -13,7 +13,17 @@
 
 let STUDENTS = [];     // [{id, seq, name, gender, updated_at}]
 let MEM_DB   = [];     // [{type, src, cap}]
-let isStaff  = false;  // true once a staff user signs in
+let isStaff  = false;  // true once a signed-in user is present
+
+/* ---------- AUTH: username -> email mapping ----------
+   Supabase Auth accounts are created by the admin in Supabase Studio
+   (Authentication -> Users -> Add user) using <username>@AUTH_EMAIL_DOMAIN
+   as the email and a real password. End users only ever see/type the
+   username, never the fake email. */
+const AUTH_EMAIL_DOMAIN = "ppnlsc.local";
+function usernameToEmail(u){
+  return (u || "").trim().toLowerCase().replace(/\s+/g, "") + "@" + AUTH_EMAIL_DOMAIN;
+}
 
 function toast(m){
   console.warn("[PPNLSC]", m);
@@ -112,10 +122,12 @@ async function loadData(){
 async function loadMemories(){
   const { data, error } = await sb.from("memories").select("*").order("created_at", { ascending: false });
   if (error) return toast(error.message);
-  MEM_DB = (data || []).map(m => ({
-    type: m.type,
-    src:  sb.storage.from("memories").getPublicUrl(m.storage_path).data.publicUrl,
-    cap:  m.caption
+  // Signed URLs (1hr expiry) instead of public URLs: the "memories" bucket must be set
+  // to private in Supabase Storage, otherwise files stay fetchable by anyone with the link
+  // regardless of login. See security-rls-setup.sql.
+  MEM_DB = await Promise.all((data || []).map(async m => {
+    const { data: signed } = await sb.storage.from("memories").createSignedUrl(m.storage_path, 3600);
+    return { type: m.type, src: signed ? signed.signedUrl : "", cap: m.caption };
   }));
   renderGallery(); buildSlideshow();
 }
@@ -259,30 +271,62 @@ async function addMemFiles(files){
   // realtime reloads the gallery
 }
 
-/* ---------- AUTH: staff sign in / out ---------- */
+/* ---------- AUTH: sign in / out ---------- */
 async function staffAuth(){
   const { data: { session } } = await sb.auth.getSession();
-  if (session) { await sb.auth.signOut(); return; }   // signed in -> sign out
-  // open the in-app login popup (no browser prompt)
+  if (session) { await sb.auth.signOut(); return; }   // signed in -> sign out (triggers full gate + reload)
+  // open the in-app re-login popup (no browser prompt)
   const m = document.getElementById("loginModal"); if (!m) return;
   document.getElementById("loginErr").style.display = "none";
   document.getElementById("loginPass").value = "";
   m.classList.add("show");
-  setTimeout(() => { const e=document.getElementById("loginEmail"); if(e) e.focus(); }, 50);
+  setTimeout(() => { const e=document.getElementById("loginUser"); if(e) e.focus(); }, 50);
 }
 function closeLogin(){ const m=document.getElementById("loginModal"); if(m) m.classList.remove("show"); }
 async function doStaffLogin(){
-  const email = (document.getElementById("loginEmail").value || "").trim();
+  const username = (document.getElementById("loginUser").value || "").trim();
   const password = document.getElementById("loginPass").value || "";
   const err = document.getElementById("loginErr");
-  if (!email || !password) { err.textContent = "សូមបញ្ចូលអ៊ីមែល និងពាក្យសម្ងាត់។"; err.style.display = "block"; return; }
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) { err.textContent = error.message; err.style.display = "block"; return; }
+  if (!username || !password) { err.textContent = "សូមបញ្ចូលឈ្មោះអ្នកប្រើ និងពាក្យសម្ងាត់។"; err.style.display = "block"; return; }
+  const { error } = await sb.auth.signInWithPassword({ email: usernameToEmail(username), password });
+  if (error) { err.textContent = "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។"; err.style.display = "block"; return; }
   closeLogin();   // onAuthStateChange updates the rest of the UI
 }
 // The lock buttons now trigger sign-in/out instead of a client passcode.
 function toggleLock(){ staffAuth(); }
 function toggleSLock(){ staffAuth(); }
+
+/* ---------- AUTH GATE: full-screen login blocking the whole app ---------- */
+let guestMode = false;   // true while someone is filling the public permission form without an account
+
+function showGate(){
+  const g = document.getElementById("authGate"); if (!g) return;
+  g.classList.remove("hide");
+  document.getElementById("gateErr").style.display = "none";
+  document.getElementById("gateUser").value = "";
+  document.getElementById("gatePass").value = "";
+  guestMode = false;
+  setTimeout(() => { const e=document.getElementById("gateUser"); if(e) e.focus(); }, 50);
+}
+function hideGate(){
+  const g = document.getElementById("authGate"); if (g) g.classList.add("hide");
+}
+async function doGateLogin(){
+  const username = (document.getElementById("gateUser").value || "").trim();
+  const password = document.getElementById("gatePass").value || "";
+  const err = document.getElementById("gateErr");
+  if (!username || !password) { err.textContent = "សូមបញ្ចូលឈ្មោះអ្នកប្រើ និងពាក្យសម្ងាត់។"; err.style.display = "block"; return; }
+  const { error } = await sb.auth.signInWithPassword({ email: usernameToEmail(username), password });
+  if (error) { err.textContent = "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។"; err.style.display = "block"; return; }
+  // onAuthStateChange hides the gate and boots the app
+}
+// Lets someone submit a leave request without an account. Only the "perm" form
+// is usable in this mode — protected data is never fetched until a real sign-in happens.
+function openGuestPermit(){
+  guestMode = true;
+  hideGate();
+  go("perm", null);
+}
 
 /* ---------- ប្រកាសសុំច្បាប់ (permission letters) ---------- */
 let PERMITS = [];
@@ -356,7 +400,7 @@ async function loadPermits(){
 
 function updatePermitAuthBtn(){
   const b = document.getElementById("permitAuthBtn"); if(!b) return;
-  b.textContent = isStaff ? "🔓 ចេញពីគណនី (Admin)" : "🔒 ចូលជាអ្នកគ្រប់គ្រង (Admin)";
+  b.textContent = isStaff ? "🔓 ចេញពីគណនី" : "🔒 ចូលគណនី";
   b.classList.toggle("open", isStaff);
 }
 function renderPermits(){
@@ -402,31 +446,56 @@ async function deletePermit(id){
 }
 
 /* ---------- REALTIME + BOOT ---------- */
-sb.auth.onAuthStateChange((_evt, session) => {
-  isStaff = !!session;
+let appBooted = false;   // true once protected data has been loaded for a signed-in session
+
+// Edit rights come from app_metadata, set by an admin via SQL/the Studio Admin
+// API — NEVER from user_metadata, which a signed-in user can rewrite on
+// themselves via supabase.auth.updateUser(). app_metadata is only settable
+// by an admin, so it's the only tamper-proof place to keep a role. See
+// security-rls-setup.sql for how to grant/revoke the "admin" role, and the
+// matching RLS policies that enforce it at the database level too (the
+// client-side check below only controls what the UI shows/hides).
+function isAdminSession(session){
+  return !!(session && session.user && session.user.app_metadata && session.user.app_metadata.role === "admin");
+}
+
+// Runs once, right after a session is confirmed. Loads everything the
+// old public boot sequence used to load unconditionally. Every signed-in
+// account can view; only an "admin" account gets edit rights.
+async function bootAfterAuth(session){
+  if (appBooted) return;
+  appBooted = true;
+  isStaff = isAdminSession(session);
   attendLocked = !isStaff;
   studentLocked = !isStaff;
-  applyLock(); applySLock();
-  renderPermits();   // show/hide the staff-only delete buttons
-});
-
-sb.channel("ppnlsc-rt")
-  .on("postgres_changes", { event: "*", schema: "public", table: "students"    }, loadData)
-  .on("postgres_changes", { event: "*", schema: "public", table: "attendance"  }, loadData)
-  .on("postgres_changes", { event: "*", schema: "public", table: "memories"    }, loadMemories)
-  .on("postgres_changes", { event: "*", schema: "public", table: "permissions" }, loadPermits)
-  .subscribe();
-
-(async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  isStaff = !!session;
-  attendLocked = !isStaff;
-  studentLocked = !isStaff;
+  guestMode = false;
   CUR_MONTH = curMonthStr();
   MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
+  hideGate();
   await loadMonths();
   await loadData();
   await loadMemories();
   await loadPermits();
   applyLock(); applySLock();
+  sb.channel("ppnlsc-rt")
+    .on("postgres_changes", { event: "*", schema: "public", table: "students"    }, loadData)
+    .on("postgres_changes", { event: "*", schema: "public", table: "attendance"  }, loadData)
+    .on("postgres_changes", { event: "*", schema: "public", table: "memories"    }, loadMemories)
+    .on("postgres_changes", { event: "*", schema: "public", table: "permissions" }, loadPermits)
+    .subscribe();
+}
+
+sb.auth.onAuthStateChange((evt, session) => {
+  if (session) { bootAfterAuth(session); return; }
+  // signed out: full reload clears every in-memory array (STUDENTS/DATA/PERMITS/MEM_DB)
+  // and any rendered DOM, then boots fresh into the gate below.
+  if (evt === "SIGNED_OUT") { location.reload(); return; }
+  isStaff = false; attendLocked = true; studentLocked = true;
+  showGate();
+});
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { await bootAfterAuth(session); }
+  else { showGate(); }   // no session: block the app, wait for gate login or guest permit link
 })();
