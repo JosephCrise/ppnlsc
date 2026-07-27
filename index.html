@@ -54,14 +54,29 @@
   button{font-family:inherit;}
 
   /* ---------- top bar ---------- */
-  header.topbar{position:sticky;top:0;z-index:50;background:rgba(var(--accent-deep-rgb),.72);
+  header.topbar{position:sticky;top:0;z-index:50;background:var(--accent-deep);
     backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
     border-bottom:1px solid rgba(255,255,255,.08);
     padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.18);}
   .toplogo{height:34px;width:34px;border-radius:50%;object-fit:contain;background:#fff;padding:3px;
     box-shadow:0 0 0 1px rgba(255,255,255,.5);flex:0 0 auto;}
   .titleblock{flex:1;min-width:0;}
-  .titleblock .tk{font-weight:800;font-size:15.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .titleblock .tk{font-weight:800;font-size:15.5px;color:#fff;white-space:normal;line-height:1.25;}
+
+  /* ---------- language switcher (top-right of header) ---------- */
+  .langswitch{position:relative;flex:0 0 auto;}
+  .langbtn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:999px;
+    height:34px;padding:0 10px;font-size:12.5px;font-weight:800;cursor:pointer;display:flex;align-items:center;
+    gap:5px;white-space:nowrap;}
+  .langbtn:active{transform:scale(.94);}
+  .langmenu{position:absolute;top:calc(100% + 8px);right:0;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.28);padding:6px;min-width:132px;z-index:60;
+    opacity:0;pointer-events:none;transform:translateY(-6px);transition:.15s ease;}
+  .langmenu.show{opacity:1;pointer-events:auto;transform:none;}
+  .langmenu button{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:8px;
+    padding:9px 12px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;}
+  .langmenu button:hover{background:var(--male-bg);}
+  .langmenu button.active{color:var(--male-ink);background:var(--male-bg);}
 
   /* ---------- drawer nav ---------- */
   .drawer-backdrop{position:fixed;inset:0;background:rgba(10,12,18,.35);z-index:70;opacity:0;pointer-events:none;transition:.18s;}
@@ -107,23 +122,28 @@
 
   /* ---------- bottom tab bar ---------- */
   .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:55;max-width:520px;margin:0 auto;display:flex;
-    background:rgba(var(--accent-deep-rgb),.72);
+    background:var(--accent-deep);
     backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
     border-top:1px solid rgba(255,255,255,.08);padding:6px 4px calc(6px + env(safe-area-inset-bottom));
     box-shadow:0 -2px 12px rgba(0,0,0,.18);}
   .tabbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-    background:transparent;border:0;padding:6px 2px;cursor:pointer;color:rgba(255,255,255,.55);border-radius:10px;}
-  .tabbtn svg{width:21px;height:21px;}
+    background:transparent;border:0;padding:6px 2px;margin:0 2px;cursor:pointer;color:rgba(255,255,255,.55);border-radius:12px;
+    transition:color .2s ease,background .25s ease,box-shadow .25s ease,transform .15s ease;}
+  .tabbtn svg{width:21px;height:21px;transition:transform .2s ease;}
   .tabbtn span{font-size:10px;font-weight:700;line-height:1.2;}
-  .tabbtn.active{color:var(--gold);}
+  .tabbtn:active{transform:scale(.88);}
+  .tabbtn.active{color:var(--gold);background:rgba(255,255,255,.14);
+    backdrop-filter:blur(10px) saturate(160%);-webkit-backdrop-filter:blur(10px) saturate(160%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);animation:tabPop .32s cubic-bezier(.34,1.56,.64,1);}
+  .tabbtn.active svg{transform:scale(1.08);}
+  @keyframes tabPop{0%{transform:scale(1);}45%{transform:scale(1.15);}100%{transform:scale(1);}}
 
   /* ---------- floating action buttons (one per screen, toggled in go()/applySLock()) ---------- */
   .fab-wrap{position:fixed;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom));z-index:56;
     max-width:520px;margin:0 auto;pointer-events:none;display:none;}
   .fab-wrap.show{display:block;}
   .fab{position:absolute;right:16px;bottom:0;pointer-events:auto;width:54px;height:54px;border-radius:50%;
-    background:linear-gradient(135deg,rgba(var(--accent-rgb),.7),rgba(var(--accent-deep-rgb),.7));
-    backdrop-filter:blur(8px) saturate(160%);-webkit-backdrop-filter:blur(8px) saturate(160%);
+    background:linear-gradient(135deg,var(--accent),var(--accent-deep));
     color:#fff;border:0;cursor:pointer;
     display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.35);transition:.15s;}
   .fab:active{transform:scale(.92);}
@@ -205,13 +225,6 @@
   .tile .ic svg{width:18px;height:18px;}
   .tile .tk{font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.25;}
 
-  .quote{position:relative;margin-top:18px;padding:18px 18px 16px 44px;background:var(--card);border:1px solid var(--line);
-    border-radius:14px;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:14px;line-height:1.7;color:var(--sub);}
-  .quote::before{content:'\275D';position:absolute;left:12px;top:2px;font-size:34px;line-height:1;color:var(--accent);opacity:.35;
-    font-family:Georgia,serif;font-style:normal;}
-  .quote .qr{display:block;margin-top:6px;font-family:'Noto Sans Khmer','Noto Sans',sans-serif;
-    font-style:normal;font-weight:700;font-size:11.5px;color:var(--accent);}
-
   /* ---------- status pill / read-only bar ---------- */
   .statusbar{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;padding:9px 13px;
     border-radius:999px;margin-bottom:12px;width:fit-content;}
@@ -283,12 +296,27 @@
   .rankwrap{margin-top:18px;}
   .rankwrap h3{font-size:13px;color:var(--sub);font-weight:700;margin:0 0 10px;}
   .ranklist{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
-  .rankrow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);}
+  .rankrow{display:flex;align-items:flex-start;gap:12px;padding:14px;border-bottom:1px solid var(--line);position:relative;}
   .rankrow:last-child{border-bottom:0;}
-  .rankrow .rn{flex:1;min-width:0;}
-  .rankrow .rn .nm{font-weight:700;font-size:13.5px;}
-  .rankrow .rn .rs{font-size:11.5px;color:var(--sub);margin-top:2px;}
-  .rankrow .rc{font-weight:800;color:var(--absent-ink);font-size:15px;flex:0 0 auto;}
+  .rankrow.t1{background:linear-gradient(90deg,rgba(201,150,44,.14),transparent 65%);}
+  .rankrow.t2{background:linear-gradient(90deg,rgba(154,160,170,.14),transparent 65%);}
+  .rankrow.t3{background:linear-gradient(90deg,rgba(193,127,69,.12),transparent 65%);}
+  .rankrow .rk-pos{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:12px;background:var(--bg);color:var(--sub);border:1px solid var(--line);margin-top:1px;}
+  .rankrow.t1 .rk-pos{background:linear-gradient(135deg,#ffd76a,#dd9f2e);color:#5b3b00;border-color:transparent;box-shadow:0 1px 3px rgba(201,150,44,.4);}
+  .rankrow.t2 .rk-pos{background:linear-gradient(135deg,#e6eaf0,#b9c1cc);color:#33383f;border-color:transparent;box-shadow:0 1px 3px rgba(150,160,175,.35);}
+  .rankrow.t3 .rk-pos{background:linear-gradient(135deg,#e3ad82,#bd7c43);color:#3d2004;border-color:transparent;box-shadow:0 1px 3px rgba(193,127,69,.35);}
+  .rankrow .rk-main{flex:1;min-width:0;}
+  .rankrow .rk-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .rankrow .rk-name{font-weight:700;font-size:14px;}
+  .rankrow .rk-count{font-weight:800;color:var(--absent-ink);font-size:19px;flex:0 0 auto;line-height:1;letter-spacing:-.02em;}
+  .rankrow .rk-count small{font-size:11px;font-weight:700;opacity:.65;margin-left:1px;}
+  .rankrow .rk-bar{margin-top:7px;height:5px;border-radius:4px;background:var(--absent-bg);overflow:hidden;}
+  .rankrow .rk-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#e8635a,var(--absent-ink));}
+  .rankrow .rk-reasons{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px;}
+  .rankrow .chip{font-size:11px;font-weight:600;padding:3.5px 10px;border-radius:999px;background:var(--absent-bg);color:var(--absent-ink);white-space:nowrap;line-height:1.3;}
+  .rankrow .chip b{font-weight:800;margin-left:4px;padding:1px 5px;border-radius:999px;background:var(--absent-ink);color:#fff;font-size:10px;}
+  .rankrow .chip-none{background:var(--bg);color:var(--sub);}
   .rankempty{padding:16px;text-align:center;color:var(--sub);font-size:13px;}
 
   /* ---------- org chart ---------- */
@@ -451,22 +479,31 @@
 <div id="authGate">
   <div class="gatebox">
     <img src="picture1.png" alt="logo" onerror="this.style.display='none'">
-    <h2>មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</h2>
-    <p class="gatesub">សូមចូលគណនីដើម្បីប្រើប្រាស់កម្មវិធី</p>
-    <label class="flabel">ឈ្មោះអ្នកប្រើ</label>
-    <input id="gateUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" autocapitalize="off" autocorrect="off">
-    <label class="flabel">ពាក្យសម្ងាត់</label>
+    <h2 data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</h2>
+    <p class="gatesub" data-i18n="auth_gate_subtitle">សូមចូលគណនីដើម្បីប្រើប្រាស់កម្មវិធី</p>
+    <label class="flabel" data-i18n="auth_username_label">ឈ្មោះអ្នកប្រើ</label>
+    <input id="gateUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" data-i18n-ph="auth_username_ph" autocapitalize="off" autocorrect="off">
+    <label class="flabel" data-i18n="auth_password_label">ពាក្យសម្ងាត់</label>
     <input id="gatePass" type="password" autocomplete="current-password" placeholder="••••••••"
       onkeydown="if(event.key==='Enter')doGateLogin()">
     <div id="gateErr" class="err"></div>
-    <button class="gatebtn" onclick="doGateLogin()">ចូលគណនី</button>
+    <button class="gatebtn" onclick="doGateLogin()" data-i18n="auth_signin_btn">ចូលគណនី</button>
   </div>
 </div>
 
 <header class="topbar">
   <img class="toplogo" src="picture1.png" alt="logo" onerror="this.style.display='none'">
   <div class="titleblock">
-    <div class="tk">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+    <div class="tk" data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+  </div>
+  <div class="langswitch" id="langSwitch">
+    <button class="langbtn" onclick="toggleLangMenu()" aria-label="Language / ភាសា">🌐 <span id="langBtnLabel">EN</span></button>
+    <div class="langmenu" id="langMenu">
+      <button data-lang="en" onclick="applyLanguage('en');toggleLangMenu()">English</button>
+      <button data-lang="km" onclick="applyLanguage('km');toggleLangMenu()">ខ្មែរ</button>
+      <button data-lang="ko" onclick="applyLanguage('ko');toggleLangMenu()">한국어</button>
+      <button data-lang="zh" onclick="applyLanguage('zh');toggleLangMenu()">中文</button>
+    </div>
   </div>
 </header>
 
@@ -474,62 +511,62 @@
 <nav class="drawer" id="drawer">
   <div class="dhead">
     <img src="picture1.png" alt="logo" onerror="this.style.display='none'">
-    <div class="dtitle">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+    <div class="dtitle" data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
   </div>
   <div class="dtheme">
-    <div class="dtheme-label">រូបរាង</div>
+    <div class="dtheme-label" data-i18n="theme_label">រូបរាង</div>
     <div class="seg" id="themeSeg">
       <button class="segbtn" data-mode="light" onclick="applyTheme('light')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-        ភ្លឺ
+        <span data-i18n="theme_light">ភ្លឺ</span>
       </button>
       <button class="segbtn" data-mode="dark" onclick="applyTheme('dark')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5A8.5 8.5 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"/></svg>
-        ងងឹត
+        <span data-i18n="theme_dark">ងងឹត</span>
       </button>
     </div>
   </div>
   <button class="active" data-s="home" onclick="go('home',this)">
     <div class="ic i1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg></div>
-    <div class="dk">ទំព័រដើម</div>
+    <div class="dk" data-i18n="nav_home">ទំព័រដើម</div>
   </button>
   <button data-s="students" onclick="go('students',this)">
     <div class="ic i2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.9.6 5 2.7 5 5.8"/></svg></div>
-    <div class="dk">បញ្ជីសិស្ស</div>
+    <div class="dk" data-i18n="nav_students">បញ្ជីសិស្ស</div>
   </button>
   <button data-s="attend" onclick="go('attend',this)">
     <div class="ic i3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/><path d="M8.5 15l2 2 4-4"/></svg></div>
-    <div class="dk">វត្តមាន</div>
+    <div class="dk" data-i18n="nav_attendance">វត្តមាន</div>
   </button>
   <button data-s="org" onclick="go('org',this)">
     <div class="ic i4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2v3.3"/><circle cx="6" cy="17.5" r="2.2"/><circle cx="18" cy="17.5" r="2.2"/><path d="M12 10.5c-3.2 0-4.3 1.4-6 5M12 10.5c3.2 0 4.3 1.4 6 5"/></svg></div>
-    <div class="dk">រចនាសម្ព័ន្ធ</div>
+    <div class="dk" data-i18n="nav_org">រចនាសម្ព័ន្ធ</div>
   </button>
   <button data-s="memory" onclick="go('memory',this)">
     <div class="ic i5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-6-5-4 4-2-2-6 5"/></svg></div>
-    <div class="dk">អនុស្សាវរីយ៍</div>
+    <div class="dk" data-i18n="nav_memories">អនុស្សាវរីយ៍</div>
   </button>
   <button data-s="permitlist" onclick="go('permitlist',this)">
     <div class="ic i6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 16.5h5"/></svg></div>
-    <div class="dk">ប្រកាសសុំច្បាប់</div>
+    <div class="dk" data-i18n="nav_permits">ប្រកាសសុំច្បាប់</div>
   </button>
   <button data-s="feedback" onclick="go('feedback',this)">
     <div class="ic i7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3h.5a8 8 0 0 1 8 8v.5z"/></svg></div>
-    <div class="dk">មតិយោបល់</div>
+    <div class="dk" data-i18n="nav_feedback">មតិយោបល់</div>
   </button>
   <button class="staffrow" id="staffDrawerBtn" onclick="staffAuth()">
     <div class="ic i8" id="staffDrawerIc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-    <div class="dk">អ្នកគ្រប់គ្រង</div>
+    <div class="dk" data-i18n="nav_staff">អ្នកគ្រប់គ្រង</div>
   </button>
   <div class="dfoot">
     <img src="picture1.png" alt="logo" onerror="this.style.display='none'">
-    <div class="fname">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
-    <div class="fbottom">© 2026 មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<br>បង្កើតឡើងដោយក្តីស្រឡាញ់ ក្នុងព្រះនាមព្រះយេស៊ូវគ្រីស្ទ</div>
+    <div class="fname" data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+    <div class="fbottom" data-i18n-html="appFooterCopy">© 2026 មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<br>បង្កើតឡើងដោយក្តីស្រឡាញ់ ក្នុងព្រះនាមព្រះយេស៊ូវគ្រីស្ទ</div>
   </div>
 </nav>
 
 <div class="fab-wrap show" id="fabHome">
-  <button class="fab" onclick="go('perm',null)" aria-label="ស្នើសុំច្បាប់">
+  <button class="fab" onclick="go('perm',null)" aria-label="ស្នើសុំច្បាប់" data-i18n-title="fab_request_permit">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></svg>
   </button>
 </div>
@@ -537,10 +574,10 @@
 <div class="fab-backdrop" id="addStudentBackdrop" onclick="closeAddStudentMenu()"></div>
 <div class="fab-wrap" id="fabStudents">
   <div class="fab-mini-menu" id="addStudentMenu">
-    <button class="fab-mini m" onclick="addStudentFab('M')">👤 ប្រុស</button>
-    <button class="fab-mini f" onclick="addStudentFab('F')">👤 ស្រី</button>
+    <button class="fab-mini m" onclick="addStudentFab('M')" data-i18n="gender_male_btn">👤 ប្រុស</button>
+    <button class="fab-mini f" onclick="addStudentFab('F')" data-i18n="gender_female_btn">👤 ស្រី</button>
   </div>
-  <button class="fab add-student" id="addStudentFabBtn" onclick="toggleAddStudentMenu()" aria-label="បន្ថែមសិស្ស">
+  <button class="fab add-student" id="addStudentFabBtn" onclick="toggleAddStudentMenu()" aria-label="បន្ថែមសិស្ស" data-i18n-title="fab_add_student">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
 </div>
@@ -548,23 +585,23 @@
 <nav class="tabbar" id="tabbar">
   <button class="tabbtn active" data-s="home" onclick="go('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
-    <span>ទំព័រដើម</span>
+    <span data-i18n="nav_home">ទំព័រដើម</span>
   </button>
   <button class="tabbtn" data-s="students" onclick="go('students')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.9.6 5 2.7 5 5.8"/></svg>
-    <span>សិស្ស</span>
+    <span data-i18n="nav_students_tab">សិស្ស</span>
   </button>
   <button class="tabbtn" data-s="attend" onclick="go('attend')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/><path d="M8.5 15l2 2 4-4"/></svg>
-    <span>វត្តមាន</span>
+    <span data-i18n="nav_attendance">វត្តមាន</span>
   </button>
   <button class="tabbtn" data-s="memory" onclick="go('memory')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-6-5-4 4-2-2-6 5"/></svg>
-    <span>រូបភាព</span>
+    <span data-i18n="nav_memories_tab">រូបភាព</span>
   </button>
   <button class="tabbtn" id="moreTabBtn" onclick="toggleDrawer()">
     <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-    <span>ផ្សេងៗ</span>
+    <span data-i18n="nav_more">ផ្សេងៗ</span>
   </button>
 </nav>
 
@@ -574,16 +611,16 @@
     <div class="banner">
       <img class="blogo" src="picture1.png" alt="logo" onerror="this.style.display='none'">
       <div class="btag"><span class="dot"></span>PPNLSC</div>
-      <h1>មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</h1>
+      <h1 data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</h1>
       <button class="breq" onclick="go('perm',null)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></svg>
-        ស្នើសុំច្បាប់
+        <span data-i18n="home_request_btn">ស្នើសុំច្បាប់</span>
       </button>
     </div>
 
     <div class="carousel" id="carousel">
       <div class="cshots" id="slides">
-        <div class="cempty" id="slidesEmpty"><span class="ic">🖼️</span>មិនទាន់មានរូបភាព</div>
+        <div class="cempty" id="slidesEmpty"><span class="ic">🖼️</span><span data-i18n="carousel_empty">មិនទាន់មានរូបភាព</span></div>
       </div>
       <button class="carw prev" onclick="slideMove(-1)">‹</button>
       <button class="carw next" onclick="slideMove(1)">›</button>
@@ -593,7 +630,7 @@
     <div class="statrow">
       <div class="stat" onclick="go('students',null)">
         <div class="ic i1 sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.9.6 5 2.7 5 5.8"/></svg></div>
-        <div class="sv" id="hTotal">0</div><div class="sl">សិស្សសរុប</div>
+        <div class="sv" id="hTotal">0</div><div class="sl" data-i18n="stat_total_students">សិស្សសរុប</div>
       </div>
       <div class="stat" onclick="go('permitlist',null)">
         <div class="ic i6 sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 16.5h5"/></svg></div>
@@ -601,38 +638,37 @@
       </div>
       <div class="stat" onclick="go('memory',null)">
         <div class="ic i5 sic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-6-5-4 4-2-2-6 5"/></svg></div>
-        <div class="sv" id="hMemories">0</div><div class="sl">អនុស្សាវរីយ៍</div>
+        <div class="sv" id="hMemories">0</div><div class="sl" data-i18n="nav_memories">អនុស្សាវរីយ៍</div>
       </div>
     </div>
 
     <div class="tiles">
       <div class="tile" onclick="go('students',null)">
         <div class="ic i2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.9.6 5 2.7 5 5.8"/></svg></div>
-        <div class="tk">បញ្ជីសិស្ស</div>
+        <div class="tk" data-i18n="nav_students">បញ្ជីសិស្ស</div>
       </div>
       <div class="tile" onclick="go('attend',null)">
         <div class="ic i3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/><path d="M8.5 15l2 2 4-4"/></svg></div>
-        <div class="tk">វត្តមាន</div>
+        <div class="tk" data-i18n="nav_attendance">វត្តមាន</div>
       </div>
       <div class="tile" onclick="go('org',null)">
         <div class="ic i4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2v3.3"/><circle cx="6" cy="17.5" r="2.2"/><circle cx="18" cy="17.5" r="2.2"/><path d="M12 10.5c-3.2 0-4.3 1.4-6 5M12 10.5c3.2 0 4.3 1.4 6 5"/></svg></div>
-        <div class="tk">រចនាសម្ព័ន្ធ</div>
+        <div class="tk" data-i18n="nav_org">រចនាសម្ព័ន្ធ</div>
       </div>
       <div class="tile" onclick="go('memory',null)">
         <div class="ic i5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 17l-6-5-4 4-2-2-6 5"/></svg></div>
-        <div class="tk">អនុស្សាវរីយ៍</div>
+        <div class="tk" data-i18n="nav_memories">អនុស្សាវរីយ៍</div>
       </div>
       <div class="tile" onclick="go('permitlist',null)">
         <div class="ic i6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8.5 13h7M8.5 16.5h5"/></svg></div>
-        <div class="tk">ប្រកាសសុំច្បាប់</div>
+        <div class="tk" data-i18n="nav_permits">ប្រកាសសុំច្បាប់</div>
       </div>
       <div class="tile" onclick="go('feedback',null)">
         <div class="ic i7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3h.5a8 8 0 0 1 8 8v.5z"/></svg></div>
-        <div class="tk">មតិយោបល់</div>
+        <div class="tk" data-i18n="nav_feedback">មតិយោបល់</div>
       </div>
     </div>
 
-    <div class="quote" id="verseHero"></div>
   </section>
 
   <!-- ======== STUDENTS ======== -->
@@ -644,9 +680,9 @@
     </div>
     <div id="studentDoc">
       <div class="sumrow">
-        <span>សរុប <b id="sTotal">0</b></span>
-        <span class="chip M">ប្រុស <b id="sMale">0</b></span>
-        <span class="chip F">ស្រី <b id="sFemale">0</b></span>
+        <span><span data-i18n="label_total">សរុប</span> <b id="sTotal">0</b></span>
+        <span class="chip M"><span data-i18n="gender_male_label">ប្រុស</span> <b id="sMale">0</b></span>
+        <span class="chip F"><span data-i18n="gender_female_label">ស្រី</span> <b id="sFemale">0</b></span>
       </div>
       <div class="slist" id="studentBody"></div>
       <div class="foot" id="sStamp"></div>
@@ -668,7 +704,7 @@
         <table id="attTable"><thead id="attHead"></thead><tbody id="attBody"></tbody></table>
       </div>
       <div class="rankwrap" id="rankDoc">
-        <h3>ចំណាត់ថ្នាក់អវត្តមាន</h3>
+        <h3 data-i18n="rank_title">ចំណាត់ថ្នាក់អវត្តមាន</h3>
         <div class="ranklist" id="rankBody"></div>
       </div>
       <div class="foot" id="aStamp"></div>
@@ -680,57 +716,57 @@
     <div class="form">
       <div class="permgrid">
         <div class="row2">
-          <div><label>លេខ (No.)</label><input id="pNo" placeholder="ឧ. ០០១"></div>
-          <div><label>ឈ្មោះ / Full name</label><input id="pName" placeholder="ឈ្មោះពេញ" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_no_label">លេខ (No.)</label><input id="pNo" placeholder="ឧ. ០០១" data-i18n-ph="perm_no_ph"></div>
+          <div><label data-i18n="perm_name_label">ឈ្មោះ / Full name</label><input id="pName" placeholder="ឈ្មោះពេញ" data-i18n-ph="perm_name_ph" oninput="renderPerm()"></div>
         </div>
-        <label>តួនាទី / Role</label>
+        <label data-i18n="perm_role_label">តួនាទី / Role</label>
         <div class="radios">
-          <label><input type="radio" name="pRole" value="student" onchange="roleChange()"><span>សិស្ស</span></label>
-          <label><input type="radio" name="pRole" value="uni" checked onchange="roleChange()"><span>និស្សិត</span></label>
-          <label><input type="radio" name="pRole" value="staff" onchange="roleChange()"><span>បុគ្គលិក</span></label>
+          <label><input type="radio" name="pRole" value="student" onchange="roleChange()"><span data-i18n="perm_role_student">សិស្ស</span></label>
+          <label><input type="radio" name="pRole" value="uni" checked onchange="roleChange()"><span data-i18n="perm_role_uni">និស្សិត</span></label>
+          <label><input type="radio" name="pRole" value="staff" onchange="roleChange()"><span data-i18n="perm_role_staff">បុគ្គលិក</span></label>
         </div>
         <div class="row3">
-          <div><label>ភេទ / Gender</label><select id="pSex" onchange="renderPerm()"><option>ប្រុស</option><option>ស្រី</option></select></div>
-          <div><label>អាយុ / Age</label><input id="pAge" type="number" oninput="renderPerm()"></div>
-          <div><label>លេខទូរស័ព្ទ / Phone</label><input id="pPhone" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_gender_label">ភេទ / Gender</label><select id="pSex" onchange="renderPerm()"><option value="ប្រុស" data-i18n="gender_male_label">ប្រុស</option><option value="ស្រី" data-i18n="gender_female_label">ស្រី</option></select></div>
+          <div><label data-i18n="perm_age_label">អាយុ / Age</label><input id="pAge" type="number" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_phone_label">លេខទូរស័ព្ទ / Phone</label><input id="pPhone" oninput="renderPerm()"></div>
         </div>
         <div id="roleStudent" style="display:none">
           <div class="row2">
-            <div><label>ថ្នាក់ទី / Class</label><input id="pClass" oninput="renderPerm()"></div>
-            <div><label>នៃសាលា / School</label><input id="pSchool" oninput="renderPerm()"></div>
+            <div><label data-i18n="perm_class_label">ថ្នាក់ទី / Class</label><input id="pClass" oninput="renderPerm()"></div>
+            <div><label data-i18n="perm_school_label">នៃសាលា / School</label><input id="pSchool" oninput="renderPerm()"></div>
           </div>
         </div>
         <div id="roleUni">
           <div class="row3">
-            <div><label>ឆ្នាំទី / Year</label><input id="pYear" oninput="renderPerm()"></div>
-            <div><label>ផ្នែក / Major</label><input id="pMajor" oninput="renderPerm()"></div>
-            <div><label>សាកលវិទ្យាល័យ / Uni</label><input id="pUni" oninput="renderPerm()"></div>
+            <div><label data-i18n="perm_year_label">ឆ្នាំទី / Year</label><input id="pYear" oninput="renderPerm()"></div>
+            <div><label data-i18n="perm_major_label">ផ្នែក / Major</label><input id="pMajor" oninput="renderPerm()"></div>
+            <div><label data-i18n="perm_uni_label">សាកលវិទ្យាល័យ / Uni</label><input id="pUni" oninput="renderPerm()"></div>
           </div>
         </div>
         <div id="roleStaff" style="display:none">
-          <label>ផ្នែក / Department</label><input id="pDept" oninput="renderPerm()">
+          <label data-i18n="perm_dept_label">ផ្នែក / Department</label><input id="pDept" oninput="renderPerm()">
         </div>
-        <label>តាមរយះ (អ្នកទទួល) / To</label>
+        <label data-i18n="perm_to_label">តាមរយះ (អ្នកទទួល) / To</label>
         <input id="pTo" value="ប្រធានមណ្ឌលនិស្សិតជីវិតថ្មី" oninput="renderPerm()">
         <div class="row2">
-          <div><label>ចាប់ពីថ្ងៃ / From</label><input id="pFrom" type="date" oninput="renderPerm()"></div>
-          <div><label>ដល់ថ្ងៃ / To</label><input id="pToDate" type="date" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_from_label">ចាប់ពីថ្ងៃ / From</label><input id="pFrom" type="date" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_todate_label">ដល់ថ្ងៃ / To</label><input id="pToDate" type="date" oninput="renderPerm()"></div>
         </div>
-        <label>មូលហេតុ / Reason</label>
-        <textarea id="pReason" placeholder="ឧ. ជិះឆ្ងាយ / ឈឺ" oninput="renderPerm()"></textarea>
+        <label data-i18n="perm_reason_label">មូលហេតុ / Reason</label>
+        <textarea id="pReason" placeholder="ឧ. ជិះឆ្ងាយ / ឈឺ" data-i18n-ph="perm_reason_ph" oninput="renderPerm()"></textarea>
         <div class="row2">
-          <div><label>ទីកន្លែង / Place</label><input id="pPlace" value="ភ្នំពេញ" oninput="renderPerm()"></div>
-          <div><label>កាលបរិច្ឆេទ / Date</label><input id="pWriteDate" type="date" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_place_label">ទីកន្លែង / Place</label><input id="pPlace" value="ភ្នំពេញ" oninput="renderPerm()"></div>
+          <div><label data-i18n="perm_date_label">កាលបរិច្ឆេទ / Date</label><input id="pWriteDate" type="date" oninput="renderPerm()"></div>
         </div>
       </div>
       <div class="permactions">
-        <button class="pillbtn" onclick="savePermitAndImage()">📷 បង្កើតរូបភាព & ប្រកាស</button>
-        <button class="pillbtn outline" onclick="exportNode('permDoc','pdf','PermissionRequest')">📄 បង្កើត PDF</button>
+        <button class="pillbtn" onclick="savePermitAndImage()"><span data-i18n="perm_btn_generate_image">📷 បង្កើតរូបភាព & ប្រកាស</span></button>
+        <button class="pillbtn outline" onclick="exportNode('permDoc','pdf','PermissionRequest')"><span data-i18n="perm_btn_generate_pdf">📄 បង្កើត PDF</span></button>
       </div>
     </div>
 
     <div class="permpreview-hidden">
-      <div class="previewlbl">មើលជាមុន</div>
+      <div class="previewlbl" data-i18n="perm_preview_label">មើលជាមុន</div>
       <div class="permdoc" id="permDoc"></div>
     </div>
   </section>
@@ -744,7 +780,7 @@
   <!-- ======== MEMORIES ======== -->
   <section id="memory">
     <div class="actionrow" id="memStaffBar">
-      <button class="pillbtn" onclick="memInput.click()">+ បន្ថែមរូបភាព</button>
+      <button class="pillbtn" onclick="memInput.click()"><span data-i18n="mem_add_btn">+ បន្ថែមរូបភាព</span></button>
       <input id="memInput" type="file" accept="image/*,video/*" multiple style="display:none" onchange="addMemFiles(this.files)">
     </div>
     <div id="galleryWrap"></div>
@@ -752,25 +788,25 @@
 
   <!-- ======== PERMIT LIST ======== -->
   <section id="permitlist">
-    <div class="actionrow"><button id="permitAuthBtn" class="pillbtn outline" onclick="staffAuth()">🔒 ចូលជាអ្នកគ្រប់គ្រង</button></div>
-    <div id="permitListWrap"><div class="empty">កំពុងផ្ទុក…</div></div>
+    <div class="actionrow"><button id="permitAuthBtn" class="pillbtn outline" onclick="staffAuth()" data-i18n="permit_login_as_admin">🔒 ចូលជាអ្នកគ្រប់គ្រង</button></div>
+    <div id="permitListWrap"><div class="empty" data-i18n="common_loading">កំពុងផ្ទុក…</div></div>
   </section>
 
   <!-- ======== FEEDBACK ======== -->
   <section id="feedback">
     <div class="form">
-      <label>ឈ្មោះ (ស្រេចចិត្ត) / Name (optional)</label>
-      <input id="fbName" placeholder="ឈ្មោះរបស់អ្នក">
-      <label>ប្រភេទ / Category</label>
+      <label data-i18n="fb_name_label">ឈ្មោះ (ស្រេចចិត្ត) / Name (optional)</label>
+      <input id="fbName" placeholder="ឈ្មោះរបស់អ្នក" data-i18n-ph="fb_name_ph">
+      <label data-i18n="fb_category_label">ប្រភេទ / Category</label>
       <select id="fbType">
-        <option>បញ្ហាបច្ចេកទេស / Technical issue</option>
-        <option>សំណូមពរ / គំនិត / Suggestion</option>
-        <option>កំហុសទិន្នន័យ / Data error</option>
-        <option>ផ្សេងៗ / Other</option>
+        <option data-i18n="fb_cat_technical">បញ្ហាបច្ចេកទេស / Technical issue</option>
+        <option data-i18n="fb_cat_suggestion">សំណូមពរ / គំនិត / Suggestion</option>
+        <option data-i18n="fb_cat_data_error">កំហុសទិន្នន័យ / Data error</option>
+        <option data-i18n="fb_cat_other">ផ្សេងៗ / Other</option>
       </select>
-      <label>សារ</label>
-      <textarea id="fbMsg" placeholder="សូមពិពណ៌នាបញ្ហា ឬមតិរបស់អ្នក..."></textarea>
-      <button class="pillbtn send" onclick="sendFeedback()">📧 ផ្ញើមតិយោបល់</button>
+      <label data-i18n="fb_message_label">សារ</label>
+      <textarea id="fbMsg" placeholder="សូមពិពណ៌នាបញ្ហា ឬមតិរបស់អ្នក..." data-i18n-ph="fb_message_ph"></textarea>
+      <button class="pillbtn send" onclick="sendFeedback()"><span data-i18n="fb_send_btn">📧 ផ្ញើមតិយោបល់</span></button>
       <div class="contacts">
         <a class="c-tg" href="https://t.me/" target="_blank">Telegram — @ppnlsc_permission</a>
         <a class="c-ms" href="https://m.me/" target="_blank">Messenger</a>
@@ -782,7 +818,7 @@
 <!-- viewer popup: re-renders a saved letter for view / export -->
 <div id="permitView" class="modal">
   <div class="box" style="max-width:880px;">
-    <div class="mhead"><h3>ពាក្យសុំច្បាប់</h3><button class="mx" onclick="document.getElementById('permitView').classList.remove('show')">×</button></div>
+    <div class="mhead"><h3 data-i18n="doc_title">ពាក្យសុំច្បាប់</h3><button class="mx" onclick="document.getElementById('permitView').classList.remove('show')">×</button></div>
     <div class="permdoc" id="permitDoc"></div>
     <div class="dlbtns" style="margin-top:14px">
       <button class="mbtn" onclick="exportNode('permitDoc','image','PermissionRequest')">PNG</button>
@@ -794,16 +830,16 @@
 <!-- re-login popup (used to switch accounts / sign back in without a full page reload) -->
 <div id="loginModal" class="modal">
   <div class="box">
-    <div class="mhead"><h3>ចូលគណនី</h3><button class="mx" onclick="closeLogin()">×</button></div>
-    <label class="flabel">ឈ្មោះអ្នកប្រើ</label>
-    <input id="loginUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" autocapitalize="off" autocorrect="off">
-    <label class="flabel">ពាក្យសម្ងាត់</label>
+    <div class="mhead"><h3 data-i18n="auth_signin_btn">ចូលគណនី</h3><button class="mx" onclick="closeLogin()">×</button></div>
+    <label class="flabel" data-i18n="auth_username_label">ឈ្មោះអ្នកប្រើ</label>
+    <input id="loginUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" data-i18n-ph="auth_username_ph" autocapitalize="off" autocorrect="off">
+    <label class="flabel" data-i18n="auth_password_label">ពាក្យសម្ងាត់</label>
     <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"
       onkeydown="if(event.key==='Enter')doStaffLogin()">
     <div id="loginErr" class="err"></div>
     <div class="dlbtns" style="margin-top:16px">
-      <button class="mbtn" onclick="doStaffLogin()">ចូល</button>
-      <button class="mbtn ghost" onclick="closeLogin()">បោះបង់</button>
+      <button class="mbtn" onclick="doStaffLogin()" data-i18n="auth_login_short">ចូល</button>
+      <button class="mbtn ghost" onclick="closeLogin()" data-i18n="common_cancel">បោះបង់</button>
     </div>
   </div>
 </div>
@@ -811,34 +847,34 @@
 <div class="modal center" id="msgModal" onclick="if(event.target.id==='msgModal')msgModal.classList.remove('show')">
   <div class="box">
     <div class="ic">🔒</div>
-    <h3 id="msgTitle" style="margin:0 0 6px">មិនអនុញ្ញាត</h3>
-    <p id="msgText">មុខងារនេះអនុញ្ញាតតែសម្រាប់អ្នកទទួលខុសត្រូវប៉ុណ្ណោះ។</p>
-    <button class="mbtn" onclick="msgModal.classList.remove('show')">យល់ព្រម</button>
+    <h3 id="msgTitle" style="margin:0 0 6px" data-i18n="msg_not_allowed_title">មិនអនុញ្ញាត</h3>
+    <p id="msgText" data-i18n="msg_not_allowed_body">មុខងារនេះអនុញ្ញាតតែសម្រាប់អ្នកទទួលខុសត្រូវប៉ុណ្ណោះ។</p>
+    <button class="mbtn" onclick="msgModal.classList.remove('show')" data-i18n="common_ok">យល់ព្រម</button>
   </div>
 </div>
 
 <div class="modal center" id="dlModal" onclick="if(event.target.id==='dlModal')dlModal.classList.remove('show')">
   <div class="box">
     <div id="dlPreview" class="dlprev"></div>
-    <h3 style="margin:0 0 6px">រួចរាល់ ✓</h3>
+    <h3 style="margin:0 0 6px" data-i18n="dl_done_title">រួចរាល់ ✓</h3>
     <p id="dlHint"></p>
     <div class="dlbtns">
-      <button id="dlShare" class="mbtn" onclick="doShare()">📤 ចែករំលែក / រក្សាទុក</button>
-      <a id="dlLink" class="mbtn" style="text-decoration:none;display:inline-block">⬇ រក្សាទុក</a>
+      <button id="dlShare" class="mbtn" onclick="doShare()" data-i18n="dl_share_btn">📤 ចែករំលែក / រក្សាទុក</button>
+      <a id="dlLink" class="mbtn" style="text-decoration:none;display:inline-block" data-i18n="dl_save_link">⬇ រក្សាទុក</a>
     </div>
-    <button class="mbtn ghost" style="margin-top:10px" onclick="dlModal.classList.remove('show')">បិទ</button>
+    <button class="mbtn ghost" style="margin-top:10px" onclick="dlModal.classList.remove('show')" data-i18n="common_close">បិទ</button>
   </div>
 </div>
 
 <div class="modal" id="lightbox">
   <div class="box">
-    <div class="mhead"><h3>អនុស្សាវរីយ៍</h3><button class="mx" onclick="closeLight()">×</button></div>
+    <div class="mhead"><h3 data-i18n="nav_memories">អនុស្សាវរីយ៍</h3><button class="mx" onclick="closeLight()">×</button></div>
     <div id="lbBox"></div>
     <div class="dlbtns" style="margin-top:14px" id="lbCap"></div>
   </div>
 </div>
 
-<div id="exportBusy"><div class="box">កំពុងបង្កើត… សូមរង់ចាំ</div></div>
+<div id="exportBusy"><div class="box" data-i18n="msg_generating">កំពុងបង្កើត… សូមរង់ចាំ</div></div>
 
 <script>
 const LOGO="data:image/png;base64,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xlVYiuYxjOGX9999913CVx667LLL3Fdv6X6mFhSmWFxzzTXuOPqqGOT4Aw88II477jitLQzobBiVihikSjZYNUvVxYNNOcVOBcxxnGaj0Qmf8hcSGzt2rMfDvEro6ChoTydXMN9xPycEolEwEKP7iRMnNtva2tzGBcHDGCdV4egkg4u4OtDl9Pfff7v2g/a4TIn64UOlW8mS/aEke9d1O+64o4uOfrPEJZdcIjAmiRbGEe+8847c9ba4oIeeHFPZe/PNN0P2PAMl7IQuwEuI0QdJJn/FFVcU9HTYN4alCHXLEOK2FX1jfPLYkfbkByIkUE5GW+UKZ8qjrjjQMY2ZbJZ0rLx3TkqasNLAKvUFeNwsvfHGG2LnnXdWql133XVKflWZXepQiSKoDom77LKLeOqpp9z1tKpaqADurneofO2118Ruu+0mJkyY4MaK/qmnntqViubGFXrp4/LLLw8Utxq7V155pQt01113dc8ezznnHLH99tu7i32CJ6mq8QG/jBH90KESa3NVkYKrHOGQucMOO3in+zKmqsYH/CzGNjceur5pyLsCxCjVTWZbPBK/3NLddDcOuS+3tvbKKCdjoK3Tpc4qKdke7bHHHuKll17y9rtaJ3SoxCGmikSfQivYVY0PwbEYu95ZpVX1uoBQlz1UdoHaGEOoC2dMT3kH68KVtzZGZHXhjOkp72BduPLWxoisLpwxPeUdrAtX3toYkdWFM6anvIN14cpbGyOyunDG9JR3sC5ceWtjRFYXzpie8g52icI98sgj1hmOI2tttChBelzQoOYSYajUg9SHH35YQrfeQqdqcQIvI4f2XU5DMrFbpSZxx90+9NBDlYqzvUxelA7tV7dw9MqUF0mwc+yxxzbRTET/fL1SxWOxVLdw999/P4vD333++ee9gtC7cP5Btvf44497cvj8lr0x6NUs3H333cdiCHeDa24df/zxYaEODmyVvWASHwuimoVjAYS6J5xwgrIQIUHGuPfee5U6MmFl2TLI1SvcPffcw/D7u/Sf7rUFwJiJYLcsBdLhYPirVbi7776bYfd3H3zwwcjEY71KE+kSVhY+w16dwmHZQRPZ/tuVU045RWumyKUNbT4cDHg1CkfrnTDM4S691BH5beOJCVvo5Nx5552xbHG7re53omxWo3AffPABw+zvnn766bETDR0T3X777bFttrposM+o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";
@@ -932,8 +968,9 @@ function permitsThisMonth(){
   }).length;
 }
 function currentMonthLabelKh(){
-  const months=(typeof KH_MONTHS!=='undefined') ? KH_MONTHS : KH_MONTHS_FALLBACK;
-  return 'ស្នើសុំច្បាប់ ខែ'+months[new Date().getMonth()];
+  const name=(typeof monthNameLocalized==='function') ? monthNameLocalized(new Date().getMonth()) :
+    ((typeof KH_MONTHS!=='undefined') ? KH_MONTHS : KH_MONTHS_FALLBACK)[new Date().getMonth()];
+  return t('home_permits_this_month')+' '+name;
 }
 function refreshCounts(){
   const c=counts();
@@ -952,7 +989,7 @@ setInterval(refreshCounts, 30*60*1000);
 function applyLock(){
   lockBar.className = 'statusbar ' + (attendLocked?'ro':'rw');
   lockBar.style.display = attendLocked ? 'none' : 'flex';
-  lockBar.textContent = attendLocked ? '' : 'កំពុងកែប្រែ — អ្នកគ្រប់គ្រង';
+  lockBar.textContent = attendLocked ? '' : t('msg_editing_admin');
   lockBtn.textContent = attendLocked ? '🔒' : '🔓';
   document.getElementById('aStaffBar').style.display = attendLocked ? 'none' : 'flex';
   renderAtt();
@@ -960,12 +997,12 @@ function applyLock(){
 function applySLock(){
   sLockBar.className = 'statusbar ' + (studentLocked?'ro':'rw');
   sLockBar.style.display = studentLocked ? 'none' : 'flex';
-  sLockBar.textContent = studentLocked ? '' : 'កំពុងកែប្រែ — អ្នកគ្រប់គ្រង';
+  sLockBar.textContent = studentLocked ? '' : t('msg_editing_admin');
   sLockBtn.textContent = studentLocked ? '🔒' : '🔓';
   document.getElementById('sStaffBar').style.display = studentLocked ? 'none' : 'flex';
   const staffDrawer = document.getElementById('staffDrawerBtn');
   if(staffDrawer){
-    staffDrawer.querySelector('.dk').textContent = studentLocked ? 'អ្នកគ្រប់គ្រង' : 'ចេញពីគណនី';
+    staffDrawer.querySelector('.dk').textContent = studentLocked ? t('nav_staff') : t('auth_signout_full');
     staffDrawer.querySelector('.ic').innerHTML = studentLocked
       ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-1.5"/></svg>';
@@ -979,17 +1016,36 @@ let attendLocked = true, studentLocked = true;
    so it must render into our div-based #rankBody instead of the original <tbody>) ---- */
 function renderRank(){
   const rb=document.getElementById('rankBody'); if(!rb) return; rb.innerHTML='';
-  const ranked=DATA.map(d=>({
-      name:d.name,g:d.gender,
-      a:d.att.filter(w=>w.s==='A'||w.s==='AP').length,
-      reasons:[...new Set(d.att.filter(w=>(w.s==='A'||w.s==='AP')&&w.r&&w.r.trim()).map(w=>w.r.trim()))]
-    }))
+  const ranked=DATA.map(d=>{
+      const reasonCounts=new Map();
+      d.att.filter(w=>(w.s==='A'||w.s==='AP')&&w.r&&w.r.trim()).forEach(w=>{
+        const key=w.r.trim();
+        reasonCounts.set(key,(reasonCounts.get(key)||0)+1);
+      });
+      return {
+        name:d.name,g:d.gender,
+        a:d.att.filter(w=>w.s==='A'||w.s==='AP').length,
+        reasons:[...reasonCounts.entries()]
+      };
+    })
     .filter(d=>d.name!=='' && d.a>0).sort((x,y)=>y.a-x.a);
-  if(!ranked.length){ rb.innerHTML='<div class="rankempty">មិនទាន់មានអវត្តមាន</div>'; return; }
-  rb.innerHTML = ranked.map(r=>`<div class="rankrow">
-    <div class="rn"><div class="nm">${esc(r.name)}</div><div class="rs">${r.reasons.length?esc(r.reasons.join(', ')):'—'}</div></div>
-    <div class="rc">${r.a}</div>
-  </div>`).join('');
+  if(!ranked.length){ rb.innerHTML=`<div class="rankempty">${t('rank_empty')}</div>`; return; }
+  const max=ranked[0].a||1;
+  rb.innerHTML = ranked.map((r,i)=>{
+    const pos=i+1, tier=pos<=3?` t${pos}`:'';
+    const pct=Math.max(14,Math.round((r.a/max)*100));
+    const reasonsHtml=r.reasons.length
+      ? r.reasons.map(([txt,cnt])=>`<span class="chip">${esc(txt)}${cnt>1?`<b>×${cnt}</b>`:''}</span>`).join('')
+      : `<span class="chip chip-none">—</span>`;
+    return `<div class="rankrow${tier}">
+      <div class="rk-pos">${pos}</div>
+      <div class="rk-main">
+        <div class="rk-top"><span class="rk-name">${esc(r.name)}</span><span class="rk-count">${r.a}</span></div>
+        <div class="rk-bar"><div class="rk-bar-fill" style="width:${pct}%"></div></div>
+        <div class="rk-reasons">${reasonsHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ---- permission request letter (identical to the production template) ---- */
@@ -1015,32 +1071,32 @@ function collectPerm(){
   };
 }
 function permDocHTML(d){
-  const f=khDate(d.from_date), t=khDate(d.to_date), wd=khDate(d.write_date);
+  const f=khDate(d.from_date), td=khDate(d.to_date), wd=khDate(d.write_date);
   const days=daysBetween(d.from_date,d.to_date);
   const role=d.role||'uni';
   const cb=v=>`<span class="cb">${role===v?'✓':''}</span>`;
   const s=role==='student', u=role==='uni', st=role==='staff';
   return `
-   <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small></div></div>
+   <div class="ph"><img src="${LOGO}" alt="" onerror="this.style.display='none'"><div class="cn">${t('appName')}<small>Phnom Penh New Life Student Center</small></div></div>
    <div class="no">N°. <span class="u" style="min-width:120px">${esc(d.no)}</span></div>
-   <div class="pt">ពាក្យសុំច្បាប់</div>
-   <div class="pline"><span class="t">ខ្ញុំបាទ/នាងខ្ញុំឈ្មោះ ៖</span> <span class="u grow">${esc(d.name)}</span> <span class="t">ភេទ</span> <span class="u">${esc(d.sex)}</span> <span class="t">អាយុ</span> <span class="u">${esc(d.age)}</span> <span class="t">លេខទូរស័ព្ទ</span> <span class="u">${esc(d.phone)}</span></div>
-   <div class="rolewrap"><span class="ja">ជា</span><div class="rolecol">
-     <div class="pline">${cb('student')} <span class="t">សិស្ស ថ្នាក់ទី</span> <span class="u">${s?esc(d.klass):''}</span> <span class="t">នៃ</span> <span class="u grow">${s?esc(d.school):''}</span></div>
-     <div class="pline">${cb('uni')} <span class="t">និស្សិត ឆ្នាំទី</span> <span class="u">${u?esc(d.year):''}</span> <span class="t">ផ្នែក</span> <span class="u">${u?esc(d.major):''}</span> <span class="t">នៃ</span> <span class="u grow">${u?esc(d.uni):''}</span></div>
-     <div class="pline">${cb('staff')} <span class="t">បុគ្គលិក ផ្នែក</span> <span class="u grow">${st?esc(d.dept):''}</span></div>
+   <div class="pt">${t('doc_title')}</div>
+   <div class="pline"><span class="t">${t('doc_i_am_named')}</span> <span class="u grow">${esc(d.name)}</span> <span class="t">${t('doc_gender')}</span> <span class="u">${esc(d.sex)}</span> <span class="t">${t('doc_age')}</span> <span class="u">${esc(d.age)}</span> <span class="t">${t('doc_phone')}</span> <span class="u">${esc(d.phone)}</span></div>
+   <div class="rolewrap"><span class="ja">${t('doc_as')}</span><div class="rolecol">
+     <div class="pline">${cb('student')} <span class="t">${t('doc_role_student_class')}</span> <span class="u">${s?esc(d.klass):''}</span> <span class="t">${t('doc_of')}</span> <span class="u grow">${s?esc(d.school):''}</span></div>
+     <div class="pline">${cb('uni')} <span class="t">${t('doc_role_uni_year')}</span> <span class="u">${u?esc(d.year):''}</span> <span class="t">${t('doc_dept_major')}</span> <span class="u">${u?esc(d.major):''}</span> <span class="t">${t('doc_of')}</span> <span class="u grow">${u?esc(d.uni):''}</span></div>
+     <div class="pline">${cb('staff')} <span class="t">${t('doc_role_staff_dept')}</span> <span class="u grow">${st?esc(d.dept):''}</span></div>
    </div></div>
-   <div class="recip">សូមគោរពចូលមក<br>បុគ្គលិកទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
-   <div class="pline"><span class="t label"><span class="ttl">តាមរយះ</span>៖</span> <span class="t" style="color:#0f2a4a;font-weight:700">${esc(d.to_whom)}</span></div>
-   <div class="pline"><span class="t label"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">សំណើសុំច្បាប់ដើម្បីឈប់សម្រាក ចំនួន</span> <span class="u">${esc(days)}</span> <span class="t">ថ្ងៃ</span></div>
-   <div class="pline daterow"><span class="t label" style="visibility:hidden"><span class="ttl">កម្មវត្ថុ</span>៖</span> <span class="t">ចាប់ពីថ្ងៃទី</span> <span class="u">${esc(f.d)}</span> <span class="t">ខែ</span> <span class="u">${esc(f.m)}</span> <span class="t">ឆ្នាំ</span> <span class="u">${esc(f.y)}</span> <span class="t">ដល់ថ្ងៃទី</span> <span class="u">${esc(t.d)}</span> <span class="t">ខែ</span> <span class="u">${esc(t.m)}</span> <span class="t">ឆ្នាំ</span> <span class="u">${esc(t.y)}</span></div>
-   <div class="pline"><span class="t label"><span class="ttl">មូលហេតុ</span>៖</span> <span class="u grow" style="text-align:left">${esc(d.reason)}</span></div>
-   <div class="para">អាស្រ័យដូចបានជំរាបជូនខាងលើនេះ សូមលោកនាយកមេត្តាអនុញ្ញាតច្បាប់សម្រាប់ទៅតាមការស្នើសុំរបស់ខ្ញុំបាទ-នាងខ្ញុំ ដោយយល់សេចក្ដីស្រឡាញ់នៃព្រះអម្ចាស់យេស៊ូវគ្រីស្ទ ។</div>
-   <div class="sign"><span class="t">${esc(d.place)||'ភ្នំពេញ'}, ថ្ងៃទី</span> <span class="u">${esc(wd.d)}</span> <span class="t">ខែ</span> <span class="u">${esc(wd.m)}</span> <span class="t">ឆ្នាំ</span> <span class="u">${esc(wd.y)}</span><br>ហត្ថលេខា<br><span class="u" style="margin-top:6px">${esc(d.name)}</span></div>
-   <div class="decision">សេចក្ដីសម្រេចរបស់បុគ្គលិក<br>ទទួលខុសត្រូវមណ្ឌលនិស្សិតជីវិតថ្មី</div>
+   <div class="recip">${t('doc_recip_greeting')}<br>${t('doc_recip_title')}</div>
+   <div class="pline"><span class="t label"><span class="ttl">${t('doc_via_label')}</span>${t('doc_colon')}</span> <span class="t" style="color:#0f2a4a;font-weight:700">${esc(d.to_whom)}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">${t('doc_subject_label')}</span>${t('doc_colon')}</span> <span class="t">${t('doc_leave_request_text')}</span> <span class="u">${esc(days)}</span> <span class="t">${t('doc_days_label')}</span></div>
+   <div class="pline daterow"><span class="t label" style="visibility:hidden"><span class="ttl">${t('doc_subject_label')}</span>${t('doc_colon')}</span> <span class="t">${t('doc_from_date_label')}</span> <span class="u">${esc(f.d)}</span> <span class="t">${t('doc_month_label')}</span> <span class="u">${esc(f.m)}</span> <span class="t">${t('doc_year_label')}</span> <span class="u">${esc(f.y)}</span> <span class="t">${t('doc_to_date_label')}</span> <span class="u">${esc(td.d)}</span> <span class="t">${t('doc_month_label')}</span> <span class="u">${esc(td.m)}</span> <span class="t">${t('doc_year_label')}</span> <span class="u">${esc(td.y)}</span></div>
+   <div class="pline"><span class="t label"><span class="ttl">${t('doc_reason_label')}</span>${t('doc_colon')}</span> <span class="u grow" style="text-align:left">${esc(d.reason)}</span></div>
+   <div class="para">${t('doc_para_body')}</div>
+   <div class="sign"><span class="t">${esc(d.place)||'ភ្នំពេញ'}, ${t('doc_dated_on')}</span> <span class="u">${esc(wd.d)}</span> <span class="t">${t('doc_month_label')}</span> <span class="u">${esc(wd.m)}</span> <span class="t">${t('doc_year_label')}</span> <span class="u">${esc(wd.y)}</span><br>${t('doc_signature')}<br><span class="u" style="margin-top:6px">${esc(d.name)}</span></div>
+   <div class="decision">${t('doc_decision_title')}<br>${t('doc_recip_title')}</div>
    <div class="blank"></div>
    <div class="blank"></div>
-   <div style="text-align:center;margin-top:18px">ភ្នំពេញ, ថ្ងៃទី ____ ខែ ____ ឆ្នាំ ២០__<br>ហត្ថលេខា</div>`;
+   <div style="text-align:center;margin-top:18px">ភ្នំពេញ, ${t('doc_dated_on')} ____ ${t('doc_month_label')} ____ ${t('doc_year_label')} 20__<br>${t('doc_signature')}</div>`;
 }
 function renderPerm(){ if(window.permDoc) permDoc.innerHTML = permDocHTML(collectPerm()); }
 
@@ -1060,10 +1116,8 @@ function showResult(blob, filename, kind){
   const canShare = navigator.canShare && navigator.canShare({files:[_resultFile]});
   dlShare.style.display = canShare ? '' : 'none';
   dlHint.innerHTML = canShare
-    ? "ទូរស័ព្ទ៖ ចុច «📤 ចែករំលែក / រក្សាទុក» ➜ ជ្រើស <b>Save Image</b> / <b>Save Video</b> ឬ <b>Save to Files</b> ឬផ្ញើទៅ Telegram / Messenger។"
-    : (kind==='image'
-        ? "ចុច «⬇ រក្សាទុក» ដើម្បីទាញយករូបភាព។ (ទូរស័ព្ទ៖ ចុចឃ្លាំងលើរូប រួចជ្រើស Save Image)"
-        : "ចុច «⬇ បើក / រក្សាទុក» ➜ បើកឯកសារ រួចចុច Share ➜ Save to Files / Save Video។");
+    ? t('dl_hint_can_share')
+    : (kind==='image' ? t('dl_hint_image') : t('dl_hint_other'));
   dlModal.classList.add('show');
 }
 function doShare(){
@@ -1143,7 +1197,7 @@ async function exportNode(elId, kind, name){
     if(kind==='image'){ await deliver(canvasToBlob(c), name+'-'+stamp()+'.png','image'); }
     else { await deliver(canvasToPDFBlob(c,fitOnePage), name+'-'+stamp()+'.pdf','pdf'); }
   }catch(err){
-    if(window.msgModal){ msgTitle.textContent='បង្កើតមិនបាន (export failed)'; msgText.textContent=(err&&err.message)||'សូមព្យាយាមម្ដងទៀត។'; msgModal.classList.add('show'); }
+    if(window.msgModal){ msgTitle.textContent=t('msg_export_failed_title'); msgText.textContent=(err&&err.message)||t('msg_try_again'); msgModal.classList.add('show'); }
   }finally{
     el.classList.remove('export-mode'); exportBusy(false);
   }
@@ -1158,7 +1212,7 @@ function openLight(i){
   lbBox.innerHTML = m.type==='video'
     ? `<video src="${m.src}" controls autoplay playsinline></video>`
     : `<img src="${m.src}" alt="">`;
-  lbCap.innerHTML = `<button class="mbtn" onclick="saveMedia(${i})">⬇ រក្សាទុក / Save</button>`;
+  lbCap.innerHTML = `<button class="mbtn" onclick="saveMedia(${i})">⬇ ${t('common_save')}</button>`;
   lightbox.classList.add('show');
 }
 function closeLight(){ lightbox.classList.remove('show'); lbBox.innerHTML=''; }
@@ -1199,10 +1253,10 @@ function restartSlide(){ clearInterval(slideTimer); slideTimer=setInterval(()=>s
 /* ---- feedback ---- */
 const FEEDBACK_EMAIL = "chhengudam@kosign.com.kh";
 function sendFeedback(){
-  const name=fbName.value.trim()||"អនាមិក", type=fbType.value, msg=fbMsg.value.trim();
-  if(!msg){ msgTitle.textContent="សូមបំពេញសារ"; msgText.textContent="សូមសរសេរសារមុននឹងផ្ញើ។"; msgModal.classList.add('show'); return; }
+  const name=fbName.value.trim()||t('fb_anonymous'), type=fbType.value, msg=fbMsg.value.trim();
+  if(!msg){ msgTitle.textContent=t('msg_fill_message_title'); msgText.textContent=t('msg_fill_message_body'); msgModal.classList.add('show'); return; }
   const subject=encodeURIComponent("[Feedback] "+type+" — Phnom Penh New Life Student Center");
-  const body=encodeURIComponent("ឈ្មោះ: "+name+"\nប្រភេទ: "+type+"\n\nសារ:\n"+msg);
+  const body=encodeURIComponent(t('email_name_label')+name+"\n"+t('email_category_label')+type+"\n\n"+t('email_message_label')+msg);
   window.location.href=`mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
 }
 
@@ -1255,6 +1309,6 @@ document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,1
 renderOrg(); roleChange(); renderVerses();
 </script>
 <!-- Live data layer: Postgres + Realtime + Auth + Storage (same source as the live app) -->
-<script src="supabase-integration.js?v=7"></script>
+<script src="supabase-integration.js?v=8"></script>
 </body>
 </html>
