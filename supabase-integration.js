@@ -62,7 +62,7 @@ const I18N = {
     perm_year_label: "Year", perm_major_label: "Major", perm_uni_label: "University",
     perm_dept_label: "Department", perm_to_label: "To (recipient)",
     perm_from_label: "From", perm_todate_label: "To",
-    perm_reason_label: "Reason", perm_reason_ph: "e.g. long commute / sick",
+    perm_reason_label: "Reason", perm_reason_ph: "e.g. go to hometown / sick",
     perm_place_label: "Place", perm_date_label: "Date",
     perm_preview_label: "Preview",
     perm_btn_generate_image: "📷 Generate Image & Submit", perm_btn_generate_pdf: "📄 Generate PDF",
@@ -166,7 +166,7 @@ const I18N = {
     perm_year_label: "ឆ្នាំទី / Year", perm_major_label: "ផ្នែក / Major", perm_uni_label: "សាកលវិទ្យាល័យ / Uni",
     perm_dept_label: "ផ្នែក / Department", perm_to_label: "តាមរយះ (អ្នកទទួល) / To",
     perm_from_label: "ចាប់ពីថ្ងៃ / From", perm_todate_label: "ដល់ថ្ងៃ / To",
-    perm_reason_label: "មូលហេតុ / Reason", perm_reason_ph: "ឧ. ជិះឆ្ងាយ / ឈឺ",
+    perm_reason_label: "មូលហេតុ / Reason", perm_reason_ph: "ឧ. ទៅផ្ទះកំណើត / ឈឺ",
     perm_place_label: "ទីកន្លែង / Place", perm_date_label: "កាលបរិច្ឆេទ / Date",
     perm_preview_label: "មើលជាមុន",
     perm_btn_generate_image: "📷 បង្កើតរូបភាព & ប្រកាស", perm_btn_generate_pdf: "📄 បង្កើត PDF",
@@ -261,7 +261,7 @@ const I18N = {
     perm_year_label: "학년", perm_major_label: "전공", perm_uni_label: "대학교",
     perm_dept_label: "부서", perm_to_label: "수신인",
     perm_from_label: "시작일", perm_todate_label: "종료일",
-    perm_reason_label: "사유", perm_reason_ph: "예: 장거리 통학 / 병가",
+    perm_reason_label: "사유", perm_reason_ph: "예: 고향 방문 / 병가",
     perm_place_label: "장소", perm_date_label: "작성일",
     perm_preview_label: "미리보기",
     perm_btn_generate_image: "📷 이미지 생성 & 제출", perm_btn_generate_pdf: "📄 PDF 생성",
@@ -347,7 +347,7 @@ const I18N = {
     perm_year_label: "年级", perm_major_label: "专业", perm_uni_label: "大学",
     perm_dept_label: "部门", perm_to_label: "收件人",
     perm_from_label: "起始日期", perm_todate_label: "结束日期",
-    perm_reason_label: "事由", perm_reason_ph: "例：路途遥远 / 生病",
+    perm_reason_label: "事由", perm_reason_ph: "例：回家乡 / 生病",
     perm_place_label: "地点", perm_date_label: "填写日期",
     perm_preview_label: "预览",
     perm_btn_generate_image: "📷 生成图片并提交", perm_btn_generate_pdf: "📄 生成 PDF",
@@ -759,6 +759,15 @@ async function staffAuth(){
   document.getElementById("loginPass").value = "";
   m.classList.add("show");
   setTimeout(() => { const e=document.getElementById("loginUser"); if(e) e.focus(); }, 50);
+}
+const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.28 20.28 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a20.28 20.28 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function togglePwd(id, btn){
+  const el = document.getElementById(id); if (!el) return;
+  const toText = el.type === "password";
+  el.type = toText ? "text" : "password";
+  btn.innerHTML = toText ? EYE_OFF_ICON : EYE_ICON;
+  btn.setAttribute("aria-label", toText ? "Hide password" : "Show password");
 }
 function closeLogin(){ const m=document.getElementById("loginModal"); if(m) m.classList.remove("show"); }
 async function doStaffLogin(){

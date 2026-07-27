@@ -352,7 +352,7 @@
   .form{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);}
   .form label{display:block;font-weight:700;color:var(--ink);margin:12px 0 6px;font-size:13px;}
   .form label:first-child{margin-top:0;}
-  .form input,.form select,.form textarea{width:100%;padding:11px 12px;border:1px solid var(--line);
+  .form input:not([type=radio]):not([type=checkbox]),.form select,.form textarea{width:100%;padding:11px 12px;border:1px solid var(--line);
     border-radius:10px;font-size:14px;background:var(--bg);color:var(--ink);}
   .form textarea{min-height:100px;resize:vertical;}
   .form .send{margin-top:16px;width:100%;}
@@ -364,11 +364,14 @@
   .permgrid{display:grid;grid-template-columns:1fr;gap:2px;}
   .permgrid .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .permgrid .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-  .radios{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
-  .radios label{display:flex;align-items:center;gap:6px;font-weight:700;font-size:12.5px;margin:0;
-    padding:8px 13px;border-radius:999px;border:1px solid var(--line);cursor:pointer;background:var(--bg);}
-  .radios input{margin:0;}
+  .radios{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
+  .radios label{display:flex;align-items:center;justify-content:center;text-align:center;gap:6px;font-weight:700;font-size:12px;margin:0;
+    padding:10px 6px;border-radius:12px;border:1.5px solid var(--line);cursor:pointer;background:var(--bg);line-height:1.25;transition:.15s;
+    min-width:0;}
+  .radios input{margin:0;flex:0 0 auto;}
+  .radios label span{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;word-break:break-word;}
   .radios input:checked ~ span{color:var(--accent);}
+  .radios label:has(input:checked){border-color:var(--accent);background:rgba(var(--accent-rgb),.08);box-shadow:0 0 0 1px var(--accent) inset;}
   .previewlbl{font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--sub);margin:20px 0 8px;}
   /* the letter itself must stay rendered (not display:none) so exportNode()/html2canvas can still capture it —
      just push it off-screen so the user no longer sees a duplicate "live preview" of the form under it */
@@ -430,6 +433,12 @@
   #authGate input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;
     background:var(--card);color:var(--ink);box-sizing:border-box;}
   #authGate .err{color:var(--absent-ink,#c0392b);font-size:12.5px;margin-top:8px;min-height:1em;display:none;}
+  .pwrap{position:relative;}
+  .pwrap input{padding-right:40px !important;}
+  .pwrap .eyebtn{position:absolute;right:2px;top:50%;transform:translateY(-50%);background:transparent;border:0;
+    padding:8px;cursor:pointer;color:var(--sub);display:flex;align-items:center;justify-content:center;}
+  .pwrap .eyebtn svg{width:18px;height:18px;}
+  .pwrap .eyebtn:active{color:var(--ink);}
   #authGate .gatebtn{width:100%;margin-top:16px;background:var(--accent);color:#fff;border:0;border-radius:10px;
     padding:12px;font-weight:700;font-size:14px;cursor:pointer;}
 
@@ -484,8 +493,13 @@
     <label class="flabel" data-i18n="auth_username_label">ឈ្មោះអ្នកប្រើ</label>
     <input id="gateUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" data-i18n-ph="auth_username_ph" autocapitalize="off" autocorrect="off">
     <label class="flabel" data-i18n="auth_password_label">ពាក្យសម្ងាត់</label>
-    <input id="gatePass" type="password" autocomplete="current-password" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter')doGateLogin()">
+    <div class="pwrap">
+      <input id="gatePass" type="password" autocomplete="current-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')doGateLogin()">
+      <button type="button" class="eyebtn" aria-label="Show password" onclick="togglePwd('gatePass',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
     <div id="gateErr" class="err"></div>
     <button class="gatebtn" onclick="doGateLogin()" data-i18n="auth_signin_btn">ចូលគណនី</button>
   </div>
@@ -834,8 +848,13 @@
     <label class="flabel" data-i18n="auth_username_label">ឈ្មោះអ្នកប្រើ</label>
     <input id="loginUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" data-i18n-ph="auth_username_ph" autocapitalize="off" autocorrect="off">
     <label class="flabel" data-i18n="auth_password_label">ពាក្យសម្ងាត់</label>
-    <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter')doStaffLogin()">
+    <div class="pwrap">
+      <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')doStaffLogin()">
+      <button type="button" class="eyebtn" aria-label="Show password" onclick="togglePwd('loginPass',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
     <div id="loginErr" class="err"></div>
     <div class="dlbtns" style="margin-top:16px">
       <button class="mbtn" onclick="doStaffLogin()" data-i18n="auth_login_short">ចូល</button>
