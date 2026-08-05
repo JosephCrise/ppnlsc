@@ -288,13 +288,35 @@
   .badge.A{background:var(--absent-bg);color:var(--absent-ink);}
   .badge.AP{background:var(--ap-bg);color:var(--ap-ink);}
   .badge.lock{cursor:default;}
+  /* NOTE: do NOT use display:-webkit-box + -webkit-line-clamp here — combined with
+     contenteditable it silently blocks text input on mobile Safari/Chrome-iOS (the div
+     focuses but keystrokes never register). max-height clipping gives the same compact
+     2-line preview without that bug. */
   .wkcell .reason{margin-top:4px;max-width:70px;font-size:10px;line-height:1.3;color:var(--sub);
-    white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-  .wkcell .reason[contenteditable]{outline:none;border-radius:6px;}
-  .wkcell .reason[contenteditable]:focus{background:var(--male-bg);}
+    white-space:normal;overflow:hidden;max-height:2.6em;word-break:break-word;}
+  .wkcell .reason[contenteditable]{outline:none;border-radius:6px;-webkit-user-select:text;user-select:text;}
+  .wkcell .reason[contenteditable]:focus{background:var(--male-bg);overflow:visible;max-height:none;
+    position:relative;z-index:5;}
   td.present{color:var(--present-ink);font-weight:800;} td.absent{color:var(--absent-ink);font-weight:800;}
   .rankwrap{margin-top:18px;}
-  .rankwrap h3{font-size:13px;color:var(--sub);font-weight:700;margin:0 0 10px;}
+  .rankwrap h3{font-size:15px;color:var(--sub);font-weight:700;margin:0 0 10px;}
+  .rankwrap .rankhead{display:none;align-items:center;gap:12px;margin-bottom:16px;}
+  .rankwrap .rankhead img{height:52px;width:52px;object-fit:contain;background:#fff;border-radius:50%;flex:0 0 auto;}
+  .rankwrap .rankhead .cn{font-weight:700;color:#0f2a4a;font-size:16px;line-height:1.3;font-family:'Noto Sans Khmer','Noto Sans',sans-serif;}
+  .rankwrap .rankhead .cn small{display:block;font-weight:600;color:#33425a;font-size:11px;font-family:'Noto Sans','Noto Sans Khmer',sans-serif;}
+  .rankwrap .ranksum{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;}
+  .rankwrap .ranksum .rs-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;
+    padding:5px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink);}
+  .rankwrap .ranksum .rs-chip b{font-weight:800;}
+  /* A4 page look, only applied while html2canvas captures it (exportNode toggles .export-mode) */
+  #rankDoc.export-mode{
+    --bg:#ffffff; --card:#ffffff; --ink:#1c1c1e; --sub:#6b7280; --line:#e8e6e0;
+    --present-bg:#e8f8ee; --present-ink:#1e8449; --absent-bg:#fdeceb; --absent-ink:#c0392b;
+    background:#fff; color:#1c1c1e; width:794px; max-width:794px; min-height:1123px; margin:0 auto;
+    padding:48px 42px; box-sizing:border-box; border-radius:0;
+  }
+  #rankDoc.export-mode .rankhead{display:flex;}
+  #rankDoc.export-mode h3{font-size:19px;}
   .ranklist{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
   .rankrow{display:flex;align-items:flex-start;gap:12px;padding:14px;border-bottom:1px solid var(--line);position:relative;}
   .rankrow:last-child{border-bottom:0;}
@@ -718,6 +740,8 @@
         <table id="attTable"><thead id="attHead"></thead><tbody id="attBody"></tbody></table>
       </div>
       <div class="rankwrap" id="rankDoc">
+        <div class="rankhead"><img src="picture1.png" alt="" onerror="this.style.display='none'"><div class="cn">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ<small>Phnom Penh New Life Student Center</small></div></div>
+        <div class="ranksum" id="rankSum"></div>
         <h3 data-i18n="rank_title">ចំណាត់ថ្នាក់អវត្តមាន</h3>
         <div class="ranklist" id="rankBody"></div>
       </div>
@@ -1035,6 +1059,15 @@ let attendLocked = true, studentLocked = true;
    so it must render into our div-based #rankBody instead of the original <tbody>) ---- */
 function renderRank(){
   const rb=document.getElementById('rankBody'); if(!rb) return; rb.innerHTML='';
+  const rs=document.getElementById('rankSum');
+  if(rs){
+    const enrolled=DATA.filter(d=>d.name!=='');
+    const mCount=enrolled.filter(d=>d.gender==='M').length;
+    const fCount=enrolled.filter(d=>d.gender==='F').length;
+    rs.innerHTML = `<span class="rs-chip">${t('label_total')}: <b>${enrolled.length}</b></span>`
+      + `<span class="rs-chip">${t('gender_male_label')}: <b>${mCount}</b></span>`
+      + `<span class="rs-chip">${t('gender_female_label')}: <b>${fCount}</b></span>`;
+  }
   const ranked=DATA.map(d=>{
       const reasonCounts=new Map();
       d.att.filter(w=>(w.s==='A'||w.s==='AP')&&w.r&&w.r.trim()).forEach(w=>{
@@ -1050,8 +1083,11 @@ function renderRank(){
     .filter(d=>d.name!=='' && d.a>0).sort((x,y)=>y.a-x.a);
   if(!ranked.length){ rb.innerHTML=`<div class="rankempty">${t('rank_empty')}</div>`; return; }
   const max=ranked[0].a||1;
-  rb.innerHTML = ranked.map((r,i)=>{
-    const pos=i+1, tier=pos<=3?` t${pos}`:'';
+  /* standard competition ranking: tied counts share the same rank/tier,
+     and the next distinct count resumes at its index (e.g. 1,1,3 — not 1,2,3) */
+  ranked.forEach((r,i)=>{ r.pos = (i>0 && r.a===ranked[i-1].a) ? ranked[i-1].pos : i+1; });
+  rb.innerHTML = ranked.map((r)=>{
+    const pos=r.pos, tier=pos<=3?` t${pos}`:'';
     const pct=Math.max(14,Math.round((r.a/max)*100));
     const reasonsHtml=r.reasons.length
       ? r.reasons.map(([txt,cnt])=>`<span class="chip">${esc(txt)}${cnt>1?`<b>×${cnt}</b>`:''}</span>`).join('')
