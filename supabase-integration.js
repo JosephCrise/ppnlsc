@@ -460,9 +460,6 @@ function applyLanguage(lang){
   if(typeof renderGallery==='function') renderGallery();
   if(typeof renderPermits==='function') renderPermits();
   if(typeof refreshCounts==='function') refreshCounts();
-  if(typeof applyLock==='function') applyLock();
-  if(typeof applySLock==='function') applySLock();
-  if(typeof updatePermitAuthBtn==='function') updatePermitAuthBtn();
   if(typeof renderPerm==='function') renderPerm();
 }
 
@@ -749,17 +746,6 @@ async function addMemFiles(files){
   // realtime reloads the gallery
 }
 
-/* ---------- AUTH: sign in / out ---------- */
-async function staffAuth(){
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) { await sb.auth.signOut(); return; }   // signed in -> sign out (triggers full gate + reload)
-  // open the in-app re-login popup (no browser prompt)
-  const m = document.getElementById("loginModal"); if (!m) return;
-  document.getElementById("loginErr").style.display = "none";
-  document.getElementById("loginPass").value = "";
-  m.classList.add("show");
-  setTimeout(() => { const e=document.getElementById("loginUser"); if(e) e.focus(); }, 50);
-}
 const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.28 20.28 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a20.28 20.28 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 function togglePwd(id, btn){
@@ -769,20 +755,6 @@ function togglePwd(id, btn){
   btn.innerHTML = toText ? EYE_OFF_ICON : EYE_ICON;
   btn.setAttribute("aria-label", toText ? "Hide password" : "Show password");
 }
-function closeLogin(){ const m=document.getElementById("loginModal"); if(m) m.classList.remove("show"); }
-async function doStaffLogin(){
-  const username = (document.getElementById("loginUser").value || "").trim();
-  const password = document.getElementById("loginPass").value || "";
-  const err = document.getElementById("loginErr");
-  if (!username || !password) { err.textContent = t("auth_err_missing"); err.style.display = "block"; return; }
-  const { error } = await sb.auth.signInWithPassword({ email: usernameToEmail(username), password });
-  if (error) { err.textContent = t("auth_err_invalid"); err.style.display = "block"; return; }
-  closeLogin();   // onAuthStateChange updates the rest of the UI
-}
-// The lock buttons now trigger sign-in/out instead of a client passcode.
-function toggleLock(){ staffAuth(); }
-function toggleSLock(){ staffAuth(); }
-
 /* ---------- AUTH GATE: full-screen login blocking the whole app ---------- */
 // No anonymous access at all: everything, including the permission-request
 // form, requires a real signed-in account. See security-rls-setup.sql for
@@ -879,13 +851,7 @@ async function loadPermits(){
   refreshCounts();
 }
 
-function updatePermitAuthBtn(){
-  const b = document.getElementById("permitAuthBtn"); if(!b) return;
-  b.textContent = isStaff ? t("auth_signout_short") : t("auth_signin_short");
-  b.classList.toggle("open", isStaff);
-}
 function renderPermits(){
-  updatePermitAuthBtn();
   const w = document.getElementById("permitListWrap"); if(!w) return;
   if(!PERMITS.length){ w.innerHTML = `<div class="empty">${t('permit_list_empty')}</div>`; return; }
   w.innerHTML = PERMITS.map(p => {
@@ -942,26 +908,14 @@ async function deletePermit(id){
 /* ---------- REALTIME + BOOT ---------- */
 let appBooted = false;   // true once protected data has been loaded for a signed-in session
 
-// Edit rights come from app_metadata, set by an admin via SQL/the Studio Admin
-// API — NEVER from user_metadata, which a signed-in user can rewrite on
-// themselves via supabase.auth.updateUser(). app_metadata is only settable
-// by an admin, so it's the only tamper-proof place to keep a role. See
-// security-rls-setup.sql for how to grant/revoke the "admin" role, and the
-// matching RLS policies that enforce it at the database level too (the
-// client-side check below only controls what the UI shows/hides).
-function isAdminSession(session){
-  return !!(session && session.user && session.user.app_metadata && session.user.app_metadata.role === "admin");
-}
-
-// Runs once, right after a session is confirmed. Loads everything the
-// old public boot sequence used to load unconditionally. Every signed-in
-// account can view; only an "admin" account gets edit rights.
+// Editing now happens exclusively in admin.html (which checks
+// app_metadata.role === "admin" itself, backed by the matching RLS
+// policies in security-rls-setup.sql). This page is permanently
+// view-only for every signed-in account, admin or not.
 async function bootAfterAuth(session){
   if (appBooted) return;
   appBooted = true;
-  isStaff = isAdminSession(session);
-  attendLocked = !isStaff;
-  studentLocked = !isStaff;
+  isStaff = false;
   CUR_MONTH = curMonthStr();
   MONTH_FRIDAYS = fridaysOf(CUR_MONTH);
   hideGate();
@@ -969,7 +923,6 @@ async function bootAfterAuth(session){
   await loadData();
   await loadMemories();
   await loadPermits();
-  applyLock(); applySLock();
   sb.channel("ppnlsc-rt")
     .on("postgres_changes", { event: "*", schema: "public", table: "students"    }, loadData)
     .on("postgres_changes", { event: "*", schema: "public", table: "attendance"  }, loadData)
@@ -983,7 +936,7 @@ sb.auth.onAuthStateChange((evt, session) => {
   // signed out: full reload clears every in-memory array (STUDENTS/DATA/PERMITS/MEM_DB)
   // and any rendered DOM, then boots fresh into the gate below.
   if (evt === "SIGNED_OUT") { location.reload(); return; }
-  isStaff = false; attendLocked = true; studentLocked = true;
+  isStaff = false;
   showGate();
 });
 

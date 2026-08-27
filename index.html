@@ -138,7 +138,7 @@
   .tabbtn.active svg{transform:scale(1.08);}
   @keyframes tabPop{0%{transform:scale(1);}45%{transform:scale(1.15);}100%{transform:scale(1);}}
 
-  /* ---------- floating action buttons (one per screen, toggled in go()/applySLock()) ---------- */
+  /* ---------- floating action buttons (one per screen, toggled in go()) ---------- */
   .fab-wrap{position:fixed;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom));z-index:56;
     max-width:520px;margin:0 auto;pointer-events:none;display:none;}
   .fab-wrap.show{display:block;}
@@ -590,9 +590,9 @@
     <div class="ic i7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8A8.5 8.5 0 0 1 12.5 3h.5a8 8 0 0 1 8 8v.5z"/></svg></div>
     <div class="dk" data-i18n="nav_feedback">មតិយោបល់</div>
   </button>
-  <button class="staffrow" id="staffDrawerBtn" onclick="staffAuth()">
-    <div class="ic i8" id="staffDrawerIc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-    <div class="dk" data-i18n="nav_staff">អ្នកគ្រប់គ្រង</div>
+  <button class="staffrow" onclick="sb.auth.signOut()">
+    <div class="ic i8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></div>
+    <div class="dk" data-i18n="auth_signout_full">ចេញពីគណនី</div>
   </button>
   <button onclick="window.open('admin.html','_blank','noopener')">
     <div class="ic i8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><circle cx="9.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><path d="M8 13.5h8M8 16.5h5"/></svg></div>
@@ -713,10 +713,8 @@
 
   <!-- ======== STUDENTS ======== -->
   <section id="students">
-    <div class="statusbar ro" id="sLockBar" style="display:none"></div>
-    <div class="actionrow" id="sStaffBar" style="display:none">
+    <div class="actionrow" id="sStaffBar">
       <button class="pillbtn outline" onclick="exportPDF('studentDoc','បញ្ជីសិស្ស')">PDF</button>
-      <button class="pillbtn outline" id="sLockBtn" onclick="toggleSLock()">🔒</button>
     </div>
     <div id="studentDoc">
       <div class="sumrow">
@@ -732,12 +730,10 @@
   <!-- ======== ATTENDANCE ======== -->
   <section id="attend">
     <select id="monthSel" onchange="changeMonth(this.value)"></select>
-    <div class="statusbar ro" id="lockBar" style="display:none"></div>
-    <div class="actionrow" id="aStaffBar" style="display:none">
+    <div class="actionrow" id="aStaffBar">
       <button class="pillbtn outline" onclick="exportPNG()">📷 PNG</button>
       <button class="pillbtn outline" onclick="exportPDF('rankDoc','MonthlySummary')">📄 PDF</button>
       <button class="pillbtn outline" onclick="share('tg')">✈️ Telegram</button>
-      <button class="pillbtn outline" id="lockBtn" onclick="toggleLock()">🔒</button>
     </div>
     <div id="attendDoc">
       <div class="scroll">
@@ -821,16 +817,11 @@
 
   <!-- ======== MEMORIES ======== -->
   <section id="memory">
-    <div class="actionrow" id="memStaffBar">
-      <button class="pillbtn" onclick="memInput.click()"><span data-i18n="mem_add_btn">+ បន្ថែមរូបភាព</span></button>
-      <input id="memInput" type="file" accept="image/*,video/*" multiple style="display:none" onchange="addMemFiles(this.files)">
-    </div>
     <div id="galleryWrap"></div>
   </section>
 
   <!-- ======== PERMIT LIST ======== -->
   <section id="permitlist">
-    <div class="actionrow"><button id="permitAuthBtn" class="pillbtn outline" onclick="staffAuth()" data-i18n="permit_login_as_admin">🔒 ចូលជាអ្នកគ្រប់គ្រង</button></div>
     <div id="permitListWrap"><div class="empty" data-i18n="common_loading">កំពុងផ្ទុក…</div></div>
   </section>
 
@@ -865,28 +856,6 @@
     <div class="dlbtns" style="margin-top:14px">
       <button class="mbtn" onclick="exportNode('permitDoc','image','PermissionRequest')">PNG</button>
       <button class="mbtn ghost" onclick="exportNode('permitDoc','pdf','PermissionRequest')">PDF</button>
-    </div>
-  </div>
-</div>
-
-<!-- re-login popup (used to switch accounts / sign back in without a full page reload) -->
-<div id="loginModal" class="modal">
-  <div class="box">
-    <div class="mhead"><h3 data-i18n="auth_signin_btn">ចូលគណនី</h3><button class="mx" onclick="closeLogin()">×</button></div>
-    <label class="flabel" data-i18n="auth_username_label">ឈ្មោះអ្នកប្រើ</label>
-    <input id="loginUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" data-i18n-ph="auth_username_ph" autocapitalize="off" autocorrect="off">
-    <label class="flabel" data-i18n="auth_password_label">ពាក្យសម្ងាត់</label>
-    <div class="pwrap">
-      <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter')doStaffLogin()">
-      <button type="button" class="eyebtn" aria-label="Show password" onclick="togglePwd('loginPass',this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-    <div id="loginErr" class="err"></div>
-    <div class="dlbtns" style="margin-top:16px">
-      <button class="mbtn" onclick="doStaffLogin()" data-i18n="auth_login_short">ចូល</button>
-      <button class="mbtn ghost" onclick="closeLogin()" data-i18n="common_cancel">បោះបង់</button>
     </div>
   </div>
 </div>
@@ -1031,33 +1000,6 @@ function refreshCounts(){
 }
 /* keep the month label/count fresh if the app is left open across a month boundary */
 setInterval(refreshCounts, 30*60*1000);
-
-/* ---- access-control status bars (staff sign-in flips these) ---- */
-function applyLock(){
-  lockBar.className = 'statusbar ' + (attendLocked?'ro':'rw');
-  lockBar.style.display = attendLocked ? 'none' : 'flex';
-  lockBar.textContent = attendLocked ? '' : t('msg_editing_admin');
-  lockBtn.textContent = attendLocked ? '🔒' : '🔓';
-  document.getElementById('aStaffBar').style.display = attendLocked ? 'none' : 'flex';
-  renderAtt();
-}
-function applySLock(){
-  sLockBar.className = 'statusbar ' + (studentLocked?'ro':'rw');
-  sLockBar.style.display = studentLocked ? 'none' : 'flex';
-  sLockBar.textContent = studentLocked ? '' : t('msg_editing_admin');
-  sLockBtn.textContent = studentLocked ? '🔒' : '🔓';
-  document.getElementById('sStaffBar').style.display = studentLocked ? 'none' : 'flex';
-  const staffDrawer = document.getElementById('staffDrawerBtn');
-  if(staffDrawer){
-    staffDrawer.querySelector('.dk').textContent = studentLocked ? t('nav_staff') : t('auth_signout_full');
-    staffDrawer.querySelector('.ic').innerHTML = studentLocked
-      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
-      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-1.5"/></svg>';
-  }
-  if(typeof updateFabsForSection==='function') updateFabsForSection();
-  renderStudents();
-}
-let attendLocked = true, studentLocked = true;
 
 /* ---- absence rank list (called by renderAtt() in supabase-integration.js; not overridden there,
    so it must render into our div-based #rankBody instead of the original <tbody>) ---- */
@@ -1368,6 +1310,6 @@ document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,1
 renderOrg(); roleChange(); renderVerses();
 </script>
 <!-- Live data layer: Postgres + Realtime + Auth + Storage (same source as the live app) -->
-<script src="supabase-integration.js?v=10"></script>
+<script src="supabase-integration.js?v=11"></script>
 </body>
 </html>
