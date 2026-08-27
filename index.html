@@ -442,25 +442,28 @@
   .iconbtn{background:var(--line);border:0;border-radius:10px;width:34px;height:34px;font-size:15px;cursor:pointer;}
 
   /* ---------- auth gate (blocks the whole app until signed in) ----------
-     Native-app pattern: brand-color hero up top (logo + app name) with a
-     rounded bottom sheet sliding up to hold the form — the same shape as
-     most mobile bank/social sign-in screens, instead of a floating card. */
+     Default (tablet/desktop): a single compact card, logo on top of the
+     form, centered as one unit — no awkward stretch-to-fill-height gaps.
+     On phones (<600px, see media query below) it switches to the native
+     hero-up-top + bottom-sheet pattern most mobile apps use instead. */
   #authGate{position:fixed;inset:0;background:linear-gradient(180deg,var(--accent-deep),#0d1830);
-    display:flex;flex-direction:column;z-index:500;overflow:hidden;}
+    display:flex;align-items:center;justify-content:center;z-index:500;overflow:auto;padding:32px 20px;}
   #authGate.hide{display:none;}
-  #authGate .gate-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:16px;padding:max(28px,env(safe-area-inset-top,0)) 24px 28px;min-height:180px;text-align:center;}
-  #authGate .gate-hero img{width:78px;height:78px;border-radius:22px;object-fit:contain;background:#fff;padding:9px;
-    box-shadow:0 14px 34px rgba(0,0,0,.32);}
-  #authGate .gate-appname{color:#fff;font-weight:800;font-size:17px;line-height:1.45;max-width:280px;letter-spacing:.01em;}
-  #authGate .gate-tagline{color:rgba(255,255,255,.62);font-size:12.5px;margin-top:-8px;}
-  #authGate .gate-sheet{flex:none;background:var(--card);border-radius:26px 26px 0 0;
-    padding:26px 22px calc(24px + env(safe-area-inset-bottom,0));box-shadow:0 -14px 40px rgba(0,0,0,.22);
-    animation:gateSheetUp .4s cubic-bezier(.2,.8,.2,1);max-height:72vh;overflow:auto;
-    width:100%;max-width:420px;margin:0 auto;box-sizing:border-box;}
-  @media (min-width:480px){
-    #authGate .gate-sheet{border-radius:26px;margin-bottom:max(28px,env(safe-area-inset-bottom,0));
-      box-shadow:0 20px 50px rgba(0,0,0,.28);}
+  #authGate .gate-wrap{width:100%;max-width:380px;}
+  #authGate .gate-hero{display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 8px 24px;text-align:center;}
+  #authGate .gate-hero img{width:68px;height:68px;border-radius:19px;object-fit:contain;background:#fff;padding:8px;
+    box-shadow:0 12px 28px rgba(0,0,0,.3);}
+  #authGate .gate-appname{color:#fff;font-weight:800;font-size:16px;line-height:1.45;letter-spacing:.01em;}
+  #authGate .gate-sheet{background:var(--card);border-radius:24px;box-sizing:border-box;
+    padding:28px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:gateSheetUp .4s cubic-bezier(.2,.8,.2,1);}
+  @media (max-width:599px){
+    #authGate{display:flex;flex-direction:column;padding:0;overflow:hidden;}
+    #authGate .gate-wrap{max-width:none;width:100%;flex:1;display:flex;flex-direction:column;min-height:0;}
+    #authGate .gate-hero{flex:1;justify-content:center;padding:max(28px,env(safe-area-inset-top,0)) 24px 28px;min-height:160px;}
+    #authGate .gate-hero img{width:78px;height:78px;border-radius:22px;}
+    #authGate .gate-appname{font-size:17px;max-width:280px;margin:0 auto;}
+    #authGate .gate-sheet{flex:none;border-radius:26px 26px 0 0;box-shadow:0 -14px 40px rgba(0,0,0,.22);
+      padding:26px 22px calc(24px + env(safe-area-inset-bottom,0));max-height:72vh;overflow:auto;}
   }
   #authGate h2{margin:0 0 4px;font-size:19px;color:var(--ink);font-weight:800;text-align:center;}
   #authGate .gatesub{margin:0 0 20px;font-size:13px;color:var(--sub);text-align:center;}
@@ -528,6 +531,7 @@
 
 <!-- full-screen sign-in gate: blocks the app until a session exists -->
 <div id="authGate">
+ <div class="gate-wrap">
   <div class="gate-hero">
     <img src="picture1.png" alt="logo" onerror="this.style.display='none'">
     <div class="gate-appname" data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
@@ -548,6 +552,7 @@
     <div id="gateErr" class="err"></div>
     <button class="gatebtn" onclick="doGateLogin()" data-i18n="auth_signin_btn">ចូលគណនី</button>
   </div>
+ </div>
 </div>
 
 <header class="topbar">

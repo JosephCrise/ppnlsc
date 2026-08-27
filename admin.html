@@ -24,21 +24,30 @@ button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit}
 
 /* ---------- login gate ----------
-   Native-app pattern: navy hero (logo + badge) with a rounded bottom sheet
-   holding the form, same shape used on the public site's sign-in screen. */
+   Default (tablet/desktop): a single compact card, logo on top of the
+   form, centered as one unit. On phones (<600px) it switches to the
+   native hero-up-top + bottom-sheet pattern (see media query below). */
 #gate{position:fixed;inset:0;background:linear-gradient(180deg,var(--navy),#081428);
-  display:flex;flex-direction:column;z-index:50;overflow:hidden}
+  display:flex;align-items:center;justify-content:center;z-index:50;overflow:auto;padding:32px 20px}
 #gate.hide{display:none}
-.gate-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;padding:max(28px,env(safe-area-inset-top,0)) 24px 28px;min-height:170px;text-align:center}
-.gate-logo{width:78px;height:78px;border-radius:22px;object-fit:contain;background:#fff;padding:9px;
-  box-shadow:0 14px 34px rgba(0,0,0,.32);display:block;margin:0}
-.gate-appname{color:#fff;font-weight:800;font-size:17px;line-height:1.4}
+.gate-wrap{width:100%;max-width:360px}
+.gate-hero{display:flex;flex-direction:column;align-items:center;gap:12px;padding:0 8px 22px;text-align:center}
+.gate-logo{width:66px;height:66px;border-radius:18px;object-fit:contain;background:#fff;padding:8px;
+  box-shadow:0 12px 28px rgba(0,0,0,.3);display:block;margin:0}
+.gate-appname{color:#fff;font-weight:800;font-size:16px;line-height:1.4}
 .gate-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);color:#cfe0ff;
   font-size:11px;font-weight:800;padding:5px 13px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase}
-.gate-sheet{flex:none;width:100%;max-width:400px;margin:0 auto;box-sizing:border-box;background:var(--card);
-  border-radius:26px 26px 0 0;padding:28px 26px calc(24px + env(safe-area-inset-bottom,0));
-  box-shadow:0 -14px 40px rgba(0,0,0,.22);animation:gateSheetUp .4s cubic-bezier(.2,.8,.2,1)}
+.gate-sheet{background:var(--card);border-radius:22px;box-sizing:border-box;
+  padding:28px 26px;box-shadow:0 20px 50px rgba(0,0,0,.4);animation:gateSheetUp .4s cubic-bezier(.2,.8,.2,1)}
+@media (max-width:599px){
+  #gate{display:flex;flex-direction:column;padding:0;overflow:hidden}
+  .gate-wrap{max-width:none;width:100%;flex:1;display:flex;flex-direction:column;min-height:0}
+  .gate-hero{flex:1;justify-content:center;padding:max(28px,env(safe-area-inset-top,0)) 24px 28px;min-height:170px}
+  .gate-logo{width:78px;height:78px;border-radius:22px}
+  .gate-appname{font-size:17px}
+  .gate-sheet{flex:none;border-radius:26px 26px 0 0;box-shadow:0 -14px 40px rgba(0,0,0,.22);
+    padding:28px 26px calc(24px + env(safe-area-inset-bottom,0));max-height:72vh;overflow:auto}
+}
 .gate-sheet h1{font-size:19px;margin:0 0 4px;text-align:center;font-weight:800}
 .gate-sheet p{font-size:13px;color:var(--muted);text-align:center;margin:0 0 20px}
 .gate-sheet label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:14px 0 6px}
@@ -55,11 +64,6 @@ input,select,textarea{font-family:inherit}
 .gate-err:before{content:'⚠️  '}
 @keyframes gateSheetUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media (prefers-reduced-motion: reduce){.gate-sheet{animation:none}}
-@media (min-width:480px){
-  .gate-sheet{border-radius:26px;margin-bottom:max(28px,env(safe-area-inset-bottom,0));
-    box-shadow:0 20px 50px rgba(0,0,0,.4)}
-}
-
 /* ---------- denied screen ---------- */
 #denied{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:49;text-align:center;padding:20px}
 #denied.show{display:flex}
@@ -202,6 +206,7 @@ table.att th,table.att td{white-space:nowrap}
 
 <!-- ===== Sign-in gate ===== -->
 <div id="gate">
+ <div class="gate-wrap">
   <div class="gate-hero">
     <img class="gate-logo" src="picture1.png" alt="">
     <div class="gate-appname">PPNLSC Admin</div>
@@ -217,6 +222,7 @@ table.att th,table.att td{white-space:nowrap}
     <button onclick="doLogin()">Sign In</button>
     <div class="gate-err" id="gateErr"></div>
   </div>
+ </div>
 </div>
 
 <!-- ===== Access-denied screen (signed in but not an admin) ===== -->
