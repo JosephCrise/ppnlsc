@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>PPNLSC — Admin</title>
+<link rel="icon" type="image/png" href="picture1.png">
+<link rel="apple-touch-icon" href="picture1.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+:root{
+  --navy:#0f2a4a; --navy2:#13355e; --blue:#2f6fed; --blue-d:#1e56c9;
+  --bg:#f4f6f9; --card:#ffffff; --line:#e4e8ef; --text:#1c2733; --muted:#6b7787;
+  --danger:#d1453b; --danger-bg:#fdecea; --ok:#1a9e5c; --ok-bg:#e9f8ef; --warn:#b3790a; --warn-bg:#fff3e0;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans','Noto Sans Khmer',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+
+/* ---------- login gate ---------- */
+#gate{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:50}
+#gate.hide{display:none}
+.gate-card{background:var(--card);border-radius:16px;padding:32px;width:340px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.gate-card h1{font-size:18px;margin:0 0 4px;text-align:center}
+.gate-card p{font-size:13px;color:var(--muted);text-align:center;margin:0 0 20px}
+.gate-card label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+.gate-card input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px}
+.gate-card button{width:100%;margin-top:20px;padding:11px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;font-size:14px}
+.gate-card button:hover{background:var(--blue-d)}
+.gate-err{color:var(--danger);font-size:12.5px;margin-top:10px;display:none;text-align:center}
+.gate-logo{width:52px;height:52px;border-radius:50%;display:block;margin:0 auto 14px;object-fit:cover}
+
+/* ---------- denied screen ---------- */
+#denied{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:49;text-align:center;padding:20px}
+#denied.show{display:flex}
+#denied .box{max-width:380px}
+#denied h2{margin:0 0 8px}
+#denied p{color:var(--muted);font-size:14px}
+#denied button{margin-top:16px;padding:10px 18px;border:1px solid var(--line);background:#fff;border-radius:8px;font-weight:600}
+
+/* ---------- shell ---------- */
+#app{display:none;min-height:100vh}
+#app.show{display:flex}
+.sidebar{width:220px;flex:none;background:var(--navy);color:#dbe4f5;display:flex;flex-direction:column}
+.sidebar .brand{padding:20px 18px;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;gap:10px;align-items:center}
+.sidebar .brand img{width:30px;height:30px;border-radius:50%}
+.sidebar nav{flex:1;padding:12px 0}
+.sidebar nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;color:#b9c7e3;padding:11px 18px;font-size:14px;font-weight:600}
+.sidebar nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+.sidebar nav button.on{background:var(--blue);color:#fff}
+.sidebar .signout{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar .signout button{width:100%;padding:9px;border:1px solid rgba(255,255,255,.25);background:none;color:#dbe4f5;border-radius:8px;font-weight:600;font-size:13px}
+.sidebar .signout button:hover{background:rgba(255,255,255,.08)}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{padding:16px 26px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:18px;margin:0}
+.topbar .who{font-size:12.5px;color:var(--muted)}
+.content{flex:1;overflow:auto;padding:24px}
+.panel{display:none}
+.panel.on{display:block}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat b{display:block;font-size:26px}
+.stat span{font-size:12.5px;color:var(--muted)}
+
+.note{background:var(--warn-bg);color:var(--warn);border:1px solid #f2dfb0;border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:18px;line-height:1.5}
+.note code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px}
+
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.toolbar h2{font-size:16px;margin:0;flex:1}
+.btn{border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--text)}
+.btn:hover{background:#f2f4f8}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary:hover{background:var(--blue-d)}
+.btn.danger{color:var(--danger);border-color:#f2c9c6}
+.btn.danger:hover{background:var(--danger-bg)}
+.btn.sm{padding:5px 10px;font-size:12px}
+select.sel{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
+
+table.tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.tbl th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);padding:10px 12px;background:#f8f9fc;border-bottom:1px solid var(--line)}
+table.tbl td{padding:9px 12px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
+table.tbl tr:last-child td{border-bottom:0}
+table.tbl input[type=text]{width:100%;border:1px solid transparent;border-radius:6px;padding:6px 8px;font-size:13.5px;background:transparent}
+table.tbl input[type=text]:hover{border-color:var(--line)}
+table.tbl input[type=text]:focus{border-color:var(--blue);background:#fff;outline:none}
+.gender-pill{border:0;border-radius:20px;padding:4px 12px;font-weight:700;font-size:12px}
+.gender-pill.M{background:#e5f0ff;color:#1a5fd6}
+.gender-pill.F{background:#ffe7f0;color:#c62368}
+.empty-row td{color:var(--muted);text-align:center;padding:26px}
+
+.att-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table.att th,table.att td{white-space:nowrap}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:26px;border-radius:6px;font-weight:800;font-size:12px;border:1px solid var(--line);background:#fff}
+.badge.P{background:var(--ok-bg);color:var(--ok);border-color:#bfe8d2}
+.badge.A{background:var(--danger-bg);color:var(--danger);border-color:#f2c9c6}
+.badge.AP{background:var(--warn-bg);color:var(--warn);border-color:#f2dfb0}
+.reason-in{width:110px;border:1px solid var(--line);border-radius:6px;font-size:12px;padding:4px 6px;margin-top:4px}
+
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.gcard{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.gcard .thumb{height:120px;background:#000 center/cover no-repeat;display:flex;align-items:center;justify-content:center}
+.gcard .thumb img,.gcard .thumb video{width:100%;height:100%;object-fit:cover}
+.gcard .body{padding:8px 10px}
+.gcard input{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-size:12.5px;margin-bottom:6px}
+.gcard .row{display:flex;gap:6px}
+
+.upload-drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;background:#fbfcfe}
+.upload-drop.drag{border-color:var(--blue);color:var(--blue)}
+
+.permit-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.permit-card .pname{font-weight:700;font-size:14.5px}
+.permit-card .prole{font-weight:500;color:var(--muted);font-size:12.5px}
+.permit-card .pmeta{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.permit-card .pact{display:flex;gap:8px;flex:none}
+
+.modal-bg{position:fixed;inset:0;background:rgba(15,25,40,.5);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:22px}
+.modal h3{margin:0 0 14px}
+.modal dl{margin:0}
+.modal dt{font-size:11px;text-transform:uppercase;color:var(--muted);margin-top:10px}
+.modal dd{margin:2px 0 0;font-size:14px}
+.modal .close-row{margin-top:18px;text-align:right}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:8px;font-size:13.5px;z-index:70;display:none;max-width:80vw}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ===== Sign-in gate ===== -->
+<div id="gate">
+  <div class="gate-card">
+    <img class="gate-logo" src="picture1.png" alt="">
+    <h1>PPNLSC Admin</h1>
+    <p>Staff editor — sign in with your admin account</p>
+    <label>Username</label>
+    <input id="gateUser" type="text" autocomplete="username" placeholder="username">
+    <label>Password</label>
+    <input id="gatePass" type="password" autocomplete="current-password" placeholder="••••••••">
+    <button onclick="doLogin()">Sign In</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<!-- ===== Access-denied screen (signed in but not an admin) ===== -->
+<div id="denied">
+  <div class="box">
+    <h2>Not an admin account</h2>
+    <p>You're signed in, but this account doesn't have admin rights. Ask whoever manages the database to grant your account <code>app_metadata.role = "admin"</code> (see <code>security-rls-setup.sql</code>).</p>
+    <button onclick="signOut()">Sign out</button>
+  </div>
+</div>
+
+<!-- ===== App shell ===== -->
+<div id="app">
+  <div class="sidebar">
+    <div class="brand"><img src="picture1.png" alt=""> PPNLSC Admin</div>
+    <nav>
+      <button class="navbtn on" data-panel="overview" onclick="showPanel('overview')">📊 Overview</button>
+      <button class="navbtn" data-panel="students" onclick="showPanel('students')">👥 Students</button>
+      <button class="navbtn" data-panel="attendance" onclick="showPanel('attendance')">📅 Attendance</button>
+      <button class="navbtn" data-panel="memories" onclick="showPanel('memories')">🖼 Memories</button>
+      <button class="navbtn" data-panel="permissions" onclick="showPanel('permissions')">📄 Permission Requests</button>
+    </nav>
+    <div class="signout"><button onclick="signOut()">Sign Out</button></div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="panelTitle">Overview</h1>
+      <div class="who" id="whoami"></div>
+    </div>
+    <div class="content">
+
+      <!-- Overview -->
+      <div class="panel on" id="panel-overview">
+        <div class="note">
+          <b>Leaders (org chart) and Bible verses are not editable here.</b> They're hardcoded arrays in <code>index.html</code> (<code>LEADERS</code> / <code>VERSES</code>), not database tables — editing those means editing the file directly. Everything below (students, attendance, memories, permission requests) is live database data.
+        </div>
+        <div class="cards">
+          <div class="stat"><b id="stStudents">–</b><span>Total students</span></div>
+          <div class="stat"><b id="stMale">–</b><span>Male</span></div>
+          <div class="stat"><b id="stFemale">–</b><span>Female</span></div>
+          <div class="stat"><b id="stMemories">–</b><span>Memories</span></div>
+          <div class="stat"><b id="stPermits">–</b><span>Permission requests</span></div>
+        </div>
+      </div>
+
+      <!-- Students -->
+      <div class="panel" id="panel-students">
+        <div class="toolbar">
+          <h2>Students</h2>
+          <button class="btn primary" onclick="addStudent('M')">+ Add Male</button>
+          <button class="btn primary" onclick="addStudent('F')">+ Add Female</button>
+        </div>
+        <table class="tbl">
+          <thead><tr><th style="width:44px">#</th><th>Name</th><th style="width:110px">Gender</th><th style="width:70px"></th></tr></thead>
+          <tbody id="studentsBody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Attendance -->
+      <div class="panel" id="panel-attendance">
+        <div class="toolbar">
+          <h2>Attendance</h2>
+          <select class="sel" id="monthSel" onchange="onMonthChange(this.value)"></select>
+          <button class="btn danger" onclick="clearMonth()">Clear this month</button>
+        </div>
+        <div class="att-wrap">
+          <table class="tbl att">
+            <thead id="attHead"></thead>
+            <tbody id="attBody"><tr class="empty-row"><td colspan="8">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Memories -->
+      <div class="panel" id="panel-memories">
+        <div class="toolbar"><h2>Memories</h2></div>
+        <div class="upload-drop" id="dropZone">
+          Drag & drop photos/videos here, or
+          <label style="color:var(--blue);font-weight:700;cursor:pointer"> browse files
+            <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none">
+          </label>
+        </div>
+        <div class="gallery" id="galleryWrap"></div>
+      </div>
+
+      <!-- Permission Requests -->
+      <div class="panel" id="panel-permissions">
+        <div class="toolbar"><h2>Permission Requests</h2></div>
+        <div id="permitsWrap"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Permission detail modal -->
+<div class="modal-bg" id="permModal">
+  <div class="modal">
+    <h3>Permission Request</h3>
+    <dl id="permModalBody"></dl>
+    <div class="close-row"><button class="btn" onclick="closePermModal()">Close</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toastBox"></div>
+
+<script>
+/* ================= helpers ================= */
+function esc(v){ return (v==null?"":String(v)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function toast(msg){
+  const b = document.getElementById("toastBox");
+  b.textContent = msg; b.style.display = "block";
+  clearTimeout(toast._t); toast._t = setTimeout(()=>{ b.style.display = "none"; }, 3200);
+}
+const AUTH_EMAIL_DOMAIN = "ppnlsc.local";
+function usernameToEmail(u){ return (u||"").trim().toLowerCase().replace(/\s+/g,"") + "@" + AUTH_EMAIL_DOMAIN; }
+function isAdminSession(session){
+  return !!(session && session.user && session.user.app_metadata && session.user.app_metadata.role === "admin");
+}
+
+/* ================= auth flow ================= */
+async function doLogin(){
+  const username = (document.getElementById("gateUser").value || "").trim();
+  const password = document.getElementById("gatePass").value || "";
+  const err = document.getElementById("gateErr");
+  err.style.display = "none";
+  if(!username || !password){ err.textContent = "Enter both fields."; err.style.display = "block"; return; }
+  const { error } = await sb.auth.signInWithPassword({ email: usernameToEmail(username), password });
+  if(error){ err.textContent = "Invalid username or password."; err.style.display = "block"; return; }
+  // onAuthStateChange below drives the rest
+}
+async function signOut(){ await sb.auth.signOut(); }
+
+sb.auth.onAuthStateChange((_event, session) => {
+  const gate = document.getElementById("gate");
+  const denied = document.getElementById("denied");
+  const app = document.getElementById("app");
+  if(!session){
+    gate.classList.remove("hide"); denied.classList.remove("show"); app.classList.remove("show");
+    return;
+  }
+  if(!isAdminSession(session)){
+    gate.classList.add("hide"); app.classList.remove("show"); denied.classList.add("show");
+    return;
+  }
+  gate.classList.add("hide"); denied.classList.remove("show"); app.classList.add("show");
+  document.getElementById("whoami").textContent = session.user.email.replace("@"+AUTH_EMAIL_DOMAIN, "");
+  bootData();
+});
+
+/* ================= nav ================= */
+function showPanel(name){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("on"));
+  document.getElementById("panel-"+name).classList.add("on");
+  document.querySelector(`.navbtn[data-panel="${name}"]`).classList.add("on");
+  document.getElementById("panelTitle").textContent = document.querySelector(`.navbtn[data-panel="${name}"]`).textContent.replace(/^\S+\s/,"");
+}
+
+let booted = false;
+async function bootData(){
+  if(booted) return; booted = true;
+  await Promise.all([loadStudents(), loadMemories(), loadPermits(), initAttendanceMonths()]);
+  wireUploads();
+  sb.channel("ppnlsc-admin-rt")
+    .on("postgres_changes", { event:"*", schema:"public", table:"students" }, loadStudents)
+    .on("postgres_changes", { event:"*", schema:"public", table:"attendance" }, ()=>loadAttendance(CUR_MONTH))
+    .on("postgres_changes", { event:"*", schema:"public", table:"memories" }, loadMemories)
+    .on("postgres_changes", { event:"*", schema:"public", table:"permissions" }, loadPermits)
+    .subscribe();
+}
+
+/* ================= overview ================= */
+function refreshOverview(){
+  document.getElementById("stStudents").textContent = STUDENTS.length;
+  document.getElementById("stMale").textContent = STUDENTS.filter(s=>s.gender==="M").length;
+  document.getElementById("stFemale").textContent = STUDENTS.filter(s=>s.gender==="F").length;
+  document.getElementById("stMemories").textContent = MEMORIES.length;
+  document.getElementById("stPermits").textContent = PERMITS.length;
+}
+
+/* ================= students ================= */
+let STUDENTS = [];
+async function loadStudents(){
+  const { data, error } = await sb.from("students").select("*").order("seq");
+  if(error){ toast(error.message); return; }
+  STUDENTS = data || [];
+  renderStudents();
+  refreshOverview();
+}
+function renderStudents(){
+  const b = document.getElementById("studentsBody");
+  if(!STUDENTS.length){ b.innerHTML = `<tr class="empty-row"><td colspan="4">No students yet.</td></tr>`; return; }
+  b.innerHTML = STUDENTS.map((s,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td><input type="text" value="${esc(s.name)}" onblur="saveStudentName('${s.id}', this.value)" placeholder="Name"></td>
+      <td><button class="gender-pill ${s.gender}" onclick="toggleGender('${s.id}','${s.gender}')">${s.gender}</button></td>
+      <td><button class="btn sm danger" onclick="deleteStudent('${s.id}')">Delete</button></td>
+    </tr>`).join("");
+}
+function saveStudentName(id, name){
+  name = (name||"").trim();
+  sb.from("students").update({ name }).eq("id", id).then(({error})=>{ if(error) toast(error.message); });
+}
+function toggleGender(id, cur){
+  const g = cur === "M" ? "F" : "M";
+  sb.from("students").update({ gender: g }).eq("id", id).then(({error})=>{ if(error) toast(error.message); });
+}
+async function deleteStudent(id){
+  const s = STUDENTS.find(x=>x.id===id);
+  if(!confirm(`Delete ${(s && s.name) || "this student"}? This also removes their attendance history.`)) return;
+  const { error } = await sb.from("students").delete().eq("id", id);
+  if(error) toast(error.message);
+}
+async function addStudent(gender){
+  const seq = STUDENTS.reduce((m,s)=>Math.max(m, s.seq||0), 0) + 1;
+  const { error } = await sb.from("students").insert({ seq, name: "", gender });
+  if(error) toast(error.message);
+}
+
+/* ================= attendance ================= */
+let CUR_MONTH = null;
+function curMonthStr(){ const t = new Date(); return t.getFullYear() + "-" + String(t.getMonth()+1).padStart(2,"0"); }
+function fridaysOf(monthStr){
+  const [y,m] = monthStr.split("-").map(Number);
+  const out = []; const d = new Date(y, m-1, 1);
+  while(d.getMonth() === m-1){ if(d.getDay()===5) out.push(d.getDate()); d.setDate(d.getDate()+1); }
+  return out.map((day,idx)=>({ idx, day, month: m }));
+}
+function monthLabel(monthStr){
+  const [y,m] = monthStr.split("-").map(Number);
+  return new Date(y, m-1, 1).toLocaleDateString("en-US", { month:"long", year:"numeric" });
+}
+async function initAttendanceMonths(){
+  const nowStr = curMonthStr();
+  const { data } = await sb.from("attendance").select("month");
+  const set = new Set((data||[]).map(r=>r.month));
+  set.add(nowStr);
+  const months = [...set].sort().reverse();
+  const sel = document.getElementById("monthSel");
+  sel.innerHTML = months.map(m=>`<option value="${m}" ${m===nowStr?"selected":""}>${monthLabel(m)}</option>`).join("");
+  CUR_MONTH = nowStr;
+  await loadAttendance(CUR_MONTH);
+}
+function onMonthChange(m){ CUR_MONTH = m; loadAttendance(m); }
+
+let ATT_ROWS = [];
+async function loadAttendance(month){
+  const fridays = fridaysOf(month);
+  const [{ data: att, error }] = await Promise.all([
+    sb.from("attendance").select("*").eq("month", month)
+  ]);
+  if(error){ toast(error.message); return; }
+  const byStudent = {};
+  (att||[]).forEach(r=>{ (byStudent[r.student_id] ||= {})[r.week_idx] = r; });
+  ATT_ROWS = STUDENTS.map(s => ({
+    student: s,
+    cells: fridays.map(f => byStudent[s.id]?.[f.idx] || { status:"", reason:"" })
+  }));
+  renderAttHead(fridays);
+  renderAttBody(fridays);
+}
+function renderAttHead(fridays){
+  let h = `<tr><th style="width:34px">#</th><th>Name</th><th style="width:60px">G</th>`;
+  fridays.forEach(f => h += `<th>${f.day}/${f.month}</th>`);
+  h += `<th>P</th><th>A</th></tr>`;
+  document.getElementById("attHead").innerHTML = h;
+}
+function renderAttBody(fridays){
+  const b = document.getElementById("attBody");
+  if(!ATT_ROWS.length){ b.innerHTML = `<tr class="empty-row"><td colspan="${4+fridays.length}">No students yet.</td></tr>`; return; }
+  b.innerHTML = ATT_ROWS.map((row,i)=>{
+    const p = row.cells.filter(c=>c.status==="P").length;
+    const a = row.cells.filter(c=>c.status==="A"||c.status==="AP").length;
+    const cells = row.cells.map((c,j)=>{
+      const label = c.status==="" ? "·" : c.status==="P" ? "✓" : c.status==="AP" ? "A✓" : "A";
+      const showReason = c.status==="A" || c.status==="AP";
+      return `<td>
+        <button class="badge ${c.status||"blank"}" onclick="cycleStatus(${i},${j})">${label}</button>
+        ${showReason ? `<input class="reason-in" value="${esc(c.reason||"")}" placeholder="reason" onblur="saveReason(${i},${j},this.value)">` : ""}
+      </td>`;
+    }).join("");
+    return `<tr><td>${i+1}</td><td>${esc(row.student.name)}</td><td>${row.student.gender}</td>${cells}<td>${p}</td><td>${a}</td></tr>`;
+  }).join("");
+}
+function cycleStatus(i,j){
+  const cell = ATT_ROWS[i].cells[j];
+  const cur = cell.status;
+  const ns = cur==="" ? "P" : cur==="P" ? "A" : cur==="A" ? "AP" : "";
+  cell.status = ns;
+  if(ns==="P" || ns==="") cell.reason = "";
+  renderAttBody(fridaysOf(CUR_MONTH));
+  sb.from("attendance").upsert(
+    { student_id: ATT_ROWS[i].student.id, month: CUR_MONTH, week_idx: j, status: ns, reason: cell.reason || "" },
+    { onConflict: "student_id,month,week_idx" }
+  ).then(({error})=>{ if(error) toast(error.message); });
+}
+function saveReason(i,j,txt){
+  const r = (txt||"").trim();
+  ATT_ROWS[i].cells[j].reason = r;
+  sb.from("attendance").upsert(
+    { student_id: ATT_ROWS[i].student.id, month: CUR_MONTH, week_idx: j, reason: r },
+    { onConflict: "student_id,month,week_idx" }
+  ).then(({error})=>{ if(error) toast(error.message); });
+}
+async function clearMonth(){
+  if(!confirm(`Clear all attendance marks for ${monthLabel(CUR_MONTH)}? This can't be undone.`)) return;
+  const { error } = await sb.from("attendance").update({ status:"", reason:"" }).eq("month", CUR_MONTH);
+  if(error) toast(error.message);
+}
+
+/* ================= memories ================= */
+let MEMORIES = [];
+async function loadMemories(){
+  const { data, error } = await sb.from("memories").select("*").order("created_at", { ascending:false });
+  if(error){ toast(error.message); return; }
+  MEMORIES = await Promise.all((data||[]).map(async m=>{
+    const { data: signed } = await sb.storage.from("memories").createSignedUrl(m.storage_path, 3600);
+    return { ...m, url: signed ? signed.signedUrl : "" };
+  }));
+  renderGallery();
+  refreshOverview();
+}
+function renderGallery(){
+  const w = document.getElementById("galleryWrap");
+  if(!MEMORIES.length){ w.innerHTML = `<p style="color:var(--muted)">No memories uploaded yet.</p>`; return; }
+  w.innerHTML = MEMORIES.map(m=>`
+    <div class="gcard">
+      <div class="thumb">${m.type==="video"
+        ? `<video src="${m.url}" muted></video>`
+        : `<img src="${m.url}" alt="">`}</div>
+      <div class="body">
+        <input type="text" value="${esc(m.caption||"")}" placeholder="Caption" onblur="saveCaption('${m.id}', this.value)">
+        <div class="row"><button class="btn sm danger" style="flex:1" onclick="deleteMemory('${m.id}')">Delete</button></div>
+      </div>
+    </div>`).join("");
+}
+function saveCaption(id, caption){
+  sb.from("memories").update({ caption: (caption||"").trim() }).eq("id", id).then(({error})=>{ if(error) toast(error.message); });
+}
+async function deleteMemory(id){
+  const m = MEMORIES.find(x=>x.id===id);
+  if(!confirm("Delete this memory permanently?")) return;
+  const { error: dbErr } = await sb.from("memories").delete().eq("id", id);
+  if(dbErr){ toast(dbErr.message); return; }
+  if(m) await sb.storage.from("memories").remove([m.storage_path]);
+}
+function wireUploads(){
+  const zone = document.getElementById("dropZone");
+  const input = document.getElementById("fileInput");
+  input.addEventListener("change", e => uploadFiles(e.target.files));
+  ["dragenter","dragover"].forEach(ev => zone.addEventListener(ev, e=>{ e.preventDefault(); zone.classList.add("drag"); }));
+  ["dragleave","drop"].forEach(ev => zone.addEventListener(ev, e=>{ e.preventDefault(); zone.classList.remove("drag"); }));
+  zone.addEventListener("drop", e => uploadFiles(e.dataTransfer.files));
+}
+async function uploadFiles(files){
+  for(const f of files){
+    const type = f.type.startsWith("video") ? "video" : "image";
+    const ext = (f.name.split(".").pop() || "bin").toLowerCase();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const { error: upErr } = await sb.storage.from("memories").upload(path, f, { upsert:false });
+    if(upErr){ toast(upErr.message); continue; }
+    const { error: insErr } = await sb.from("memories").insert({ type, storage_path: path, caption: f.name.replace(/\.[^.]+$/,"") });
+    if(insErr) toast(insErr.message);
+  }
+  document.getElementById("fileInput").value = "";
+}
+
+/* ================= permission requests ================= */
+let PERMITS = [];
+async function loadPermits(){
+  const { data, error } = await sb.from("permissions").select("*").order("created_at", { ascending:false });
+  if(error){ toast(error.message); return; }
+  PERMITS = data || [];
+  renderPermits();
+  refreshOverview();
+}
+function roleLabel(p){
+  if(p.role==="student") return `Student, Class ${p.student_class||"—"} · ${p.school||"—"}`;
+  if(p.role==="staff") return `Staff · ${p.dept||"—"}`;
+  return `University · Year ${p.year_no||"—"} · ${p.major||"—"} · ${p.uni||"—"}`;
+}
+function renderPermits(){
+  const w = document.getElementById("permitsWrap");
+  if(!PERMITS.length){ w.innerHTML = `<p style="color:var(--muted)">No permission requests yet.</p>`; return; }
+  w.innerHTML = PERMITS.map(p=>{
+    const when = p.created_at ? new Date(p.created_at).toLocaleString("en-GB") : "";
+    const range = [p.from_date, p.to_date].filter(Boolean).join(" → ");
+    return `<div class="permit-card">
+      <div>
+        <div class="pname">${esc(p.name)||"—"} <span class="prole">(${esc(p.role||"—")})</span></div>
+        <div class="pmeta">
+          ${esc(p.reason)||"No reason given"} ${range ? " · " + esc(range) : ""}<br>
+          ${esc(when)}
+        </div>
+      </div>
+      <div class="pact">
+        <button class="btn sm" onclick="viewPermit('${p.id}')">View</button>
+        <button class="btn sm danger" onclick="deletePermit('${p.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function viewPermit(id){
+  const p = PERMITS.find(x=>x.id===id); if(!p) return;
+  const rows = [
+    ["Name", p.name], ["Sex", p.sex], ["Age", p.age], ["Phone", p.phone],
+    ["Role", p.role], ["Detail", roleLabel(p)], ["To whom", p.to_whom],
+    ["From", p.from_date], ["To", p.to_date], ["Reason", p.reason],
+    ["Place", p.place], ["Written on", p.write_date],
+  ];
+  document.getElementById("permModalBody").innerHTML = rows.map(([k,v])=>
+    `<dt>${esc(k)}</dt><dd>${esc(v)||"—"}</dd>`).join("");
+  document.getElementById("permModal").classList.add("show");
+}
+function closePermModal(){ document.getElementById("permModal").classList.remove("show"); }
+async function deletePermit(id){
+  if(!confirm("Delete this permission request?")) return;
+  const { error } = await sb.from("permissions").delete().eq("id", id);
+  if(error) toast(error.message);
+}
+</script>
+</body>
+</html>
