@@ -486,6 +486,27 @@ function usernameToEmail(u){
   return (u || "").trim().toLowerCase().replace(/\s+/g, "") + "@" + AUTH_EMAIL_DOMAIN;
 }
 
+// Generic "you don't have access" popup — reused everywhere a restricted
+// action needs to tell a non-admin why nothing happened.
+function showLock(){
+  if (!window.msgModal) return;
+  window.msgTitle.textContent = t("msg_not_allowed_title");
+  window.msgText.textContent  = t("msg_not_allowed_body");
+  window.msgModal.classList.add("show");
+}
+
+// True only for a signed-in account with app_metadata.role === "admin".
+// Used to gate entry into admin.html from the drawer link.
+async function isCurrentUserAdmin(){
+  const { data: { session } } = await sb.auth.getSession();
+  return !!(session && session.user && session.user.app_metadata && session.user.app_metadata.role === "admin");
+}
+
+async function openAdminPanel(){
+  if (!(await isCurrentUserAdmin())) { showLock(); return; }
+  window.open("admin.html", "_blank", "noopener");
+}
+
 function toast(m){
   console.warn("[PPNLSC]", m);
   if (window.msgModal) {

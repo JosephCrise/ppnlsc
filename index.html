@@ -441,28 +441,48 @@
   .permit-card .pc-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
   .iconbtn{background:var(--line);border:0;border-radius:10px;width:34px;height:34px;font-size:15px;cursor:pointer;}
 
-  /* ---------- auth gate (blocks the whole app until signed in) ---------- */
-  #authGate{position:fixed;inset:0;background:var(--bg,#F7F4EA);display:flex;align-items:center;justify-content:center;
-    z-index:500;padding:20px;}
+  /* ---------- auth gate (blocks the whole app until signed in) ----------
+     Native-app pattern: brand-color hero up top (logo + app name) with a
+     rounded bottom sheet sliding up to hold the form — the same shape as
+     most mobile bank/social sign-in screens, instead of a floating card. */
+  #authGate{position:fixed;inset:0;background:linear-gradient(180deg,var(--accent-deep),#0d1830);
+    display:flex;flex-direction:column;z-index:500;overflow:hidden;}
   #authGate.hide{display:none;}
-  #authGate .gatebox{background:var(--card);border-radius:18px;max-width:380px;width:100%;padding:28px 24px;
-    box-shadow:0 16px 40px rgba(0,0,0,.18);text-align:center;}
-  #authGate .gatebox img{height:56px;width:56px;border-radius:50%;object-fit:contain;background:#fff;padding:4px;
-    box-shadow:0 0 0 2px var(--line);margin-bottom:10px;}
-  #authGate h2{margin:0 0 4px;font-size:17px;color:var(--ink);}
-  #authGate .gatesub{margin:0 0 18px;font-size:12.5px;color:var(--sub);}
-  #authGate .flabel{display:block;text-align:left;font-size:12px;color:var(--sub);margin:10px 0 4px;}
-  #authGate input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;
-    background:var(--card);color:var(--ink);box-sizing:border-box;}
-  #authGate .err{color:var(--absent-ink,#c0392b);font-size:12.5px;margin-top:8px;min-height:1em;display:none;}
+  #authGate .gate-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;padding:max(28px,env(safe-area-inset-top,0)) 24px 28px;min-height:180px;text-align:center;}
+  #authGate .gate-hero img{width:78px;height:78px;border-radius:22px;object-fit:contain;background:#fff;padding:9px;
+    box-shadow:0 14px 34px rgba(0,0,0,.32);}
+  #authGate .gate-appname{color:#fff;font-weight:800;font-size:17px;line-height:1.45;max-width:280px;letter-spacing:.01em;}
+  #authGate .gate-tagline{color:rgba(255,255,255,.62);font-size:12.5px;margin-top:-8px;}
+  #authGate .gate-sheet{flex:none;background:var(--card);border-radius:26px 26px 0 0;
+    padding:26px 22px calc(24px + env(safe-area-inset-bottom,0));box-shadow:0 -14px 40px rgba(0,0,0,.22);
+    animation:gateSheetUp .4s cubic-bezier(.2,.8,.2,1);max-height:72vh;overflow:auto;
+    width:100%;max-width:420px;margin:0 auto;box-sizing:border-box;}
+  @media (min-width:480px){
+    #authGate .gate-sheet{border-radius:26px;margin-bottom:max(28px,env(safe-area-inset-bottom,0));
+      box-shadow:0 20px 50px rgba(0,0,0,.28);}
+  }
+  #authGate h2{margin:0 0 4px;font-size:19px;color:var(--ink);font-weight:800;text-align:center;}
+  #authGate .gatesub{margin:0 0 20px;font-size:13px;color:var(--sub);text-align:center;}
+  #authGate .flabel{display:block;text-align:left;font-size:12.5px;font-weight:700;color:var(--sub);margin:14px 0 6px;}
+  #authGate input{width:100%;padding:14px;border:1.5px solid transparent;border-radius:14px;font-size:15px;
+    background:var(--bg);color:var(--ink);box-sizing:border-box;transition:border-color .15s,box-shadow .15s;}
+  #authGate input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.15);}
+  #authGate .err{color:var(--absent-ink,#c0392b);font-size:12.5px;font-weight:600;margin-top:12px;min-height:1em;
+    display:none;background:var(--absent-bg,#fdeceb);padding:10px 12px;border-radius:12px;text-align:left;}
+  #authGate .err:before{content:'⚠️  ';}
   .pwrap{position:relative;}
-  .pwrap input{padding-right:40px !important;}
-  .pwrap .eyebtn{position:absolute;right:2px;top:50%;transform:translateY(-50%);background:transparent;border:0;
-    padding:8px;cursor:pointer;color:var(--sub);display:flex;align-items:center;justify-content:center;}
-  .pwrap .eyebtn svg{width:18px;height:18px;}
+  .pwrap input{padding-right:44px !important;}
+  .pwrap .eyebtn{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:transparent;border:0;
+    padding:10px;cursor:pointer;color:var(--sub);display:flex;align-items:center;justify-content:center;}
+  .pwrap .eyebtn svg{width:19px;height:19px;}
   .pwrap .eyebtn:active{color:var(--ink);}
-  #authGate .gatebtn{width:100%;margin-top:16px;background:var(--accent);color:#fff;border:0;border-radius:10px;
-    padding:12px;font-weight:700;font-size:14px;cursor:pointer;}
+  #authGate .gatebtn{width:100%;margin-top:22px;background:var(--accent);color:#fff;border:0;border-radius:14px;
+    padding:16px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 10px 24px rgba(var(--accent-rgb),.38);
+    transition:transform .12s ease,box-shadow .12s ease;}
+  #authGate .gatebtn:active{transform:scale(.97);box-shadow:0 4px 12px rgba(var(--accent-rgb),.3);}
+  @keyframes gateSheetUp{from{transform:translateY(28px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  @media (prefers-reduced-motion: reduce){#authGate .gate-sheet{animation:none;}}
 
   /* ---------- modals ---------- */
   .modal{position:fixed;inset:0;background:rgba(10,12,18,.5);display:none;align-items:center;justify-content:center;
@@ -508,9 +528,12 @@
 
 <!-- full-screen sign-in gate: blocks the app until a session exists -->
 <div id="authGate">
-  <div class="gatebox">
+  <div class="gate-hero">
     <img src="picture1.png" alt="logo" onerror="this.style.display='none'">
-    <h2 data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</h2>
+    <div class="gate-appname" data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
+  </div>
+  <div class="gate-sheet">
+    <h2 data-i18n="auth_signin_btn">ចូលគណនី</h2>
     <p class="gatesub" data-i18n="auth_gate_subtitle">សូមចូលគណនីដើម្បីប្រើប្រាស់កម្មវិធី</p>
     <label class="flabel" data-i18n="auth_username_label">ឈ្មោះអ្នកប្រើ</label>
     <input id="gateUser" type="text" autocomplete="username" placeholder="ឈ្មោះអ្នកប្រើ" data-i18n-ph="auth_username_ph" autocapitalize="off" autocorrect="off">
@@ -594,7 +617,7 @@
     <div class="ic i8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></div>
     <div class="dk" data-i18n="auth_signout_full">ចេញពីគណនី</div>
   </button>
-  <button onclick="window.open('admin.html','_blank','noopener')">
+  <button onclick="openAdminPanel()">
     <div class="ic i8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><circle cx="9.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><path d="M8 13.5h8M8 16.5h5"/></svg></div>
     <div class="dk" data-i18n="nav_admin_panel">ផ្ទាំងគ្រប់គ្រង</div>
   </button>
@@ -817,6 +840,10 @@
 
   <!-- ======== MEMORIES ======== -->
   <section id="memory">
+    <div class="actionrow" id="memUploadBar">
+      <button class="pillbtn" onclick="memInput.click()"><span data-i18n="mem_add_btn">+ បន្ថែមរូបភាព</span></button>
+      <input id="memInput" type="file" accept="image/*,video/*" multiple style="display:none" onchange="addMemFiles(this.files)">
+    </div>
     <div id="galleryWrap"></div>
   </section>
 
@@ -1310,6 +1337,6 @@ document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,1
 renderOrg(); roleChange(); renderVerses();
 </script>
 <!-- Live data layer: Postgres + Realtime + Auth + Storage (same source as the live app) -->
-<script src="supabase-integration.js?v=11"></script>
+<script src="supabase-integration.js?v=12"></script>
 </body>
 </html>

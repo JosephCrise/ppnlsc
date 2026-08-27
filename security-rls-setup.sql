@@ -80,17 +80,32 @@ drop policy if exists "memories: authenticated can read" on public.memories;
 drop policy if exists "memories: authenticated can write" on public.memories;
 drop policy if exists "memories: any signed-in user can read" on public.memories;
 drop policy if exists "memories: admin can write" on public.memories;
+drop policy if exists "memories: any signed-in user can insert" on public.memories;
+drop policy if exists "memories: admin can update" on public.memories;
+drop policy if exists "memories: admin can delete" on public.memories;
 
 create policy "memories: any signed-in user can read"
   on public.memories for select
   to authenticated
   using (true);
 
-create policy "memories: admin can write"
-  on public.memories for all
+-- Any signed-in user can upload a new photo/video; only admin can edit
+-- captions or delete one (via admin.html).
+create policy "memories: any signed-in user can insert"
+  on public.memories for insert
+  to authenticated
+  with check (true);
+
+create policy "memories: admin can update"
+  on public.memories for update
   to authenticated
   using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
   with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "memories: admin can delete"
+  on public.memories for delete
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- permissions ----------
 -- Nothing is public here, on purpose: submitting a request requires a
@@ -142,18 +157,32 @@ drop policy if exists "memories bucket: authenticated can read" on storage.objec
 drop policy if exists "memories bucket: authenticated can write" on storage.objects;
 drop policy if exists "memories bucket: any signed-in user can read" on storage.objects;
 drop policy if exists "memories bucket: admin can write" on storage.objects;
+drop policy if exists "memories bucket: any signed-in user can upload" on storage.objects;
+drop policy if exists "memories bucket: admin can update" on storage.objects;
+drop policy if exists "memories bucket: admin can delete" on storage.objects;
 
--- Any signed-in user can view memories; only admin can upload/delete.
+-- Any signed-in user can view memories and upload new ones; only admin can
+-- edit or delete an existing file (via admin.html).
 create policy "memories bucket: any signed-in user can read"
   on storage.objects for select
   to authenticated
   using (bucket_id = 'memories');
 
-create policy "memories bucket: admin can write"
-  on storage.objects for all
+create policy "memories bucket: any signed-in user can upload"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'memories');
+
+create policy "memories bucket: admin can update"
+  on storage.objects for update
   to authenticated
   using (bucket_id = 'memories' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
   with check (bucket_id = 'memories' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+create policy "memories bucket: admin can delete"
+  on storage.objects for delete
+  to authenticated
+  using (bucket_id = 'memories' and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ============================================================
 -- GRANT / REVOKE the admin role for a specific account
