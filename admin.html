@@ -62,6 +62,7 @@ input,select,textarea{font-family:inherit}
 .topbar{padding:16px 26px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
 .topbar h1{font-size:18px;margin:0}
 .topbar .who{font-size:12.5px;color:var(--muted)}
+.topbar-signout{display:none;border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;font-size:16px;line-height:1;flex:none}
 .content{flex:1;overflow:auto;padding:24px}
 .panel{display:none}
 .panel.on{display:block}
@@ -85,6 +86,7 @@ input,select,textarea{font-family:inherit}
 .btn.sm{padding:5px 10px;font-size:12px}
 select.sel{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
 
+.tbl-wrap{overflow-x:auto;border-radius:12px}
 table.tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 table.tbl th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);padding:10px 12px;background:#f8f9fc;border-bottom:1px solid var(--line)}
 table.tbl td{padding:9px 12px;border-bottom:1px solid var(--line);font-size:13.5px;vertical-align:middle}
@@ -134,6 +136,42 @@ table.att th,table.att td{white-space:nowrap}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:8px;font-size:13.5px;z-index:70;display:none;max-width:80vw}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.15);border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- mobile phones only (tablets/iPad and desktop keep the sidebar layout above) ---------- */
+@media (max-width: 700px){
+  #app.show{flex-direction:column}
+  .sidebar{
+    width:100%;height:auto;flex:none;flex-direction:row;
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    padding-bottom:env(safe-area-inset-bottom,0);
+    border-top:1px solid rgba(255,255,255,.12);
+  }
+  .sidebar .brand{display:none}
+  .sidebar nav{flex:1;display:flex;flex-direction:row;padding:0}
+  .sidebar nav button{
+    flex:1;flex-direction:column;justify-content:center;align-items:center;
+    gap:2px;padding:8px 2px 9px;text-align:center;
+  }
+  .sidebar nav button .ic{font-size:19px;line-height:1}
+  .sidebar nav button .lbl{font-size:9.5px;line-height:1.15;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .sidebar .signout{display:none}
+
+  .main{height:auto;min-height:100vh}
+  .content{padding:14px 14px calc(76px + env(safe-area-inset-bottom,0))}
+  .topbar{padding:12px 14px}
+  .topbar h1{font-size:16px}
+  .topbar .who{display:none}
+  .topbar-signout{display:block}
+
+  .tbl-wrap table.tbl{min-width:420px}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .toolbar{gap:8px}
+  .toolbar h2{width:100%}
+  .permit-card{flex-direction:column}
+  .permit-card .pact{width:100%}
+  .permit-card .pact .btn{flex:1}
+  .modal{max-width:100%;margin:0 12px}
+}
 </style>
 </head>
 <body>
@@ -167,11 +205,11 @@ table.att th,table.att td{white-space:nowrap}
   <div class="sidebar">
     <div class="brand"><img src="picture1.png" alt=""> PPNLSC Admin</div>
     <nav>
-      <button class="navbtn on" data-panel="overview" onclick="showPanel('overview')">📊 Overview</button>
-      <button class="navbtn" data-panel="students" onclick="showPanel('students')">👥 Students</button>
-      <button class="navbtn" data-panel="attendance" onclick="showPanel('attendance')">📅 Attendance</button>
-      <button class="navbtn" data-panel="memories" onclick="showPanel('memories')">🖼 Memories</button>
-      <button class="navbtn" data-panel="permissions" onclick="showPanel('permissions')">📄 Permission Requests</button>
+      <button class="navbtn on" data-panel="overview" onclick="showPanel('overview')"><span class="ic">📊</span><span class="lbl">Overview</span></button>
+      <button class="navbtn" data-panel="students" onclick="showPanel('students')"><span class="ic">👥</span><span class="lbl">Students</span></button>
+      <button class="navbtn" data-panel="attendance" onclick="showPanel('attendance')"><span class="ic">📅</span><span class="lbl">Attendance</span></button>
+      <button class="navbtn" data-panel="memories" onclick="showPanel('memories')"><span class="ic">🖼</span><span class="lbl">Memories</span></button>
+      <button class="navbtn" data-panel="permissions" onclick="showPanel('permissions')"><span class="ic">📄</span><span class="lbl">Permission Requests</span></button>
     </nav>
     <div class="signout"><button onclick="signOut()">Sign Out</button></div>
   </div>
@@ -180,6 +218,7 @@ table.att th,table.att td{white-space:nowrap}
     <div class="topbar">
       <h1 id="panelTitle">Overview</h1>
       <div class="who" id="whoami"></div>
+      <button class="topbar-signout" onclick="signOut()" aria-label="Sign out">⎋</button>
     </div>
     <div class="content">
 
@@ -204,10 +243,12 @@ table.att th,table.att td{white-space:nowrap}
           <button class="btn primary" onclick="addStudent('M')">+ Add Male</button>
           <button class="btn primary" onclick="addStudent('F')">+ Add Female</button>
         </div>
+        <div class="tbl-wrap">
         <table class="tbl">
           <thead><tr><th style="width:44px">#</th><th>Name</th><th style="width:110px">Gender</th><th style="width:70px"></th></tr></thead>
           <tbody id="studentsBody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
         </table>
+        </div>
       </div>
 
       <!-- Attendance -->
@@ -308,7 +349,7 @@ function showPanel(name){
   document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("on"));
   document.getElementById("panel-"+name).classList.add("on");
   document.querySelector(`.navbtn[data-panel="${name}"]`).classList.add("on");
-  document.getElementById("panelTitle").textContent = document.querySelector(`.navbtn[data-panel="${name}"]`).textContent.replace(/^\S+\s/,"");
+  document.getElementById("panelTitle").textContent = document.querySelector(`.navbtn[data-panel="${name}"] .lbl`).textContent;
 }
 
 let booted = false;
