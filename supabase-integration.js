@@ -616,8 +616,8 @@ function renderStudents(){
   DATA.forEach((d, i) => {
     const initial = (d.name || "?").trim().charAt(0).toUpperCase() || "?";
     const nameEl = !isStaff
-      ? `<div class="sname" onclick="showLock()">${d.name}</div>`
-      : `<div class="sname" contenteditable onblur="saveStudentName(${i}, this.innerText)">${d.name}</div>`;
+      ? `<div class="sname" onclick="showLock()">${escHtml(d.name)}</div>`
+      : `<div class="sname" contenteditable onblur="saveStudentName(${i}, this.innerText)">${escHtml(d.name)}</div>`;
     const genderEl = `<div class="sgender ${d.gender}" onclick="${!isStaff ? "showLock()" : "toggleGender(" + i + ")"}" title="${t('tt_toggle_gender')}">${d.gender}</div>`;
     const delEl = isStaff ? `<button class="rowdel" onclick="deleteStudent(${i})" title="${t('tt_delete_student')}">🗑</button>` : "";
     b.innerHTML += `<div class="srow">
@@ -634,14 +634,14 @@ function renderStudents(){
 function renderAtt(){
   const b = window.attBody; if (!b) return; b.innerHTML = "";
   DATA.forEach((d, i) => {
-    let row = `<td>${i + 1}</td><td class="name">${d.name || '<i style=color:#bbb>—</i>'}</td><td class="gender ${d.gender}">${d.gender}</td>`;
+    let row = `<td>${i + 1}</td><td class="name">${d.name ? escHtml(d.name) : '<i style=color:#bbb>—</i>'}</td><td class="gender ${d.gender}">${d.gender}</td>`;
     d.att.forEach((w, j) => {
       const s = w.s || "";
       const label = s === "" ? "·" : s === "P" ? "✓" : s === "AP" ? "A✓" : "A";   // AP = absent WITH permission
       const showReason = s === "A" || s === "AP";   // only absences carry a reason — present/blank stay a single quiet badge
       const reasonHtml = !showReason ? "" : !isStaff
-        ? `<div class="reason" onclick="showLock()">${w.r}</div>`
-        : `<div class="reason" contenteditable onblur="saveReason(${i},${j}, this.innerText)">${w.r}</div>`;
+        ? `<div class="reason" onclick="showLock()">${escHtml(w.r)}</div>`
+        : `<div class="reason" contenteditable onblur="saveReason(${i},${j}, this.innerText)">${escHtml(w.r)}</div>`;
       row += `<td class="wkcell"><div class="badge ${s || "blank"} ${!isStaff ? "lock" : ""}" onclick="cycle(${i},${j})">${label}</div>${reasonHtml}</td>`;
     });
     const p = d.att.filter(w => w.s === "P").length;
