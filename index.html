@@ -594,6 +594,10 @@
     <div class="ic i8" id="staffDrawerIc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
     <div class="dk" data-i18n="nav_staff">អ្នកគ្រប់គ្រង</div>
   </button>
+  <button onclick="window.open('admin.html','_blank','noopener')">
+    <div class="ic i8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><circle cx="9.5" cy="6.5" r=".6" fill="currentColor" stroke="none"/><path d="M8 13.5h8M8 16.5h5"/></svg></div>
+    <div class="dk" data-i18n="nav_admin_panel">ផ្ទាំងគ្រប់គ្រង</div>
+  </button>
   <div class="dfoot">
     <img src="picture1.png" alt="logo" onerror="this.style.display='none'">
     <div class="fname" data-i18n="appName">មណ្ឌលនិស្សិតជីវិតថ្មីភ្នំពេញ</div>
@@ -1364,6 +1368,6 @@ document.getElementById('pWriteDate').value = new Date().toISOString().slice(0,1
 renderOrg(); roleChange(); renderVerses();
 </script>
 <!-- Live data layer: Postgres + Realtime + Auth + Storage (same source as the live app) -->
-<script src="supabase-integration.js?v=9"></script>
+<script src="supabase-integration.js?v=10"></script>
 </body>
 </html>

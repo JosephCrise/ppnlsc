@@ -36,7 +36,7 @@ const I18N = {
     nav_home: "Home", nav_students: "Student List", nav_students_tab: "Students",
     nav_attendance: "Attendance", nav_org: "Org Chart", nav_memories: "Memories",
     nav_memories_tab: "Photos", nav_permits: "Permission Requests", nav_feedback: "Feedback",
-    nav_staff: "Admin", nav_more: "More",
+    nav_staff: "Admin", nav_admin_panel: "Admin Panel", nav_more: "More",
     // fabs
     fab_request_permit: "Request permission", fab_add_student: "Add student",
     // gender
@@ -140,7 +140,7 @@ const I18N = {
     nav_home: "ទំព័រដើម", nav_students: "បញ្ជីសិស្ស", nav_students_tab: "សិស្ស",
     nav_attendance: "វត្តមាន", nav_org: "រចនាសម្ព័ន្ធ", nav_memories: "អនុស្សាវរីយ៍",
     nav_memories_tab: "រូបភាព", nav_permits: "ប្រកាសសុំច្បាប់", nav_feedback: "មតិយោបល់",
-    nav_staff: "អ្នកគ្រប់គ្រង", nav_more: "ផ្សេងៗ",
+    nav_staff: "អ្នកគ្រប់គ្រង", nav_admin_panel: "ផ្ទាំងគ្រប់គ្រង", nav_more: "ផ្សេងៗ",
     // fabs
     fab_request_permit: "ស្នើសុំច្បាប់", fab_add_student: "បន្ថែមសិស្ស",
     // gender
@@ -241,7 +241,7 @@ const I18N = {
     nav_home: "홈", nav_students: "학생 목록", nav_students_tab: "학생",
     nav_attendance: "출석", nav_org: "조직도", nav_memories: "추억",
     nav_memories_tab: "사진", nav_permits: "휴가 신청서", nav_feedback: "피드백",
-    nav_staff: "관리자", nav_more: "더보기",
+    nav_staff: "관리자", nav_admin_panel: "관리자 페이지", nav_more: "더보기",
     fab_request_permit: "휴가 신청", fab_add_student: "학생 추가",
     gender_male_label: "남성", gender_female_label: "여성",
     gender_male_btn: "👤 남성", gender_female_btn: "👤 여성",
@@ -327,7 +327,7 @@ const I18N = {
     nav_home: "首页", nav_students: "学生名单", nav_students_tab: "学生",
     nav_attendance: "考勤", nav_org: "组织架构", nav_memories: "回忆",
     nav_memories_tab: "照片", nav_permits: "请假申请", nav_feedback: "反馈",
-    nav_staff: "管理员", nav_more: "更多",
+    nav_staff: "管理员", nav_admin_panel: "管理面板", nav_more: "更多",
     fab_request_permit: "请假申请", fab_add_student: "添加学生",
     gender_male_label: "男", gender_female_label: "女",
     gender_male_btn: "👤 男", gender_female_btn: "👤 女",
